@@ -1,0 +1,14 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: itinerary-code
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  datasource:
+    url: jdbc:mysql://localhost:3306/health_code_itinerary_code?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
