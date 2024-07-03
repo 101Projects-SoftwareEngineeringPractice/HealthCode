@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.software.code.dao.UserInfoDao;
 import org.apache.ibatis.annotations.Mapper;
+import org.software.code.dto.UserInfoDto;
 
 @Mapper
 public interface UserMapper {
@@ -18,4 +19,11 @@ public interface UserMapper {
 
     @Delete("DELETE FROM health_code_user.user_info WHERE uid = #{uid}")
     void deleteUser(@Param("uid") Long uid);
+
+    @Select("SELECT * FROM health_code_user.user_info WHERE uid = #{uid} limit 1")
+    UserInfoDao getUserByUID(long uid);
+
+    @Select("SELECT * FROM health_code_user.user_info WHERE identity_card = #{identity_card} limit 1")
+    UserInfoDao getUserByID(String identity_card);
+
 }

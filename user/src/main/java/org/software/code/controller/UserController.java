@@ -1,6 +1,8 @@
 package org.software.code.controller;
 
 import org.software.code.common.result.Result;
+import org.software.code.dao.UserInfoDao;
+import org.software.code.dto.UserInfoDto;
 import org.software.code.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,4 +41,24 @@ public class UserController {
         userService.updateInfo(uid, district);
         return Result.success("成功修改");
     }
+
+    @GetMapping("/test/getInfo")
+    @ResponseBody
+    public UserInfoDto getInfo(@RequestParam(name = "uid", defaultValue = "1") Long uid) {
+        return userService.getInfo(uid);
+    }
+
+    @GetMapping("/getUserByUID")
+    @ResponseBody
+    public UserInfoDto getUserByUID(@RequestParam long uid) {
+        return userService.getUserByUID(uid);
+    }
+
+    @GetMapping("/getUserByID")
+    @ResponseBody
+    public UserInfoDto getUserByID(@RequestParam String identity_card) {
+        return userService.getUserByID(identity_card);
+    }
+
+
 }

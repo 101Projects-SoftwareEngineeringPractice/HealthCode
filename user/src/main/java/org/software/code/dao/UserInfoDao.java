@@ -1,5 +1,8 @@
 package org.software.code.dao;
 
+import org.software.code.dto.UserInfoDto;
+import org.software.code.mapper.UserMapper;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -132,5 +135,6 @@ public class UserInfoDao {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
 
 }

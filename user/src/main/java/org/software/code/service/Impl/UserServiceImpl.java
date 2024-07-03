@@ -11,9 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.BeanUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
 
     @Autowired
     private UserMapper userMapper;
@@ -32,21 +39,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "user_info", key = "#uid")
+    @Cacheable(value = "user_info", key = "#uid") //检测缓存
     public UserInfoDto getInfo(Long uid) {
-        UserInfoDao userInfoDao = userMapper.find(uid);
-        if (userInfoDao == null) {
-            return null;
+        return null;
+    }
+
+    @Override
+    @CacheEvict(value = "user_info", key = "#uid") //移除缓存
+    public void updateInfo(Long uid, int district) {
+        userMapper.updateUser(district, uid);
+    }
+
+    @Override
+    @Cacheable(value = "user_info", key = "#uid") //检测缓存
+    public UserInfoDto getUserByUID(long uid) {
+        UserInfoDao userInfo = userMapper.getUserByUID(uid);
+        logger.error("User found: {}", userInfo);
+        if (userInfo == null) {
+            UserInfoDto nullInfo = new UserInfoDto();
+            nullInfo.setUid(0L);
+            return nullInfo;
         }
         UserInfoDto userInfoDto = new UserInfoDto();
-        userInfoDto.setId(userInfoDao.getId());
-        userInfoDto.setName(userInfoDao.getName());
+        BeanUtils.copyProperties(userInfo, userInfoDto);
         return userInfoDto;
     }
 
     @Override
-    @CacheEvict(value = "user_info", key = "#uid")
-    public void updateInfo(Long uid, int district) {
-        userMapper.updateUser(district, uid);
+    @Cacheable(value = "user_info", key = "#identity_card")
+    public UserInfoDto getUserByID(String identity_card) {
+        UserInfoDao userInfo = userMapper.getUserByID(identity_card);
+        logger.error("User found: {}", userInfo);
+        if (userInfo == null) {
+            UserInfoDto nullInfo = new UserInfoDto();
+            nullInfo.setUid(0L);
+            return nullInfo;
+        }
+        UserInfoDto userInfoDto = new UserInfoDto();
+        BeanUtils.copyProperties(userInfo, userInfoDto);
+        return userInfoDto;
     }
 }
