@@ -11,12 +11,23 @@ spring:
         namespace: public
     gateway:
       routes:
-        - id: user
-          uri: lb://user
-          predicates:
-            - Path=/user/**
         - id: health-code
           uri: lb://health-code
           predicates:
             - Path=/health-code/**
-
+        - id: itinerary-code
+          uri: lb://itinerary-code
+          predicates:
+            - Path=/itinerary-code/**
+        - id: place-code
+          uri: lb://place-code
+          predicates:
+            - Path=/place-code/**
+        - id: nucleic-acids
+          uri: lb://nucleic-acids
+          predicates:
+            - Path=/nucleic-acids/**
+        - id: user
+          uri: lb://user
+          predicates:
+            - Path=/user/**
