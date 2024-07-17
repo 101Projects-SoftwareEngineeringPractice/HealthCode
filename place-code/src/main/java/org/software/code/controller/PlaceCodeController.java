@@ -41,7 +41,7 @@ public class PlaceCodeController {
                                @RequestParam(name = "community_id") int community_id,
                                @RequestParam(name = "address") String address) {
         System.out.println("token = " + token + ", identity_card = " + identity_card + ", name = " + name + ", district_id = " + district_id + ", street_id = " + street_id + ", community_id = " + community_id + ", address = " + address);
-        long mid=placeCodeService.extractMidValidateToken(token);
+        placeCodeService.extractMidValidateToken(token);
         placeCodeService.createPlaceCode(identity_card,name,district_id,street_id,community_id,address);
         return Result.success("成功");
     }
@@ -53,7 +53,7 @@ public class PlaceCodeController {
      */
     @GetMapping("/place-code/placeCode")
     public Result<?> getPlaceCodeList(@RequestHeader("Authorization") String token) {
-        long mid=placeCodeService.extractMidValidateToken(token);
+        placeCodeService.extractMidValidateToken(token);
         List<PlaceCodeInfoDto> placeInfoList =placeCodeService.getPlaceInfoList();
         return Result.success(placeInfoList);
     }
