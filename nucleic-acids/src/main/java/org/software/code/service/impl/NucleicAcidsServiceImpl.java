@@ -54,7 +54,7 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
                 // 发送消息队列派人处理（此处仅示例，实际需实现消息队列逻辑）
                 // sendMessageToQueue(input.getTubeid());
             } else if (input.getResult() == 0) { // 阴性
-//                nucleicAcidTestMapper.updateHealthCodeStatus(input.getTubeid(), "green");
+                //nucleicAcidTestMapper.updateHealthCodeStatus(input.getTubeid(), "green");
                 System.out.println("阴性无需处理");
             }
         }
@@ -128,15 +128,15 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         // 获取前天一天内单管阳性用户uid集合
         List<Long> uids = nucleicAcidTestMapper.findPositiveSingleTubeUids(twoDaysAgo);
 
-// 格式化日期为"yyyy-MM-dd HH:mm:ss"
+        // 格式化日期为"yyyy-MM-dd HH:mm:ss"
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String twoDaysAgoFormatted = dateFormat.format(twoDaysAgo);
 
-// 获取当天的开始时间和结束时间
+        // 获取当天的开始时间和结束时间
         Date now = new Date();
         String nowFormatted = dateFormat.format(now);
 
-// 调用placeCodeClient的getPlacesByUserList方法
+        // 调用placeCodeClient的getPlacesByUserList方法
         Result<?> result = placeCodeClient.getPlacesByUserList(uids, twoDaysAgoFormatted, nowFormatted);
 
 
@@ -167,14 +167,13 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     }
 
 
-    /****接口**/
 
     @Override
     public void addNucleicAcidTestRecordByToken(long tid, String qrToken, int kind, Long tubeid, String testAddress) {
         ObjectMapper objectMapper = new ObjectMapper();
         Long uid = objectMapper.convertValue(healthCodeClient.extractUIDValidateQRCodeToken(qrToken), Long.class);
-        UserInfoDto userInfoDto=objectMapper.convertValue(userClient.getUserByUID(uid), UserInfoDto.class);
-        if (userInfoDto==null) {
+        UserInfoDto userInfoDto = objectMapper.convertValue(userClient.getUserByUID(uid), UserInfoDto.class);
+        if (userInfoDto == null) {
             throw new RuntimeException("用户信息未找到");
         }
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
@@ -196,8 +195,8 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     @Override
     public void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress) {
         ObjectMapper objectMapper = new ObjectMapper();
-        UserInfoDto userInfoDto=objectMapper.convertValue(userClient.getUserByID(identityCard), UserInfoDto.class);
-        if (userInfoDto==null) {
+        UserInfoDto userInfoDto = objectMapper.convertValue(userClient.getUserByID(identityCard), UserInfoDto.class);
+        if (userInfoDto == null) {
             throw new RuntimeException("用户信息未找到");
         }
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
@@ -216,12 +215,21 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
     }
 
-    /*****工具****/
     @Override
     public long extractUidValidateToken(String token) {
         Result<?> result = userClient.extractUidValidateToken(token);
         return (Long) result.getData();
     }
 
+    @Override
+    public long extractTidValidateToken(String token) {
+        Result<?> result = userClient.extractTidValidateToken(token);
+        return (Long) result.getData();
+    }
+    @Override
+    public long extractMidValidateToken(String token) {
+        Result<?> result = userClient.extractMidValidateToken(token);
+        return (Long) result.getData();
+    }
 
 }

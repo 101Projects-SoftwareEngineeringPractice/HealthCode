@@ -65,7 +65,6 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
     }
 
 
-    /**** 接口***/
     @Override
     public GetItineraryDto getItinerary(long uid) {
         List<ItineraryCodeDao> itineraryCodeDaoList = itineraryCodeMapper.getItineraryCodeListByUID(uid);
@@ -92,7 +91,6 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
         return getItineraryDto;
     }
 
-    /*****工具****/
     @Override
     public long extractUidValidateToken(String token) {
         Result<?> result = userClient.extractUidValidateToken(token);

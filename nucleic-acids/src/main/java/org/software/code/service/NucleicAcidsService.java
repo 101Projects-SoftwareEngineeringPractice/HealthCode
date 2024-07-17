@@ -25,9 +25,13 @@ public interface NucleicAcidsService {
 
     public int autoModify();
 
-    long extractUidValidateToken(String token);
-
     void addNucleicAcidTestRecordByToken(long tid, String qrToken, int kind, Long tubeid, String testAddress);
 
     void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress);
+
+    long extractUidValidateToken(String token);
+
+    long extractTidValidateToken(String token);
+
+    long extractMidValidateToken(String token);
 }

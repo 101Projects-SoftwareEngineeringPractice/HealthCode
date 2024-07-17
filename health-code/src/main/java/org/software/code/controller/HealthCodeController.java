@@ -36,7 +36,7 @@ public class HealthCodeController {
                                @RequestParam(name = "address") String address) {
         long uid = healthCodeService.extractUidValidateToken(token);
         healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -63,7 +63,7 @@ public class HealthCodeController {
     public Result<?> getHealthCodeInfo(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "identity_card") String identity_card) {
 
-        long mid = healthCodeService.extractUidValidateToken(token); //TODO 未检验mid是否是MID，还是UID
+        healthCodeService.extractMidValidateToken(token); //TODO 未检验mid是否是MID，还是UID
         HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identity_card);
         return Result.success(healthCodeInfoDto);
     }
@@ -81,29 +81,11 @@ public class HealthCodeController {
                                        @RequestParam(name = "uid") long uid,
                                        @RequestParam(name = "event") int event) {
 
-        long mid = healthCodeService.extractUidValidateToken(token);//TODO 未检验mid是否是MID，还是UID
+        healthCodeService.extractMidValidateToken(token);//TODO 未检验mid是否是MID，还是UID
 
         healthCodeService.transcodingHealthCodeEvents(uid, event);
 
-        return Result.success("");
+        return Result.success("成功");
     }
 
-    /************** 测试 ******************/
-//    @GetMapping("/health-code/{code}")
-//    public String getHealthCodeInfo(@PathVariable String code) {
-//        return healthCodeService.getHealthCodeInfo(code);
-//    }
-    @GetMapping("/health-code/hello")
-    @ResponseBody
-    public String hello(@RequestParam(name = "name", defaultValue = "unknown user") String name) {
-        return "Hello " + name;
-    }
-
-    @GetMapping("/health-code/hhh")
-    @ResponseBody
-    public String hhh(@RequestParam(name = "hhh") String hhh) {
-        System.out.println("hhh-hc5:" + hhh);
-        System.out.println("hhh-hc6:" + hhh);
-        return "hhh-hc:" + hhh;
-    }
 }

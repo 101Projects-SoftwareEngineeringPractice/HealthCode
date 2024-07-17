@@ -6,12 +6,6 @@ import org.software.code.dao.UserInfoDao;
 @Mapper
 public interface UserInfoMapper {
 
-//    @Select("Select * from health_code_user.user_info where uid = #{uid} limit 1")
-//    UserInfoDao find(@Param("uid") long uid);
-
-//    @Update("UPDATE health_code_user.user_info SET district = #{district} WHERE uid = #{uid}")
-//    void updateUser(@Param("district") int district, @Param("uid") long uid);
-
     @Update("   UPDATE health_code_user.user_info\n" +
             "        SET\n" +
             "            name = #{name},\n" +

@@ -18,7 +18,7 @@ public class PlaceCodeController {
                               @RequestParam(name = "token") String token) {
         long uid=placeCodeService.extractUidValidateToken(id_token);
         placeCodeService.scanPlaceCode(uid,token);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -41,9 +41,9 @@ public class PlaceCodeController {
                                @RequestParam(name = "community_id") int community_id,
                                @RequestParam(name = "address") String address) {
         System.out.println("token = " + token + ", identity_card = " + identity_card + ", name = " + name + ", district_id = " + district_id + ", street_id = " + street_id + ", community_id = " + community_id + ", address = " + address);
-        long mid=placeCodeService.extractUidValidateToken(token);
+        long mid=placeCodeService.extractMidValidateToken(token);
         placeCodeService.createPlaceCode(identity_card,name,district_id,street_id,community_id,address);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -53,16 +53,16 @@ public class PlaceCodeController {
      */
     @GetMapping("/place-code/placeCode")
     public Result<?> getPlaceCodeList(@RequestHeader("Authorization") String token) {
-        long mid=placeCodeService.extractUidValidateToken(token);
+        long mid=placeCodeService.extractMidValidateToken(token);
         List<PlaceCodeInfoDto> placeInfoList =placeCodeService.getPlaceInfoList();
         return Result.success(placeInfoList);
     }
     @PatchMapping("/place-code/place_code_opposite")
     public Result<?> placeCodeOpposite(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "pid") Long pid) {
-        long mid=placeCodeService.extractUidValidateToken(token);
+        long mid=placeCodeService.extractMidValidateToken(token);
         placeCodeService.placeCodeOpposite(pid);
-        return Result.success("");
+        return Result.success("成功");
     }
 
 }

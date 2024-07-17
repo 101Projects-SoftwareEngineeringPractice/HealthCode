@@ -48,7 +48,7 @@ public class PlaceCodeInternalController {
     @PostMapping("/scanPlaceCode")
     public  Result<?> scanPlaceCode(@RequestParam("uid") long uid, @RequestParam("token") String token) {
         placeCodeService.scanPlaceCode(uid, token);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     @PostMapping("/oppositePlaceCode")

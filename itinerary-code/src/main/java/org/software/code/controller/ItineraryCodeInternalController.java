@@ -37,6 +37,6 @@ public class ItineraryCodeInternalController {
     @GetMapping("/cleanItinerary")
     public Result<?> cleanItinerary() {
         itineraryCodeService.cleanItinerary();
-        return Result.success("");// 技术文档未说明出参
+        return Result.success("成功");
     }
 }

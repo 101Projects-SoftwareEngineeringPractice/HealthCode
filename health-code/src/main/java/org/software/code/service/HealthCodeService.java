@@ -22,9 +22,7 @@ public interface HealthCodeService {
 
     HealthCodeInfoDto getHealthCodeInfo(String identityCard);
 
-    Boolean validateToken(String token);
-
-    long extractUID(String token);
+    long extractMidValidateToken(String token);
 
     long extractUIDValidateQRCodeToken(String qrcode_token);
 }

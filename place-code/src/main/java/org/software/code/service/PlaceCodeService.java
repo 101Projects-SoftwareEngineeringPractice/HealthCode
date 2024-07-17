@@ -22,15 +22,14 @@ public interface PlaceCodeService {
 
     public List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime);
 
-    long extractUidValidateToken(String token);
-
-    Boolean validateToken(String token);
-
-    long extractPid(String token);
 
     void createPlaceCode(String identityCard, String name, int districtId, int streetId, int communityId, String address);
 
     List<PlaceCodeInfoDto> getPlaceInfoList();
 
     void placeCodeOpposite(Long pid);
+
+    long extractUidValidateToken(String token);
+
+    long extractMidValidateToken(String token);
 }

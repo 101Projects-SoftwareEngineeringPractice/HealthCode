@@ -1,10 +1,12 @@
 package org.software.code.service.Impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Funnels;
 import org.software.code.client.HealthCodeClient;
+import org.software.code.common.JWTUtil;
 import org.software.code.common.RedisUtil;
 import org.software.code.dao.HealthCodeManagerDao;
 import org.software.code.dao.NucleicAcidTestPersonnelDao;
@@ -20,19 +22,14 @@ import org.software.code.mapper.NucleicAcidTestPersonnelMapper;
 import org.software.code.mapper.UserInfoMapper;
 import org.software.code.mapper.UidMappingMapper;
 import org.software.code.service.UserService;
-import org.software.code.utils.SnowflakeIdGenerator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestTemplate;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +59,9 @@ public class UserServiceImpl implements UserService {
 
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private BloomFilter<CharSequence> bloomFilter;
-    private SnowflakeIdGenerator idGenerator;
+    private JWTUtil uidJwtUtil = new JWTUtil("uid_token_secret_key", 3600000);
+    private JWTUtil tidJwtUtil = new JWTUtil("tid_token_secret_key", 3600000);
+    private JWTUtil midJwtUtil = new JWTUtil("mid_token_secret_key", 3600000);
     // 假设JWT Token的签名密钥
     String secretKey = "token_secret_key";
 
@@ -74,9 +73,6 @@ public class UserServiceImpl implements UserService {
                 Funnels.stringFunnel(StandardCharsets.UTF_8),
                 1000000,
                 0.01);
-
-        // 初始化雪花算法生成器，传入 workerId
-        idGenerator = new SnowflakeIdGenerator(1);
     }
 
     @Override
@@ -111,7 +107,7 @@ public class UserServiceImpl implements UserService {
         // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
         long uid;
         if (!exists) {
-            uid = generateUTMID(); // 假设生成UID的方法
+            uid = IdUtil.getSnowflake().nextId();
             // 将新的OpenID添加到布隆过滤器中
             bloomFilter.put(openID);
             UidMappingDao uidMappingDao = new UidMappingDao();
@@ -123,8 +119,7 @@ public class UserServiceImpl implements UserService {
             uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
         }
 
-        // 假设生成JWT Token的方法为 generateJWTToken(uid)
-        String token = generateJWTToken(uid);
+        String token = uidJwtUtil.generateJWToken(uid);
         return token;
     }
 
@@ -141,7 +136,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
             throw new RuntimeException("nucleicAcidTestPersonnel Login Failed: " + identityCard);
         }
-        String token = generateJWTToken(userDao.getTid());
+        String token = tidJwtUtil.generateJWToken(userDao.getTid());
         return token;
     }
 
@@ -183,7 +178,7 @@ public class UserServiceImpl implements UserService {
         newUserDao.setPassword_hash(password_hash);
         newUserDao.setName(name);
         newUserDao.setStatus(true);
-        long tid = generateUTMID();
+        long tid = IdUtil.getSnowflake().nextId();
         newUserDao.setTid(tid);
         nucleicAcidTestPersonnelMapper.addNucleicAcidTestPersonnel(newUserDao); // 保存用户到数据库
     }
@@ -202,7 +197,7 @@ public class UserServiceImpl implements UserService {
         newUserDao.setPassword_hash(password_hash);
         newUserDao.setName(name);
         newUserDao.setStatus(true);
-        long mid = generateUTMID();
+        long mid = IdUtil.getSnowflake().nextId();
         newUserDao.setMid(mid);
         healthCodeMangerMapper.addHealthCodeManager(newUserDao); // 保存用户到数据库
     }
@@ -219,7 +214,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
             throw new RuntimeException("healthCodeMangerMapper Login Failed: " + identityCard);
         }
-        String token = generateJWTToken(userDao.getMid());
+        String token = midJwtUtil.generateJWToken(userDao.getMid());
         return token;
     }
 
@@ -262,13 +257,19 @@ public class UserServiceImpl implements UserService {
         healthCodeMangerMapper.updateStatusByMID(status, mid);
     }
 
-    /****内部接口补充***/
     @Override
     public long extractUidValidateToken(String token) {
-        if (!validateToken(token)) {
-            throw new RuntimeException("Token invalid");
-        }
-        return extractUid(token);
+        return uidJwtUtil.extractID(token);
+    }
+
+    @Override
+    public long extractTidValidateToken(String token) {
+        return tidJwtUtil.extractID(token);
+    }
+
+    @Override
+    public long extractMidValidateToken(String token) {
+        return midJwtUtil.extractID(token);
     }
 
     @Override
@@ -291,7 +292,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /****接口****/
     @Override
     public void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, int communityId, String address) {
         // 查询数据库中是否存在该用户信息
@@ -325,7 +325,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    /****工具函数****/
     private String getOpenIDFromWX(String code) {
         // 假设微信接口的URL和参数
         String wxApiUrl = "https://api.weixin.qq.com/sns/jscode2session";
@@ -347,87 +346,12 @@ public class UserServiceImpl implements UserService {
             // 解析 JSON 数据，获取 openid
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response);
-//            openid = jsonNode.get("openid").asText(); # TODO 获取真实openid
-            openid = "openid" + code;
+            // openid = jsonNode.get("openid").asText();
+            openid = "openid-" + code;
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             // 处理异常，例如记录日志或返回默认值
         }
         return openid;
-    }
-
-
-    private long generateUTMID() {
-        return idGenerator.nextId();
-    }
-
-    private String generateJWTToken(long uid) {
-
-
-        // 设置 JWT Token 的过期时间，例如设置为 1 小时
-        long expirationTime = 3600_000; // 1 hour
-
-        // 生成 JWT Token
-        String token = Jwts.builder()
-                .setSubject(Long.toString(uid))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-
-        return token;
-    }
-
-    private Boolean validateToken(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private long extractUid(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return Long.parseLong(claims.getSubject());
-    }
-
-    /******* 测试 ********/
-    @Override
-    public String testOthers() {
-        System.out.println("tt");
-        redisUtil.setValue("test", "test");
-        System.out.println(redisUtil.getValue("test"));
-        kafkaProducer.sendMessage("test", "nnd");
-        System.out.println("557");
-        return healthCodeClient.getHealthCodeInfo("tnnd");
-    }
-
-//    @Override
-//    @Cacheable(value = "user_info", key = "#uid")
-//    public UserInfoDto getInfo(Long uid) {
-//        System.out.println("55");
-//        System.out.println(uid);
-//        System.out.println("55");
-//
-//        UserInfoDao userInfoDao = userInfoMapper.find(uid);
-//        if (userInfoDao == null) {
-//            return null;
-//        }
-//        UserInfoDto userInfoDto = new UserInfoDto();
-//        userInfoDto.setUid(userInfoDao.getUid());
-//        userInfoDto.setName(userInfoDao.getName());
-//        return userInfoDto;
-//    }
-
-//    @Override
-//    @CacheEvict(value = "user_info", key = "#uid")
-//    public void updateInfo(Long uid, int district) {
-//        userMapper.updateUser(district, uid);
-//    }
-
-    @Override
-    public void testhhh(String hhh) {
-        healthCodeClient.hhh("th");
     }
 }

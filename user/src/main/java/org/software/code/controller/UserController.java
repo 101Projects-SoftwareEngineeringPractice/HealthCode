@@ -32,7 +32,7 @@ public class UserController {
                                 @RequestParam(name = "address") String address) {
         long uid = userService.extractUidValidateToken(token);
         userService.userModify(uid, name, phone_number, district_id, street_id, community_id, address);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     @PostMapping("/user/nucleicAcidsLogin")
@@ -54,14 +54,14 @@ public class UserController {
                                        @RequestParam(name = "identity_card") String identity_card,
                                        @RequestParam(name = "name") String name,
                                        @RequestParam(name = "password") String password) {
-        long id = userService.extractUidValidateToken(token);
+        userService.extractMidValidateToken(token);
         userService.newNucleicAcidTestUser(identity_card, name, password);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     @GetMapping("/user/nucleic_acid")
     public Result<?> getNucleicAcidList(@RequestHeader("Authorization") String token) {
-        long id = userService.extractUidValidateToken(token);
+        userService.extractMidValidateToken(token);
         List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
         return Result.success(nucleicAcidUserInfoList);
     }
@@ -69,9 +69,9 @@ public class UserController {
     @PatchMapping("/user/nucleic_acid_opposite")
     public Result<?> nucleicAcidOpposite(@RequestHeader("Authorization") String token,
                                          @RequestParam(name = "tid") long tid) {
-        long id = userService.extractUidValidateToken(token);
+         userService.extractMidValidateToken(token);
         userService.nucleicAcidOpposite(tid);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     @PostMapping("/user/manage")
@@ -79,14 +79,14 @@ public class UserController {
                                   @RequestParam(name = "identity_card") String identity_card,
                                   @RequestParam(name = "name") String name,
                                   @RequestParam(name = "password") String password) {
-        long id = userService.extractUidValidateToken(token);
+        userService.extractMidValidateToken(token);
         userService.newMangerUser(identity_card, name, password);
         return Result.success(token);
     }
 
     @GetMapping("/user/manager")
     public Result<?> getManageList(@RequestHeader("Authorization") String token) {
-        long id = userService.extractUidValidateToken(token);
+        userService.extractMidValidateToken(token);
         List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
         return Result.success(manageUserInfoList);
     }
@@ -94,41 +94,8 @@ public class UserController {
     @PatchMapping("/user/manage_opposite")
     public Result<?> manageOpposite(@RequestHeader("Authorization") String token,
                                     @RequestParam(name = "mid") long mid) {
-        long id = userService.extractUidValidateToken(token);
+        userService.extractMidValidateToken(token);
         userService.manageOpposite(mid);
-        return Result.success("");
-    }
-
-
-    /*********** 测试 *************/
-    @GetMapping("/user/test/others")
-    public String testOthers() {
-        return userService.testOthers();
-    }
-
-    @GetMapping("/user/test/hello")
-    @ResponseBody
-    public Result<?> hello(@RequestParam(name = "name", defaultValue = "unknown user") String name) {
-        return Result.success("Hello " + name);
-    }
-
-//    @GetMapping("/user/test/get")
-//    @ResponseBody
-//    public Result<?> testGet() {
-//        return Result.success(userService.getInfo(3L).getName());
-//    }
-
-//    @PutMapping("/user/test/put")
-//    @ResponseBody
-//    public Result<?> testPut(@RequestParam(name = "uid") long uid, @RequestParam(name = "district") int district) {
-//        userService.updateInfo(uid, district);
-//        return Result.success("成功修改");
-//    }
-
-    @GetMapping("/usertesthhh")
-    @ResponseBody
-    public Result<?> hhh(@RequestParam(name = "hhh") String hhh) {
-        userService.testhhh(hhh);
-        return Result.success("");
+        return Result.success("成功");
     }
 }

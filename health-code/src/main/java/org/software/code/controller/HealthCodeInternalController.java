@@ -16,7 +16,7 @@ public class HealthCodeInternalController {
     @PostMapping("/applyHealthCode")
     public Result<?> applyHealthCode(@RequestParam(name = "uid") long uid) {
         healthCodeService.applyHealthCode(uid);
-        return Result.success("");// 技术文档未说明出参
+        return Result.success("");
     }
 
     @GetMapping("/getHealthCode")
@@ -29,10 +29,9 @@ public class HealthCodeInternalController {
     public Result<?> transcodingHealthCodeEvents(@RequestParam(name = "uid") long uid,
                                                  @RequestParam(name = "event") int event) {
         healthCodeService.transcodingHealthCodeEvents(uid, event);
-        return Result.success("");// 技术文档未说明出参
+        return Result.success("");
     }
 
-    /****补充**/
 
     @PostMapping("/extractUIDValidateQRCodeToken")
     public Result<?> extractUIDValidateQRCodeToken(@RequestParam(name = "qrcode_token") String qrcode_token) {

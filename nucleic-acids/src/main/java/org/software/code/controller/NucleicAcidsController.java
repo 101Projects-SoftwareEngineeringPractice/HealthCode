@@ -64,9 +64,9 @@ public class NucleicAcidsController {
                                                      @RequestParam(name = "kind") int kind,
                                                      @RequestParam(name = "tubeid") Long tubeid,
                                                      @RequestParam(name = "test_address") String test_address) {
-        long tid=nucleicAcidsService.extractUidValidateToken(tid_token);
+        long tid=nucleicAcidsService.extractTidValidateToken(tid_token);
         nucleicAcidsService.addNucleicAcidTestRecordByToken(tid,qr_token,kind,tubeid,test_address);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -84,9 +84,9 @@ public class NucleicAcidsController {
                                                   @RequestParam(name = "kind") int kind,
                                                   @RequestParam(name = "tubeid") Long tubeid,
                                                   @RequestParam(name = "test_address") String test_address) {
-        long tid=nucleicAcidsService.extractUidValidateToken(token);
+        long tid=nucleicAcidsService.extractTidValidateToken(token);
         nucleicAcidsService.addNucleicAcidTestRecordByID(tid,identity_card,kind,tubeid,test_address);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -98,9 +98,9 @@ public class NucleicAcidsController {
     @PutMapping("/nucleic-acids/enterNucleicAcidTestRecord")
     public Result<?> enterNucleicAcidTestRecord(@RequestHeader("Authorization") String token,
                                                 @RequestBody List<NucleicAcidTestRecordInput> inputs) {
-        long tid=nucleicAcidsService.extractUidValidateToken(token);
+        nucleicAcidsService.extractTidValidateToken(token);
         nucleicAcidsService.enterNucleicAcidTestRecordList(inputs);
-        return Result.success("");
+        return Result.success("成功");
     }
 
     /**
@@ -114,7 +114,7 @@ public class NucleicAcidsController {
     public Result<?> getNucleicAcidTestInfo(@RequestHeader("Authorization") String token,
                                             @RequestParam(name = "start_time") String start_time,
                                             @RequestParam(name = "end_time") String end_time) {
-        long mid=nucleicAcidsService.extractUidValidateToken(token);
+        nucleicAcidsService.extractMidValidateToken(token);
         try {
             return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(dateFormat.parse(start_time), dateFormat.parse(end_time)));
         } catch (ParseException e) {
@@ -134,7 +134,7 @@ public class NucleicAcidsController {
     public Result<?> getPositiveInfo(@RequestHeader("Authorization") String token,
                                      @RequestParam(name = "start_time") String start_time,
                                      @RequestParam(name = "end_time") String end_time) {
-        long mid=nucleicAcidsService.extractUidValidateToken(token);
+        nucleicAcidsService.extractMidValidateToken(token);
         try {
             return Result.success(nucleicAcidsService.getPositiveInfoByTime(dateFormat.parse(start_time), dateFormat.parse(end_time)));
         } catch (ParseException e) {

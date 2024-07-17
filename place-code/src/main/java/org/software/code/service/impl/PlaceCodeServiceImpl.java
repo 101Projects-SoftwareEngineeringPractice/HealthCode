@@ -2,10 +2,8 @@ package org.software.code.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.software.code.client.UserClient;
+import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dao.PlaceInfoDao;
 import org.software.code.dao.PlaceMappingDao;
@@ -39,8 +37,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private final String secretKey = "pid_token_secret_key";
-
+    private JWTUtil pidJwtUtil = new JWTUtil("pid_token_secret_key", 3600000);
 
     public Long addPlace(AddPlaceInput placeDto) {
         // 调用 user 微服务获取 identity_card
@@ -89,13 +86,12 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
 
     public void oppositePlaceCode(long pid, boolean status) {
-        placeInfoMapper.updatePlaceStatusByPid( status,pid);
+        placeInfoMapper.updatePlaceStatusByPid(status, pid);
     }
 
 
     public void scanPlaceCode(long uid, String token) {
-        // 根据 token 获取 pid，假设 token 就是 pid 的字符串表示
-        long pid = extractPid(token);
+        long pid = pidJwtUtil.extractID(token);
 
         // 创建并插入 PlaceMappingDao
         PlaceMappingDao placeMappingDao = new PlaceMappingDao();
@@ -110,8 +106,6 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         return placeMappingMapper.findPidsByUidListAndTimeRange(uidList, startTime, endTime);
     }
 
-
-    /***接口***/
 
     @Override
     public void createPlaceCode(String identityCard, String name, int districtId, int streetId, int communityId, String address) {
@@ -150,51 +144,21 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     @Override
     public void placeCodeOpposite(Long pid) {
-        PlaceInfoDao placeInfoDao  = placeInfoMapper.getPlaceInfoByPID(pid);
+        PlaceInfoDao placeInfoDao = placeInfoMapper.getPlaceInfoByPID(pid);
         Boolean status = placeInfoDao.getStatus();
         placeInfoMapper.updatePlaceStatusByPid(!status, pid);
     }
 
-
-
-    /*****工具****/
     @Override
     public long extractUidValidateToken(String token) {
         Result<?> result = userClient.extractUidValidateToken(token);
         return (Long) result.getData();
     }
 
-    private String generateJWTToken(long pid) {
-
-
-        // 设置 JWT Token 的过期时间，例如设置为 1 小时
-        long expirationTime = 3600_000; // 1 hour
-
-        // 生成 JWT Token
-        String token = Jwts.builder()
-                .setSubject(Long.toString(pid))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-
-        return token;
-    }
-
     @Override
-    public Boolean validateToken(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @Override
-    public long extractPid(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return Long.parseLong(claims.getSubject());
+    public long extractMidValidateToken(String token) {
+        Result<?> result = userClient.extractUidValidateToken(token);
+        return (Long) result.getData();
     }
 
 }

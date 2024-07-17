@@ -8,9 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface HealthCodeMangerMapper {
-    //    @Update("UPDATE health_code_user.user_info SET district = #{district} WHERE uid = #{uid}")
-//    void updateUser(@Param("district") int district, @Param("uid") long uid);
-//
+
     @Select("SELECT * FROM health_code_user.health_code_manager")
     List<HealthCodeManagerDao> getHealthCodeManagerList();
 

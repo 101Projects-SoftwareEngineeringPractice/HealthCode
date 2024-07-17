@@ -43,14 +43,9 @@ public interface UserService {
 
     void manageOpposite(long mid);
 
+    long extractTidValidateToken(String token);
+
+    long extractMidValidateToken(String token);
+
     void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, int community, String address);
-
-    /***测试***/
-    String testOthers();
-
-//    UserInfoDto getInfo(Long uid);
-
-    //    void updateInfo(Long uid, int district);
-//
-    void testhhh(String hhh);
 }

@@ -12,6 +12,13 @@ public interface UserClient {
     @PostMapping("/user/extractUidValidateToken")
     Result<?> extractUidValidateToken(@RequestHeader("Authorization") String token);
 
+    @PostMapping("/user/extractTidValidateToken")
+    Result<?> extractTidValidateToken(@RequestHeader("Authorization") String token);
+
+    @PostMapping("/user/extractMidValidateToken")
+    Result<?> extractMidValidateToken(@RequestHeader("Authorization") String token);
+
+
     @GetMapping("/user/getUserByUID")
     Result<?> getUserByUID(@RequestParam(name = "uid") long uid);
 

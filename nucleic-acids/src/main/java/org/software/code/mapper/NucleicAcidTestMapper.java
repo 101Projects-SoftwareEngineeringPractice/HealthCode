@@ -24,16 +24,13 @@ public interface NucleicAcidTestMapper {
     void updateRetestStatus(@Param("tubeid") Long tubeid,
                             @Param("re_test") Boolean re_test);
 
-//    @Update("UPDATE user_info SET health_code_status = #{status} WHERE uid IN (SELECT uid FROM health_code_nucleic_acids.nucleic_acid_test WHERE tubeid = #{tubeid})")
-//    void updateHealthCodeStatus(@Param("tubeid") Long tubeid,
-//                                @Param("status") String status);
 
     @Select("SELECT created_at, result, testing_organization FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} ORDER BY created_at DESC LIMIT 1")
     NucleicAcidTestRecordDao findLastTestRecordByUid(Long uid);
 
     @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} AND created_at >= #{fourteenDaysAgo}")
-    List<NucleicAcidTestRecordDao> findTestRecordsByUidWithinDays(@Param("uid")Long uid,
-                                                                  @Param("fourteenDaysAgo")Date fourteenDaysAgo);
+    List<NucleicAcidTestRecordDao> findTestRecordsByUidWithinDays(@Param("uid") Long uid,
+                                                                  @Param("fourteenDaysAgo") Date fourteenDaysAgo);
 
     @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE created_at BETWEEN #{startTime} AND #{endTime}")
     long countRecordsWithinTimeRange(@Param("startTime") Date startTime, @Param("endTime") Date endTime);

@@ -1,10 +1,8 @@
 package org.software.code.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.software.code.client.UserClient;
+import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dao.HealthCodeDao;
 import org.software.code.dto.GetCodeDto;
@@ -16,16 +14,13 @@ import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 public class HealthCodeServiceImpl implements HealthCodeService {
     @Autowired
     private UserClient userClient;
     @Autowired
     private HealthCodeMapper healthCodeMapper;
-
-    String secretKey = "qrtoken_secret_key";
+    private JWTUtil qrCodeJwtUtil=new JWTUtil("qr_code_token_secret_key",3600000);
 
     @Override
     public void applyHealthCode(long uid) {
@@ -43,7 +38,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         }
         HealthQRCodeDto healthQRCodeDto = new HealthQRCodeDto();
         healthQRCodeDto.setStatus(healthCodeDao.getColor());
-        healthQRCodeDto.setQrcode_token(generateJWTQRCodeToken(uid));
+        healthQRCodeDto.setQrcode_token(qrCodeJwtUtil.generateJWToken(uid));
         return healthQRCodeDto;
     }
 
@@ -59,7 +54,6 @@ public class HealthCodeServiceImpl implements HealthCodeService {
 
     }
 
-    /****接口***/
     @Override
     public void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, int communityId, String address) {
         userClient.addUserInfo(uid, name, phoneNumber, identityCard, districtId, streetId, communityId, address);
@@ -79,7 +73,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         GetCodeDto getCodeDto = new GetCodeDto();
-        getCodeDto.setToken(generateJWTQRCodeToken(uid));
+        getCodeDto.setToken(qrCodeJwtUtil.generateJWToken(uid));
         getCodeDto.setStatus(healthCodeDao.getColor());
         getCodeDto.setName(userInfoDto.getName());
         return getCodeDto;
@@ -104,54 +98,24 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     }
 
 
-    /*****工具****/
+
     @Override
     public long extractUidValidateToken(String token) {
         Result<?> result = userClient.extractUidValidateToken(token);
         return (Long) result.getData();
     }
-
-    private String generateJWTQRCodeToken(long uid) {
-        // 设置 JWT Token 的过期时间，例如设置为 1 分钟
-        long expirationTime = 60000; // 1 minter
-
-        // 生成 JWT Token
-        String qrcode_token = Jwts.builder()
-                .setSubject(Long.toString(uid))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-
-        return qrcode_token;
-    }
     @Override
-    public Boolean validateToken(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public long extractMidValidateToken(String token) {
+        Result<?> result = userClient.extractMidValidateToken(token);
+        return (Long) result.getData();
     }
 
-    @Override
-    public long extractUID(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return Long.parseLong(claims.getSubject());
-    }
     @Override
     public long extractUIDValidateQRCodeToken(String qrcode_token) {
-        if (!validateToken(qrcode_token)) {
-            throw new RuntimeException("Token invalid");
-        }
-        return extractUID(qrcode_token);
+        return qrCodeJwtUtil.extractID(qrcode_token);
     }
+//
 
-    /*****测试**/
-//    public String getHealthCodeInfo(String code) {
-//        return "Health code info for " + code;
-//    }
 
 
 }
