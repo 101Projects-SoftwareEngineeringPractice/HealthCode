@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class JWTUtil {
     private String secretKey="secret_key";
-
+    
 
     public String generateJWToken(long id,long expirationTime) {
 

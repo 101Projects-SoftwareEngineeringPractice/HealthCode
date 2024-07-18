@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dto.GetCodeDto;
 import org.software.code.dto.HealthCodeInfoDto;
@@ -8,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/health-code")
 public class HealthCodeController {
     @Autowired
     private HealthCodeService healthCodeService;
-
+    private JWTUtil jwtUtil=new JWTUtil();
     /**
      * 用户在申请健康码页面（个人信息填写页面）申请健康码。
      *
@@ -25,7 +27,7 @@ public class HealthCodeController {
      * @param address
      * @return
      */
-    @PostMapping("/health-code/applyCode")
+    @PostMapping("/applyCode")
     public Result<?> applyCode(@RequestHeader("Authorization") String token,
                                @RequestParam(name = "name") String name,
                                @RequestParam(name = "phone_number") String phone_number,
@@ -34,9 +36,9 @@ public class HealthCodeController {
                                @RequestParam(name = "street_id") int street_id,
                                @RequestParam(name = "community_id") int community_id,
                                @RequestParam(name = "address") String address) {
-        long uid = healthCodeService.extractUidValidateToken(token);
+        long uid = jwtUtil.extractID(token);
         healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
-        return Result.success("成功");
+        return Result.success();
     }
 
     /**
@@ -45,9 +47,9 @@ public class HealthCodeController {
      * @param token
      * @return
      */
-    @GetMapping("/health-code/getCode")
+    @GetMapping("/getCode")
     public Result<?> getCode(@RequestHeader("Authorization") String token) {
-        long uid = healthCodeService.extractUidValidateToken(token);
+        long uid = jwtUtil.extractID(token);
         GetCodeDto getCodeDto = healthCodeService.getCode(uid);
         return Result.success(getCodeDto);
     }
@@ -59,11 +61,11 @@ public class HealthCodeController {
      * @param identity_card
      * @return
      */
-    @GetMapping("/health-code/health_code")
+    @GetMapping("/health_code")
     public Result<?> getHealthCodeInfo(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "identity_card") String identity_card) {
 
-        healthCodeService.extractMidValidateToken(token); //TODO 未检验mid是否是MID，还是UID
+        jwtUtil.extractID(token);
         HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identity_card);
         return Result.success(healthCodeInfoDto);
     }
@@ -76,16 +78,14 @@ public class HealthCodeController {
      * @param event
      * @return
      */
-    @PostMapping("/health-code/transcodingEvents")
+    @PostMapping("/transcodingEvents")
     public Result<?> transcodingEvents(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "uid") long uid,
                                        @RequestParam(name = "event") int event) {
 
-        healthCodeService.extractMidValidateToken(token);//TODO 未检验mid是否是MID，还是UID
-
+        jwtUtil.extractID(token);
         healthCodeService.transcodingHealthCodeEvents(uid, event);
-
-        return Result.success("成功");
+        return Result.success();
     }
 
 }

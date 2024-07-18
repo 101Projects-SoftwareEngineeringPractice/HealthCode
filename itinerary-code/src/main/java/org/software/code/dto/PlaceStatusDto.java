@@ -1,7 +1,5 @@
 package org.software.code.dto;
 
-
-
 public class PlaceStatusDto {
     private String place;
     private boolean status;

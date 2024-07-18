@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "user")
 public interface UserClient {
-    @PostMapping("/user/extractUidValidateToken")
-    Result<?> extractUidValidateToken(@RequestHeader("Authorization") String token);
-
     @GetMapping("/user/getUserByUID")
     Result<?> getUserByUID(@RequestParam(name = "uid") long uid);
 }

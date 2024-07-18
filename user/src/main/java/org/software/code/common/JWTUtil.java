@@ -7,15 +7,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 
 public class JWTUtil {
-    private String secretKey;
-    private long expirationTime;
+    private String secretKey="secret_key";
 
-    public JWTUtil(String secretKey, long expirationTime) {
-        this.secretKey = secretKey;
-        this.expirationTime = expirationTime;
-    }
 
-    public String generateJWToken(long id) {
+    public String generateJWToken(long id,long expirationTime) {
 
         // 生成 JWT Token
         String qrcode_token = Jwts.builder()

@@ -13,7 +13,5 @@ public interface ItineraryCodeService {
 
     void cleanItinerary();
 
-    long extractUidValidateToken(String token);
-
     GetItineraryDto getItinerary(long uid);
 }

@@ -1,6 +1,5 @@
 package org.software.code.controller;
 
-import org.software.code.common.result.IResult;
 import org.software.code.common.result.Result;
 import org.software.code.dto.AddPlaceInput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ public class PlaceCodeInternalController {
     @Autowired
     private PlaceCodeService placeCodeService;
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
@@ -40,21 +38,20 @@ public class PlaceCodeInternalController {
         try {
             return Result.success(placeCodeService.getRecordByPid(pid, timeFormat.parse(startTime), timeFormat.parse(endTime)));
         } catch (ParseException e) {
-            // 处理日期解析错误
-            return Result.failed((IResult) e);
+            return Result.failed();
         }
     }
 
     @PostMapping("/scanPlaceCode")
     public  Result<?> scanPlaceCode(@RequestParam("uid") long uid, @RequestParam("token") String token) {
         placeCodeService.scanPlaceCode(uid, token);
-        return Result.success("成功");
+        return Result.success();
     }
 
     @PostMapping("/oppositePlaceCode")
     public Result<?> oppositePlaceCode(@RequestParam("pid") long pid, @RequestParam("status") boolean status) {
         placeCodeService.oppositePlaceCode(pid, status);
-        return Result.success("反转成功");
+        return Result.success();
     }
 
     @PostMapping("/getPlacesByUserList")
@@ -69,9 +66,7 @@ public class PlaceCodeInternalController {
             endDate = formatter.parse(endTime);
             return Result.success(placeCodeService.getPlacesByUserList(uidList, startDate, endDate));
         } catch (ParseException e) {
-            e.printStackTrace();
-            // handle error
-            return Result.failed((IResult) e);
+            return Result.failed();
         }
     }
 }

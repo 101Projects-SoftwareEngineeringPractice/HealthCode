@@ -39,6 +39,4 @@ public class NucleicAcidTestRecordInput {
         this.testing_organization = testing_organization;
     }
 
-
-    // Getters and Setters
 }

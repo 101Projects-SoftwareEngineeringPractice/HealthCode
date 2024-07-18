@@ -1,7 +1,5 @@
 package org.software.code.dto;
 
-
-
 public class PlaceStarDto {
     private String place;
     private boolean star;

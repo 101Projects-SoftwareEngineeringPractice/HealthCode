@@ -16,8 +16,11 @@ public class Result<T> {
         return new Result<>(ResultEnum.SUCCESS.getCode(), message, data);
     }
 
-    public static Result<?> failed(String s, Object o, long l) {
+    public static Result<?> failed() {
         return new Result<>(ResultEnum.FAILED.getCode(), ResultEnum.FAILED.getMessage(), null);
+    }
+    public static Result<?> success() {
+        return new Result<>(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMessage(), null);
     }
 
     public static Result<?> failed(String message) {

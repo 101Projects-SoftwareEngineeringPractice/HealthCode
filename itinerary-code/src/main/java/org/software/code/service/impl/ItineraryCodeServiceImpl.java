@@ -10,12 +10,9 @@ import org.software.code.dto.PlaceStatusDto;
 import org.software.code.dto.UserInfoDto;
 import org.software.code.mapper.ItineraryCodeMapper;
 import org.software.code.service.ItineraryCodeService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -90,12 +87,4 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
         getItineraryDto.setIdentity_card(userInfoDto.getIdentity_card());
         return getItineraryDto;
     }
-
-    @Override
-    public long extractUidValidateToken(String token) {
-        Result<?> result = userClient.extractUidValidateToken(token);
-        return (Long) result.getData();
-    }
-
-
 }

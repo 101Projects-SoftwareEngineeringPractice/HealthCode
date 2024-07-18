@@ -167,11 +167,9 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     }
 
 
-
     @Override
-    public void addNucleicAcidTestRecordByToken(long tid, String qrToken, int kind, Long tubeid, String testAddress) {
+    public void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress) {
         ObjectMapper objectMapper = new ObjectMapper();
-        Long uid = objectMapper.convertValue(healthCodeClient.extractUIDValidateQRCodeToken(qrToken), Long.class);
         UserInfoDto userInfoDto = objectMapper.convertValue(userClient.getUserByUID(uid), UserInfoDto.class);
         if (userInfoDto == null) {
             throw new RuntimeException("用户信息未找到");
@@ -214,22 +212,4 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         testRecordDao.setTest_address(testAddress);
         nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
     }
-
-    @Override
-    public long extractUidValidateToken(String token) {
-        Result<?> result = userClient.extractUidValidateToken(token);
-        return (Long) result.getData();
-    }
-
-    @Override
-    public long extractTidValidateToken(String token) {
-        Result<?> result = userClient.extractTidValidateToken(token);
-        return (Long) result.getData();
-    }
-    @Override
-    public long extractMidValidateToken(String token) {
-        Result<?> result = userClient.extractMidValidateToken(token);
-        return (Long) result.getData();
-    }
-
 }

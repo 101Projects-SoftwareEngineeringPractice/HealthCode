@@ -9,8 +9,6 @@ import java.util.List;
 
 @Service
 public interface UserService {
-
-
     UserInfoDto getUserByUID(long uid);
 
     UserInfoDto getUserByID(String identity_card);
@@ -35,17 +33,11 @@ public interface UserService {
 
     void statusManager(long mid, boolean status);
 
-    long extractUidValidateToken(String token);
-
     void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, int communityId, String address);
 
     void nucleicAcidOpposite(long tid);
 
     void manageOpposite(long mid);
-
-    long extractTidValidateToken(String token);
-
-    long extractMidValidateToken(String token);
 
     void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, int community, String address);
 }

@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface HealthCodeService {
-    long extractUidValidateToken(String token);
-
     void applyHealthCode(long uid);
-
 
     HealthQRCodeDto getHealthCode(long uid);
 
@@ -22,7 +19,4 @@ public interface HealthCodeService {
 
     HealthCodeInfoDto getHealthCodeInfo(String identityCard);
 
-    long extractMidValidateToken(String token);
-
-    long extractUIDValidateQRCodeToken(String qrcode_token);
 }

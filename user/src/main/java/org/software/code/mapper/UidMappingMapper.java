@@ -2,8 +2,6 @@ package org.software.code.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.software.code.dao.UidMappingDao;
-import org.software.code.dao.UserInfoDao;
-
 @Mapper
 public interface UidMappingMapper {
 

@@ -59,9 +59,7 @@ public class UserServiceImpl implements UserService {
 
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private BloomFilter<CharSequence> bloomFilter;
-    private JWTUtil uidJwtUtil = new JWTUtil("uid_token_secret_key", 3600000);
-    private JWTUtil tidJwtUtil = new JWTUtil("tid_token_secret_key", 3600000);
-    private JWTUtil midJwtUtil = new JWTUtil("mid_token_secret_key", 3600000);
+    private JWTUtil jwtUtil = new JWTUtil();
     // 假设JWT Token的签名密钥
     String secretKey = "token_secret_key";
 
@@ -119,7 +117,7 @@ public class UserServiceImpl implements UserService {
             uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
         }
 
-        String token = uidJwtUtil.generateJWToken(uid);
+        String token = jwtUtil.generateJWToken(uid,3600000);
         return token;
     }
 
@@ -136,7 +134,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
             throw new RuntimeException("nucleicAcidTestPersonnel Login Failed: " + identityCard);
         }
-        String token = tidJwtUtil.generateJWToken(userDao.getTid());
+        String token = jwtUtil.generateJWToken(userDao.getTid(),3600000);
         return token;
     }
 
@@ -214,7 +212,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
             throw new RuntimeException("healthCodeMangerMapper Login Failed: " + identityCard);
         }
-        String token = midJwtUtil.generateJWToken(userDao.getMid());
+        String token = jwtUtil.generateJWToken(userDao.getMid(),3600000);
         return token;
     }
 
@@ -257,20 +255,6 @@ public class UserServiceImpl implements UserService {
         healthCodeMangerMapper.updateStatusByMID(status, mid);
     }
 
-    @Override
-    public long extractUidValidateToken(String token) {
-        return uidJwtUtil.extractID(token);
-    }
-
-    @Override
-    public long extractTidValidateToken(String token) {
-        return tidJwtUtil.extractID(token);
-    }
-
-    @Override
-    public long extractMidValidateToken(String token) {
-        return midJwtUtil.extractID(token);
-    }
 
     @Override
     public void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, int community, String address) {

@@ -10,17 +10,17 @@ import java.util.List;
 
 @Service
 public interface PlaceCodeService {
-    public Long addPlace(AddPlaceInput placeDto);
+    Long addPlace(AddPlaceInput placeDto);
 
-    public List<GetPlaceDto> getPlaces();
+    List<GetPlaceDto> getPlaces();
 
-    public List<Long> getRecordByPid(long pid, Date startTime, Date endTime);
+    List<Long> getRecordByPid(long pid, Date startTime, Date endTime);
 
-    public void oppositePlaceCode(long pid, boolean status);
+    void oppositePlaceCode(long pid, boolean status);
 
-    public void scanPlaceCode(long uid, String token);
+    void scanPlaceCode(long uid, String token);
 
-    public List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime);
+    List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime);
 
 
     void createPlaceCode(String identityCard, String name, int districtId, int streetId, int communityId, String address);
@@ -29,7 +29,4 @@ public interface PlaceCodeService {
 
     void placeCodeOpposite(Long pid);
 
-    long extractUidValidateToken(String token);
-
-    long extractMidValidateToken(String token);
 }

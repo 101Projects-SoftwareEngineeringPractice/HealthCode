@@ -11,8 +11,6 @@ public class GetPlaceDto {
     private Integer community;
     private String address;
 
-    // Getters and Setters
-
     public Long getUid() {
         return uid;
     }

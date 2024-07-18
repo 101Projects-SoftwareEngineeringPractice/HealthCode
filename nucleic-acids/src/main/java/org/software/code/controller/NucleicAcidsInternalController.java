@@ -49,8 +49,7 @@ public class NucleicAcidsInternalController {
         try {
             return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(dateFormat.parse(startTime), dateFormat.parse(endTime)));
         } catch (ParseException e) {
-            // 处理日期解析错误
-            return Result.failed((IResult) e);
+            return Result.failed();
         }
     }
 
@@ -60,8 +59,7 @@ public class NucleicAcidsInternalController {
         try {
             return Result.success(nucleicAcidsService.getPositiveInfoByTime(dateFormat.parse(startTime), dateFormat.parse(endTime)));
         } catch (ParseException e) {
-            // 处理日期解析错误
-            return Result.failed((IResult) e);
+            return Result.failed();
         }
     }
 

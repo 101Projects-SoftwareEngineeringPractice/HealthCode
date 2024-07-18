@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,6 +36,6 @@ public class ItineraryCodeInternalController {
     @GetMapping("/cleanItinerary")
     public Result<?> cleanItinerary() {
         itineraryCodeService.cleanItinerary();
-        return Result.success("成功");
+        return Result.success();
     }
 }

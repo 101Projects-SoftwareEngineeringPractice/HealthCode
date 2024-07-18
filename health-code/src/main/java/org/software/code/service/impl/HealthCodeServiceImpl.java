@@ -20,7 +20,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     private UserClient userClient;
     @Autowired
     private HealthCodeMapper healthCodeMapper;
-    private JWTUtil qrCodeJwtUtil=new JWTUtil("qr_code_token_secret_key",3600000);
+    private JWTUtil jwtUtil=new JWTUtil();
 
     @Override
     public void applyHealthCode(long uid) {
@@ -38,7 +38,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         }
         HealthQRCodeDto healthQRCodeDto = new HealthQRCodeDto();
         healthQRCodeDto.setStatus(healthCodeDao.getColor());
-        healthQRCodeDto.setQrcode_token(qrCodeJwtUtil.generateJWToken(uid));
+        healthQRCodeDto.setQrcode_token(jwtUtil.generateJWToken(uid,60000));
         return healthQRCodeDto;
     }
 
@@ -73,7 +73,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         GetCodeDto getCodeDto = new GetCodeDto();
-        getCodeDto.setToken(qrCodeJwtUtil.generateJWToken(uid));
+        getCodeDto.setToken(jwtUtil.generateJWToken(uid,60000));
         getCodeDto.setStatus(healthCodeDao.getColor());
         getCodeDto.setName(userInfoDto.getName());
         return getCodeDto;
@@ -96,26 +96,4 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         healthCodeInfoDto.setIdentity_card(identityCard);
         return healthCodeInfoDto;
     }
-
-
-
-    @Override
-    public long extractUidValidateToken(String token) {
-        Result<?> result = userClient.extractUidValidateToken(token);
-        return (Long) result.getData();
-    }
-    @Override
-    public long extractMidValidateToken(String token) {
-        Result<?> result = userClient.extractMidValidateToken(token);
-        return (Long) result.getData();
-    }
-
-    @Override
-    public long extractUIDValidateQRCodeToken(String qrcode_token) {
-        return qrCodeJwtUtil.extractID(qrcode_token);
-    }
-//
-
-
-
 }

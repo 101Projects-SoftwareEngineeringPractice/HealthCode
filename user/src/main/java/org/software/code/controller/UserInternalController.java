@@ -59,7 +59,7 @@ public class UserInternalController {
                                             @RequestParam(name = "password") String password,
                                             @RequestParam(name = "name") String name) {
         userService.newNucleicAcidTestUser(identity_card, password, name);
-        return Result.success("成功");
+        return Result.success();
     }
 
     @PostMapping("/newMangerUser")
@@ -67,7 +67,7 @@ public class UserInternalController {
                                    @RequestParam(name = "password") String password,
                                    @RequestParam(name = "name") String name) {
         userService.newMangerUser(identity_card, password, name);
-        return Result.success("成功");
+        return Result.success();
     }
 
     @PostMapping("/managerUserLogin")
@@ -87,39 +87,21 @@ public class UserInternalController {
                                     @RequestParam(name = "community") int community,
                                     @RequestParam(name = "address") String address) {
         userService.modifyUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-        return Result.success("成功");
+        return Result.success();
     }
 
     @PatchMapping("/statusNucleicAcidTestUser")
     public Result<?> statusNucleicAcidTestUser(@RequestParam(name = "tid") long tid,
                                                @RequestParam(name = "status") boolean status) {
         userService.statusNucleicAcidTestUser(tid, status);
-        return Result.success("成功");
+        return Result.success();
     }
 
     @PatchMapping("/statusManager")
     public Result<?> statusManager(@RequestParam(name = "mid") long mid,
                                    @RequestParam(name = "status") boolean status) {
         userService.statusManager(mid, status);
-        return Result.success("成功");
-    }
-
-    @PostMapping("/extractUidValidateToken")
-    public Result<?> extractUidValidateToken(@RequestHeader("Authorization") String token) {
-        long id = userService.extractUidValidateToken(token);
-        return Result.success(id);
-    }
-
-    @PostMapping("/extractTidValidateToken")
-    public Result<?> extractTidValidateToken(@RequestHeader("Authorization") String token) {
-        long id = userService.extractTidValidateToken(token);
-        return Result.success(id);
-    }
-
-    @PostMapping("/extractMidValidateToken")
-    public Result<?> extractMidValidateToken(@RequestHeader("Authorization") String token) {
-        long id = userService.extractMidValidateToken(token);
-        return Result.success(id);
+        return Result.success();
     }
 
     @PutMapping("/addUserInfo")
@@ -132,7 +114,7 @@ public class UserInternalController {
                                  @RequestParam(name = "community") int community,
                                  @RequestParam(name = "address") String address) {
         userService.addUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-        return Result.success("成功");
+        return Result.success();
     }
 
 }

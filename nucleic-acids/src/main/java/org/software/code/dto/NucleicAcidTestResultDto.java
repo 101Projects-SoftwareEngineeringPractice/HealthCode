@@ -32,5 +32,4 @@ public class NucleicAcidTestResultDto {
     private Integer result;
     private String testing_organization;
 
-    // Getters and Setters
 }

@@ -13,25 +13,20 @@ public interface NucleicAcidsService {
 
     void enterNucleicAcidTestRecordList(List<NucleicAcidTestRecordInput> testRecords);
 
-    public NucleicAcidTestResultDto getLastNucleicAcidTestRecordByUID(long uid);
+    NucleicAcidTestResultDto getLastNucleicAcidTestRecordByUID(long uid);
 
-    public List<NucleicAcidTestResultDto> getNucleicAcidTestRecordByUID(long uid);
+    List<NucleicAcidTestResultDto> getNucleicAcidTestRecordByUID(long uid);
 
-    public NucleicAcidTestInfoDto getNucleicAcidTestInfoByTime(Date startTime, Date endTime);
+    NucleicAcidTestInfoDto getNucleicAcidTestInfoByTime(Date startTime, Date endTime);
 
-    public List<PositiveInfoDto> getPositiveInfoByTime(Date startTime, Date endTime);
+    List<PositiveInfoDto> getPositiveInfoByTime(Date startTime, Date endTime);
 
-    public List<NucleicAcidTestRecordDto> getNoticeReTestRecords();
+    List<NucleicAcidTestRecordDto> getNoticeReTestRecords();
 
-    public int autoModify();
+    int autoModify();
 
-    void addNucleicAcidTestRecordByToken(long tid, String qrToken, int kind, Long tubeid, String testAddress);
+    void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress);
 
     void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress);
 
-    long extractUidValidateToken(String token);
-
-    long extractTidValidateToken(String token);
-
-    long extractMidValidateToken(String token);
 }

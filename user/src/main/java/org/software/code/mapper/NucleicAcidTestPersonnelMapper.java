@@ -2,8 +2,6 @@ package org.software.code.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.software.code.dao.NucleicAcidTestPersonnelDao;
-//import org.software.code.dto.NucleicAcidTestPersonnelDto;
-
 import java.util.List;
 
 @Mapper

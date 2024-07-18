@@ -1,10 +1,5 @@
 package org.software.code.dto;
 
-
-
-import java.time.Instant;
-import java.util.Date;
-
 public class NucleicAcidTestRecordDto {
     private Long uid;
     private Long tid;

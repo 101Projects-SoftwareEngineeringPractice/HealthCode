@@ -26,7 +26,6 @@ public class PlaceMappingDao {
     @Column(name = "time")
     private Date time;
 
-    // Getters and Setters
 
     public Long getId() {
         return id;

@@ -5,9 +5,6 @@ public class NucleicAcidTestInfoDto {
     private long uncheck;
     private long onePositive;
     private long positive;
-
-    // Getters and Setters
-
     public long getRecord() {
         return record;
     }

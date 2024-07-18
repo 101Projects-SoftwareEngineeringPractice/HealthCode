@@ -37,7 +37,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private JWTUtil pidJwtUtil = new JWTUtil("pid_token_secret_key", 3600000);
+    private JWTUtil pidJwtUtil = new JWTUtil();
 
     public Long addPlace(AddPlaceInput placeDto) {
         // 调用 user 微服务获取 identity_card
@@ -148,17 +148,4 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         Boolean status = placeInfoDao.getStatus();
         placeInfoMapper.updatePlaceStatusByPid(!status, pid);
     }
-
-    @Override
-    public long extractUidValidateToken(String token) {
-        Result<?> result = userClient.extractUidValidateToken(token);
-        return (Long) result.getData();
-    }
-
-    @Override
-    public long extractMidValidateToken(String token) {
-        Result<?> result = userClient.extractUidValidateToken(token);
-        return (Long) result.getData();
-    }
-
 }
