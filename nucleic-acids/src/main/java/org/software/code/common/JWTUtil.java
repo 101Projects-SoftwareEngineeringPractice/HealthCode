@@ -7,10 +7,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 
 public class JWTUtil {
-    private static String secretKey="secret_key";
-    
+    private static String secretKey = "secret_key";
 
-    public static String generateJWToken(long id,long expirationTime) {
+
+    public static String generateJWToken(long id, long expirationTime) {
 
         // 生成 JWT Token
         String qrcode_token = Jwts.builder()
@@ -23,7 +23,7 @@ public class JWTUtil {
         return qrcode_token;
     }
 
-    public static long extractID(String token) {
+    public static long extractID(String token) throws NullPointerException{
         try {
             Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
             return Long.parseLong(claims.getSubject());

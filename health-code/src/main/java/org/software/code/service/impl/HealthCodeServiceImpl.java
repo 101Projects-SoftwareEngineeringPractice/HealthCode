@@ -1,5 +1,13 @@
 package org.software.code.service.impl;
 
+import org.software.code.common.consts.FSMConst;
+import org.software.code.dao.HealthCode;
+import org.software.code.service.HealthCodeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.service.StateMachineService;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.software.code.client.UserClient;
 import org.software.code.common.JWTUtil;
@@ -10,13 +18,16 @@ import org.software.code.dto.HealthCodeInfoDto;
 import org.software.code.dto.HealthQRCodeDto;
 import org.software.code.dto.UserInfoDto;
 import org.software.code.mapper.HealthCodeMapper;
-import org.software.code.service.HealthCodeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 public class HealthCodeServiceImpl implements HealthCodeService {
     @Autowired
+    private StateMachineService<FSMConst.HealthCodeColor, FSMConst.HealthCodeEvent> stateMachineService;
+    @Autowired
+
     private UserClient userClient;
     @Autowired
     private HealthCodeMapper healthCodeMapper;
@@ -42,16 +53,33 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     }
 
     @Override
-    public void transcodingHealthCodeEvents(long uid, int event) {
-        HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
-        if (healthCodeDao == null) {
+    public int transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event) {
+        HealthCodeDao healthCode = healthCodeMapper.getHealthCodeByUID(uid);
+        if (healthCode == null) {
             throw new NullPointerException("健康码信息不存在，请重试");
         }
-        healthCodeDao.setColor(event);
+        healthCode.setColor(FSMConst.HealthCodeColor.GREEN.ordinal());
+
+        String stateMachineId = String.valueOf(healthCode.getUid());
+
+        StateMachine<FSMConst.HealthCodeColor, FSMConst.HealthCodeEvent> stateMachine = stateMachineService.acquireStateMachine(stateMachineId);
         try {
-            healthCodeMapper.updateColorByUID(event, uid);
+            stateMachine.stopReactively().block();
+            stateMachine.getStateMachineAccessor()
+                    .doWithAllRegions(access -> access.resetStateMachineReactively(
+                            new DefaultStateMachineContext<>(FSMConst.HealthCodeColor.values()[healthCode.getColor()], null, null, null)).block());
+            stateMachine.startReactively().block();
+            stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(event).build())).blockFirst();
+            FSMConst.HealthCodeColor newColor = stateMachine.getState().getId();
+            healthCode.setColor(newColor.ordinal());
+            int color = healthCode.getColor();
+            healthCodeMapper.updateColorByUID(color, uid);
+            return color;
         } catch (Exception e) {
             throw new RuntimeException("服务执行错误，请稍后重试");
+        } finally {
+            stateMachine.stopReactively().block();
+            stateMachineService.releaseStateMachine(stateMachineId);
         }
     }
 

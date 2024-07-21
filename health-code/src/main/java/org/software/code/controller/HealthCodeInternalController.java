@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.consts.FSMConst;
 import org.software.code.common.result.Result;
 import org.software.code.dto.HealthQRCodeDto;
 import org.software.code.service.HealthCodeService;
@@ -36,8 +37,22 @@ public class HealthCodeInternalController {
     @PatchMapping("/transcodingHealthCodeEvents")
     public Result<?> transcodingHealthCodeEvents(@RequestParam(name = "uid") long uid,
                                                  @RequestParam(name = "event") int event) {
+        FSMConst.HealthCodeEvent healthCodeEvent;
+        if(event==0){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+        }
+        else if(event==1){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+
+        }
+        else if (event==2){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+        }
+        else {
+            return Result.failed("服务执行错误，请稍后重试");
+        }
         try {
-            healthCodeService.transcodingHealthCodeEvents(uid, event);
+            healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
             return Result.success();
         } catch (
                 Exception e) {

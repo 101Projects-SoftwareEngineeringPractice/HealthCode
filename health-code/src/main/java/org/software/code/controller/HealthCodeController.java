@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.consts.FSMConst;
 import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dto.GetCodeDto;
@@ -61,6 +62,7 @@ public class HealthCodeController {
         } catch (Exception e) {
             return Result.failed(e.getMessage());
         }
+
     }
 
     /**
@@ -94,10 +96,23 @@ public class HealthCodeController {
     public Result<?> transcodingEvents(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "uid") long uid,
                                        @RequestParam(name = "event") int event) {
-        try {
+        FSMConst.HealthCodeEvent healthCodeEvent;
+        if(event==0){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+        }
+        else if(event==1){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
 
+        }
+        else if (event==2){
+            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+        }
+        else {
+            return Result.failed("服务执行错误，请稍后重试");
+        }
+        try {
             JWTUtil.extractID(token);
-            healthCodeService.transcodingHealthCodeEvents(uid, event);
+            healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
             return Result.success();
         } catch (Exception e) {
             return Result.failed(e.getMessage());
