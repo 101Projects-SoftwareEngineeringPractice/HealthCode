@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dto.HealthCodeManagerDto;
@@ -15,13 +16,16 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
-    private JWTUtil jwtUtil = new JWTUtil();
 
 
     @PostMapping("/login")
     public Result<?> login(@RequestParam(name = "code") String code) {
-        String token = userService.userLogin(code);
-        return Result.success(token);
+        try {
+            String token = userService.userLogin(code);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PutMapping("/userModify")
@@ -32,23 +36,35 @@ public class UserController {
                                 @RequestParam(name = "street_id") int street_id,
                                 @RequestParam(name = "community_id") int community_id,
                                 @RequestParam(name = "address") String address) {
-        long uid = jwtUtil.extractID(token);
-        userService.userModify(uid, name, phone_number, district_id, street_id, community_id, address);
-        return Result.success();
+        try {
+            long uid = JWTUtil.extractID(token);
+            userService.userModify(uid, name, phone_number, district_id, street_id, community_id, address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/nucleicAcidsLogin")
     public Result<?> nucleicAcidsLogin(@RequestParam(name = "identity_card") String identity_card,
                                        @RequestParam(name = "password") String password) {
-        String token = userService.nucleicAcidTestUserLogin(identity_card, password);
-        return Result.success(token);
+        try {
+            String token = userService.nucleicAcidTestUserLogin(identity_card, password);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/managerLogin")
     public Result<?> managerLogin(@RequestParam(name = "identity_card") String identity_card,
                                   @RequestParam(name = "password") String password) {
-        String token = userService.managerLogin(identity_card, password);
-        return Result.success(token);
+        try {
+            String token = userService.managerLogin(identity_card, password);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/nucleic_acid")
@@ -56,24 +72,36 @@ public class UserController {
                                        @RequestParam(name = "identity_card") String identity_card,
                                        @RequestParam(name = "name") String name,
                                        @RequestParam(name = "password") String password) {
-        jwtUtil.extractID(token);
-        userService.newNucleicAcidTestUser(identity_card, name, password);
-        return Result.success();
+        try {
+            JWTUtil.extractID(token);
+            userService.newNucleicAcidTestUser(identity_card, name, password);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/nucleic_acid")
     public Result<?> getNucleicAcidList(@RequestHeader("Authorization") String token) {
-        jwtUtil.extractID(token);
-        List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
-        return Result.success(nucleicAcidUserInfoList);
+        try {
+            JWTUtil.extractID(token);
+            List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
+            return Result.success(nucleicAcidUserInfoList);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PatchMapping("/nucleic_acid_opposite")
     public Result<?> nucleicAcidOpposite(@RequestHeader("Authorization") String token,
                                          @RequestParam(name = "tid") long tid) {
-        jwtUtil.extractID(token);
-        userService.nucleicAcidOpposite(tid);
-        return Result.success();
+        try {
+            JWTUtil.extractID(token);
+            userService.nucleicAcidOpposite(tid);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/manage")
@@ -81,23 +109,35 @@ public class UserController {
                                   @RequestParam(name = "identity_card") String identity_card,
                                   @RequestParam(name = "name") String name,
                                   @RequestParam(name = "password") String password) {
-        jwtUtil.extractID(token);
-        userService.newMangerUser(identity_card, name, password);
-        return Result.success(token);
+        try {
+            JWTUtil.extractID(token);
+            userService.newMangerUser(identity_card, name, password);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/manager")
     public Result<?> getManageList(@RequestHeader("Authorization") String token) {
-        jwtUtil.extractID(token);
-        List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
-        return Result.success(manageUserInfoList);
+        try {
+            JWTUtil.extractID(token);
+            List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
+            return Result.success(manageUserInfoList);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PatchMapping("/manage_opposite")
     public Result<?> manageOpposite(@RequestHeader("Authorization") String token,
                                     @RequestParam(name = "mid") long mid) {
-        jwtUtil.extractID(token);
-        userService.manageOpposite(mid);
-        return Result.success();
+        try {
+            JWTUtil.extractID(token);
+            userService.manageOpposite(mid);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 }

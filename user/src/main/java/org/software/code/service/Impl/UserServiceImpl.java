@@ -1,13 +1,10 @@
 package org.software.code.service.Impl;
 
 import cn.hutool.core.util.IdUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Funnels;
-import org.software.code.client.HealthCodeClient;
 import org.software.code.common.JWTUtil;
 import org.software.code.common.RedisUtil;
+import org.software.code.common.WeChatUtil;
 import org.software.code.dao.HealthCodeManagerDao;
 import org.software.code.dao.NucleicAcidTestPersonnelDao;
 import org.software.code.dao.UidMappingDao;
@@ -26,9 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,8 +43,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private NucleicAcidTestPersonnelMapper nucleicAcidTestPersonnelMapper;
     @Autowired
-    private HealthCodeClient healthCodeClient;
-    @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private KafkaProducer kafkaProducer;
@@ -58,30 +50,24 @@ public class UserServiceImpl implements UserService {
     private KafkaConsumer kafkaConsumer;
 
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private BloomFilter<CharSequence> bloomFilter;
-    private JWTUtil jwtUtil = new JWTUtil();
-    // 假设JWT Token的签名密钥
-    String secretKey = "token_secret_key";
-
-    // 初始化布隆过滤器和雪花算法生成器
-    @PostConstruct
-    public void init() {
-        // 假设预期插入的元素个数为 1000000，误判率为 0.01
-        bloomFilter = BloomFilter.create(
-                Funnels.stringFunnel(StandardCharsets.UTF_8),
-                1000000,
-                0.01);
-    }
+    private BloomFilter<CharSequence> bloomFilter = BloomFilter.create(
+            Funnels.stringFunnel(StandardCharsets.UTF_8),
+            1000000,
+            0.01);
 
     @Override
 //    @Cacheable(value = "user_info", key = "#uid")
     public UserInfoDto getUserByUID(long uid) {
         UserInfoDao userInfo = userInfoMapper.getUserInfoByUID(uid);
         if (userInfo == null) {
-            throw new RuntimeException("User not found with UID: " + uid);
+            throw new NullPointerException("用户不存在，请重试");
         }
         UserInfoDto userInfoDto = new UserInfoDto();
-        BeanUtils.copyProperties(userInfo, userInfoDto);
+        try {
+            BeanUtils.copyProperties(userInfo, userInfoDto);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
         return userInfoDto;
     }
 
@@ -90,16 +76,20 @@ public class UserServiceImpl implements UserService {
     public UserInfoDto getUserByID(String identity_card) {
         UserInfoDao userInfo = userInfoMapper.getUserInfoByID(identity_card);
         if (userInfo == null) {
-            throw new RuntimeException("User not found with ID: " + identity_card);
+            throw new NullPointerException("用户不存在，请重试");
         }
         UserInfoDto userInfoDto = new UserInfoDto();
-        BeanUtils.copyProperties(userInfo, userInfoDto);
+        try {
+            BeanUtils.copyProperties(userInfo, userInfoDto);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
         return userInfoDto;
     }
 
     @Override
     public String userLogin(String code) {
-        String openID = getOpenIDFromWX(code);
+        String openID = WeChatUtil.getOpenIDFromWX(code);
         boolean exists = bloomFilter.mightContain(openID);
 
         // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
@@ -116,8 +106,7 @@ public class UserServiceImpl implements UserService {
             // 如果OpenID已存在，则获取其对应的UID（假设通过数据库或缓存获取）
             uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
         }
-
-        String token = jwtUtil.generateJWToken(uid,3600000);
+        String token = JWTUtil.generateJWToken(uid, 3600000);
         return token;
     }
 
@@ -126,15 +115,15 @@ public class UserServiceImpl implements UserService {
     public String nucleicAcidTestUserLogin(String identityCard, String password) {
         NucleicAcidTestPersonnelDao userDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
         if (userDao == null) {
-            throw new RuntimeException("nucleicAcidTestPersonnel Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
         if (!userDao.getStatus()) {
-            throw new RuntimeException("nucleicAcidTestPersonnel Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
-            throw new RuntimeException("nucleicAcidTestPersonnel Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
-        String token = jwtUtil.generateJWToken(userDao.getTid(),3600000);
+        String token = JWTUtil.generateJWToken(userDao.getTid(), 3600000);
         return token;
     }
 
@@ -167,7 +156,7 @@ public class UserServiceImpl implements UserService {
         // 检查是否存在相同身份证号的用户
         NucleicAcidTestPersonnelDao existingUserDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
         if (existingUserDao != null) {
-            throw new IllegalArgumentException("NucleicAcidTestPersonnel with this identity card already exists.");
+            throw new IllegalArgumentException("用户已存在，请重试");
         }
         // 创建新用户
         NucleicAcidTestPersonnelDao newUserDao = new NucleicAcidTestPersonnelDao();  // 创建新用户
@@ -186,7 +175,7 @@ public class UserServiceImpl implements UserService {
         // 检查是否存在相同身份证号的用户
         HealthCodeManagerDao existingUserDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
         if (existingUserDao != null) {
-            throw new IllegalArgumentException("HealthCodeManager with this identity card already exists.");
+            throw new IllegalArgumentException("用户已存在，请重试");
         }
         // 创建新用户
         HealthCodeManagerDao newUserDao = new HealthCodeManagerDao();  // 创建新用户
@@ -197,22 +186,26 @@ public class UserServiceImpl implements UserService {
         newUserDao.setStatus(true);
         long mid = IdUtil.getSnowflake().nextId();
         newUserDao.setMid(mid);
-        healthCodeMangerMapper.addHealthCodeManager(newUserDao); // 保存用户到数据库
+        try {
+            healthCodeMangerMapper.addHealthCodeManager(newUserDao); // 保存用户到数据库
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
     }
 
     @Override
     public String managerLogin(String identityCard, String password) {
         HealthCodeManagerDao userDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
         if (userDao == null) {
-            throw new RuntimeException("healthCodeMangerMapper Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
         if (!userDao.getStatus()) {
-            throw new RuntimeException("healthCodeMangerMapper Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
-            throw new RuntimeException("healthCodeMangerMapper Login Failed: " + identityCard);
+            throw new NullPointerException("用户不存在，请重试");
         }
-        String token = jwtUtil.generateJWToken(userDao.getMid(),3600000);
+        String token = JWTUtil.generateJWToken(userDao.getMid(), 3600000);
         return token;
     }
 
@@ -230,10 +223,14 @@ public class UserServiceImpl implements UserService {
             userInfoDao.setStreet(street);
             userInfoDao.setCommunity(community);
             userInfoDao.setAddress(address);
-            userInfoMapper.addUserInfo(userInfoDao);
+            try {
+                userInfoMapper.addUserInfo(userInfoDao);
+            } catch (Exception e) {
+                throw new RuntimeException("服务执行错误，请稍后重试");
+            }
         } else {
             if (userInfoDao.getUid() != uid) {
-                throw new RuntimeException("User Update Failed: " + identityCard);
+                throw new RuntimeException("用户信息错误，请重试");
             }
             userInfoDao.setName(name);
             userInfoDao.setPhone_number(phoneNumber);
@@ -241,18 +238,30 @@ public class UserServiceImpl implements UserService {
             userInfoDao.setStreet(street);
             userInfoDao.setCommunity(community);
             userInfoDao.setAddress(address);
-            userInfoMapper.updateUserInfo(userInfoDao);
+            try {
+                userInfoMapper.updateUserInfo(userInfoDao);
+            } catch (Exception e) {
+                throw new RuntimeException("服务执行错误，请稍后重试");
+            }
         }
     }
 
     @Override
     public void statusNucleicAcidTestUser(long tid, boolean status) {
-        nucleicAcidTestPersonnelMapper.updateStatusByTID(status, tid);
+        try {
+            nucleicAcidTestPersonnelMapper.updateStatusByTID(status, tid);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
     }
 
     @Override
     public void statusManager(long mid, boolean status) {
-        healthCodeMangerMapper.updateStatusByMID(status, mid);
+        try {
+            healthCodeMangerMapper.updateStatusByMID(status, mid);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
     }
 
 
@@ -270,9 +279,13 @@ public class UserServiceImpl implements UserService {
             userInfoDao.setStreet(street);
             userInfoDao.setCommunity(community);
             userInfoDao.setAddress(address);
-            userInfoMapper.addUserInfo(userInfoDao);
+            try {
+                userInfoMapper.addUserInfo(userInfoDao);
+            } catch (Exception e) {
+                throw new RuntimeException("服务执行错误，请稍后重试");
+            }
         } else {
-            throw new IllegalArgumentException("User already exists.: " + uid);
+            throw new IllegalArgumentException("用户已存在，请重试");
         }
     }
 
@@ -287,9 +300,13 @@ public class UserServiceImpl implements UserService {
             userInfoDao.setStreet(streetId);
             userInfoDao.setCommunity(communityId);
             userInfoDao.setAddress(address);
-            userInfoMapper.updateUserInfo(userInfoDao);
+            try {
+                userInfoMapper.updateUserInfo(userInfoDao);
+            } catch (Exception e) {
+                throw new RuntimeException("服务执行错误，请稍后重试");
+            }
         } else {
-            throw new RuntimeException("User Update Failed: " + uid);
+            throw new NullPointerException("用户不存在，请重试");
         }
     }
 
@@ -298,44 +315,21 @@ public class UserServiceImpl implements UserService {
     public void nucleicAcidOpposite(long tid) {
         NucleicAcidTestPersonnelDao uerDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByTID(tid);
         Boolean status = uerDao.getStatus();
-        healthCodeMangerMapper.updateStatusByMID(!status, tid);
+        try {
+            healthCodeMangerMapper.updateStatusByMID(!status, tid);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
     }
 
     @Override
     public void manageOpposite(long mid) {
         HealthCodeManagerDao uerDao = healthCodeMangerMapper.getHealthCodeManagerByMID(mid);
         Boolean status = uerDao.getStatus();
-        healthCodeMangerMapper.updateStatusByMID(!status, mid);
-    }
-
-
-    private String getOpenIDFromWX(String code) {
-        // 假设微信接口的URL和参数
-        String wxApiUrl = "https://api.weixin.qq.com/sns/jscode2session";
-        String appId = "your_app_id";
-        String secret = "your_app_secret";
-        String grantType = "authorization_code";
-
-        // 创建 RestTemplate 实例
-        RestTemplate restTemplate = new RestTemplate();
-
-        // 构建请求 URL
-        String url = String.format("%s?appid=%s&secret=%s&js_code=%s&grant_type=%s", wxApiUrl, appId, secret, code, grantType);
-
-        // 发送 GET 请求，获取微信接口返回的数据
-        String response = restTemplate.getForObject(url, String.class);
-
-        String openid = ""; // 初始化 OpenID
         try {
-            // 解析 JSON 数据，获取 openid
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(response);
-            // openid = jsonNode.get("openid").asText();
-            openid = "openid-" + code;
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            // 处理异常，例如记录日志或返回默认值
+            healthCodeMangerMapper.updateStatusByMID(!status, mid);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
         }
-        return openid;
     }
 }

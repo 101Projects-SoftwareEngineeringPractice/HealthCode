@@ -19,62 +19,99 @@ public class UserInternalController {
 
     @GetMapping("/getUserByUID")
     public Result<?> getUserByUID(@RequestParam(name = "uid") long uid) {
-        UserInfoDto userInfoDto = userService.getUserByUID(uid);
-        return Result.success(userInfoDto);
+        try {
+            UserInfoDto userInfoDto = userService.getUserByUID(uid);
+            return Result.success(userInfoDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/getUserByID")
     public Result<?> getUserByID(@RequestParam(name = "identity_card") String identity_card) {
-        UserInfoDto userInfoDto = userService.getUserByID(identity_card);
-        return Result.success(userInfoDto);
+        try {
+            UserInfoDto userInfoDto = userService.getUserByID(identity_card);
+            return Result.success(userInfoDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/userLogin")
     public Result<?> userLogin(@RequestParam(name = "code") String code) {
-        String token = userService.userLogin(code);
-        return Result.success(token);
+
+        try {
+            String token = userService.userLogin(code);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/nucleicAcidTestUserLogin")
     public Result<?> nucleicAcidTestUserLogin(@RequestParam(name = "identity_card") String identity_card,
                                               @RequestParam(name = "password") String password) {
-        String token = userService.nucleicAcidTestUserLogin(identity_card, password);
-        return Result.success(token);
+        try {
+            String token = userService.nucleicAcidTestUserLogin(identity_card, password);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/getNucleicAcidTestUser")
     public Result<?> getNucleicAcidTestUser() {
-        List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
-        return Result.success(nucleicAcidUserInfoList);
+        try {
+            List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
+            return Result.success(nucleicAcidUserInfoList);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/getManagerUser")
     public Result<?> getManagerUser() {
-        List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
-        return Result.success(manageUserInfoList);
+        try {
+            List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
+            return Result.success(manageUserInfoList);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/newNucleicAcidTestUser")
     public Result<?> newNucleicAcidTestUser(@RequestParam(name = "identity_card") String identity_card,
                                             @RequestParam(name = "password") String password,
                                             @RequestParam(name = "name") String name) {
-        userService.newNucleicAcidTestUser(identity_card, password, name);
-        return Result.success();
+        try {
+            userService.newNucleicAcidTestUser(identity_card, password, name);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/newMangerUser")
     public Result<?> newMangerUser(@RequestParam(name = "identity_card") String identity_card,
                                    @RequestParam(name = "password") String password,
                                    @RequestParam(name = "name") String name) {
-        userService.newMangerUser(identity_card, password, name);
-        return Result.success();
+        try {
+            userService.newMangerUser(identity_card, password, name);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/managerUserLogin")
     public Result<?> managerLogin(@RequestParam(name = "identity_card") String identity_card,
                                   @RequestParam(name = "password") String password) {
-        String token = userService.managerLogin(identity_card, password);
-        return Result.success(token);
+        try {
+            String token = userService.managerLogin(identity_card, password);
+            return Result.success(token);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PutMapping("/modifyUserInfo")
@@ -86,22 +123,35 @@ public class UserInternalController {
                                     @RequestParam(name = "street") int street,
                                     @RequestParam(name = "community") int community,
                                     @RequestParam(name = "address") String address) {
-        userService.modifyUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-        return Result.success();
+        try {
+            userService.modifyUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PatchMapping("/statusNucleicAcidTestUser")
     public Result<?> statusNucleicAcidTestUser(@RequestParam(name = "tid") long tid,
                                                @RequestParam(name = "status") boolean status) {
-        userService.statusNucleicAcidTestUser(tid, status);
-        return Result.success();
+        try {
+            userService.statusNucleicAcidTestUser(tid, status);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PatchMapping("/statusManager")
     public Result<?> statusManager(@RequestParam(name = "mid") long mid,
                                    @RequestParam(name = "status") boolean status) {
-        userService.statusManager(mid, status);
-        return Result.success();
+        try {
+            userService.statusManager(mid, status);
+            return Result.success();
+        } catch (
+                Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PutMapping("/addUserInfo")
@@ -113,8 +163,12 @@ public class UserInternalController {
                                  @RequestParam(name = "street") int street,
                                  @RequestParam(name = "community") int community,
                                  @RequestParam(name = "address") String address) {
-        userService.addUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-        return Result.success();
+        try {
+            userService.addUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
 }

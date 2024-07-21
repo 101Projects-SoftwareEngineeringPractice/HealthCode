@@ -15,20 +15,33 @@ public class HealthCodeInternalController {
 
     @PostMapping("/applyHealthCode")
     public Result<?> applyHealthCode(@RequestParam(name = "uid") long uid) {
-        healthCodeService.applyHealthCode(uid);
-        return Result.success();
+        try {
+            healthCodeService.applyHealthCode(uid);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @GetMapping("/getHealthCode")
     public Result<?> getHealthCode(@RequestParam(name = "uid") long uid) {
-        HealthQRCodeDto healthQRCodeDto = healthCodeService.getHealthCode(uid);
-        return Result.success(healthQRCodeDto);
+        try {
+            HealthQRCodeDto healthQRCodeDto = healthCodeService.getHealthCode(uid);
+            return Result.success(healthQRCodeDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PatchMapping("/transcodingHealthCodeEvents")
     public Result<?> transcodingHealthCodeEvents(@RequestParam(name = "uid") long uid,
                                                  @RequestParam(name = "event") int event) {
-        healthCodeService.transcodingHealthCodeEvents(uid, event);
-        return Result.success();
+        try {
+            healthCodeService.transcodingHealthCodeEvents(uid, event);
+            return Result.success();
+        } catch (
+                Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 }

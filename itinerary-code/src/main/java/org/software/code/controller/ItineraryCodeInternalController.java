@@ -25,8 +25,12 @@ public class ItineraryCodeInternalController {
      */
     @GetMapping("/getItineraryCodeList")
     public Result<?> getItineraryCodeList(@RequestParam(name = "uid") long uid) {
+        try{
         List<PlaceStatusDto> placeStatusDtoList = itineraryCodeService.getItineraryCodeList(uid);
         return Result.success(placeStatusDtoList);
+    } catch (Exception e) {
+        return Result.failed(e.getMessage());
+    }
     }
 
     /**
@@ -35,7 +39,11 @@ public class ItineraryCodeInternalController {
      */
     @GetMapping("/cleanItinerary")
     public Result<?> cleanItinerary() {
+        try{
         itineraryCodeService.cleanItinerary();
         return Result.success();
+    } catch (Exception e) {
+        return Result.failed(e.getMessage());
+        }
     }
 }

@@ -11,13 +11,15 @@ import org.springframework.web.bind.annotation.*;
 public class ItineraryCodeController {
     @Autowired
     private ItineraryCodeService itineraryCodeService;
-    private JWTUtil jwtUtil =new JWTUtil();
-
     @GetMapping("/getItinerary")
     public Result<?> getItinerary (@RequestHeader("Authorization") String token) {
-        long uid=jwtUtil.extractID(token);
+        try{
+        long uid=JWTUtil.extractID(token);
         GetItineraryDto getItineraryDto = itineraryCodeService.getItinerary(uid);
         return Result.success(getItineraryDto);
+    } catch (Exception e) {
+        return Result.failed(e.getMessage());
+    }
     }
 
 }

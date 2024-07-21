@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -17,8 +18,6 @@ import java.util.List;
 public class NucleicAcidsController {
     @Autowired
     private NucleicAcidsService nucleicAcidsService;
-    private JWTUtil jwtUtil = new JWTUtil();
-
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
@@ -29,9 +28,13 @@ public class NucleicAcidsController {
      */
     @GetMapping("/getLastNucleicAcidTestRecord")
     public Result<?> getLastNucleicAcidTestRecord(@RequestHeader("Authorization") String token) {
-        long uid = jwtUtil.extractID(token);
-        NucleicAcidTestResultDto nucleicAcidTestResultDto = nucleicAcidsService.getLastNucleicAcidTestRecordByUID(uid);
-        return Result.success(nucleicAcidTestResultDto);
+        try {
+            long uid = JWTUtil.extractID(token);
+            NucleicAcidTestResultDto nucleicAcidTestResultDto = nucleicAcidsService.getLastNucleicAcidTestRecordByUID(uid);
+            return Result.success(nucleicAcidTestResultDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -42,10 +45,13 @@ public class NucleicAcidsController {
      */
     @GetMapping("/getNucleicAcidTestRecord")
     public Result<?> getNucleicAcidTestRecord(@RequestHeader("Authorization") String token) {
-        long uid = jwtUtil.extractID(token);
-        //TODO token验证
-        List<NucleicAcidTestResultDto> nucleicAcidTestResultDtoList = nucleicAcidsService.getNucleicAcidTestRecordByUID(uid);
-        return Result.success(nucleicAcidTestResultDtoList);
+        try {
+            long uid = JWTUtil.extractID(token);
+            List<NucleicAcidTestResultDto> nucleicAcidTestResultDtoList = nucleicAcidsService.getNucleicAcidTestRecordByUID(uid);
+            return Result.success(nucleicAcidTestResultDtoList);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -64,10 +70,14 @@ public class NucleicAcidsController {
                                                      @RequestParam(name = "kind") int kind,
                                                      @RequestParam(name = "tubeid") Long tubeid,
                                                      @RequestParam(name = "test_address") String test_address) {
-        long tid = jwtUtil.extractID(tid_token);
-        long uid = jwtUtil.extractID(qr_token);
-        nucleicAcidsService.addNucleicAcidTestRecordByToken(tid, uid, kind, tubeid, test_address);
-        return Result.success();
+        try {
+            long tid = JWTUtil.extractID(tid_token);
+            long uid = JWTUtil.extractID(qr_token);
+            nucleicAcidsService.addNucleicAcidTestRecordByToken(tid, uid, kind, tubeid, test_address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -86,9 +96,13 @@ public class NucleicAcidsController {
                                                   @RequestParam(name = "kind") int kind,
                                                   @RequestParam(name = "tubeid") Long tubeid,
                                                   @RequestParam(name = "test_address") String test_address) {
-        long tid = jwtUtil.extractID(token);
-        nucleicAcidsService.addNucleicAcidTestRecordByID(tid, identity_card, kind, tubeid, test_address);
-        return Result.success();
+        try {
+            long tid = JWTUtil.extractID(token);
+            nucleicAcidsService.addNucleicAcidTestRecordByID(tid, identity_card, kind, tubeid, test_address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -101,9 +115,13 @@ public class NucleicAcidsController {
     @PutMapping("/enterNucleicAcidTestRecord")
     public Result<?> enterNucleicAcidTestRecord(@RequestHeader("Authorization") String token,
                                                 @RequestBody List<NucleicAcidTestRecordInput> inputs) {
-        jwtUtil.extractID(token);
-        nucleicAcidsService.enterNucleicAcidTestRecordList(inputs);
-        return Result.success();
+        try {
+            JWTUtil.extractID(token);
+            nucleicAcidsService.enterNucleicAcidTestRecordList(inputs);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -118,11 +136,16 @@ public class NucleicAcidsController {
     public Result<?> getNucleicAcidTestInfo(@RequestHeader("Authorization") String token,
                                             @RequestParam(name = "start_time") String start_time,
                                             @RequestParam(name = "end_time") String end_time) {
-        jwtUtil.extractID(token);
         try {
-            return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(dateFormat.parse(start_time), dateFormat.parse(end_time)));
+            JWTUtil.extractID(token);
+
+            Date startDate = dateFormat.parse(start_time);
+            Date endDate = dateFormat.parse(end_time);
+            return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(startDate, endDate));
         } catch (ParseException e) {
-            return Result.failed();
+            return Result.failed("服务执行失败，请稍后重试");
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
         }
     }
 
@@ -138,11 +161,16 @@ public class NucleicAcidsController {
     public Result<?> getPositiveInfo(@RequestHeader("Authorization") String token,
                                      @RequestParam(name = "start_time") String start_time,
                                      @RequestParam(name = "end_time") String end_time) {
-        jwtUtil.extractID(token);
         try {
-            return Result.success(nucleicAcidsService.getPositiveInfoByTime(dateFormat.parse(start_time), dateFormat.parse(end_time)));
+            JWTUtil.extractID(token);
+
+            Date startDate = dateFormat.parse(start_time);
+            Date endDate = dateFormat.parse(end_time);
+            return Result.success(nucleicAcidsService.getPositiveInfoByTime(startDate, endDate));
         } catch (ParseException e) {
-            return Result.failed();
+            return Result.failed("服务执行失败，请稍后重试");
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
         }
     }
 

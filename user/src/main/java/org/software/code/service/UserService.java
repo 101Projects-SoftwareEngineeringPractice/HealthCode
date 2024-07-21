@@ -1,5 +1,6 @@
 package org.software.code.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.software.code.dto.HealthCodeManagerDto;
 import org.software.code.dto.NucleicAcidTestPersonnelDto;
 import org.software.code.dto.UserInfoDto;

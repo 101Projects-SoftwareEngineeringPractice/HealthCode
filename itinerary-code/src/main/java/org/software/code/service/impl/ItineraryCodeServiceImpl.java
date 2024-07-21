@@ -46,28 +46,30 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
 
     @Override
     public void cleanItinerary() {
-
         Date currentDate = new Date(); // 获取当前日期
-
-
         Calendar calendar = Calendar.getInstance(); // 创建 Calendar 实例并设置为当前日期
         calendar.setTime(currentDate);
-
-
         calendar.add(Calendar.DAY_OF_MONTH, -15); // 减去15天
-
-
         Date dateBefore15Days = calendar.getTime(); // 获取15天前的日期
-        itineraryCodeMapper.deleteItineraryCodeBeforeTime(dateBefore15Days);
+        try {
+            itineraryCodeMapper.deleteItineraryCodeBeforeTime(dateBefore15Days);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
     }
 
 
     @Override
     public GetItineraryDto getItinerary(long uid) {
         List<ItineraryCodeDao> itineraryCodeDaoList = itineraryCodeMapper.getItineraryCodeListByUID(uid);
-        Result<?> result = userClient.getUserByUID(uid);
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
+        UserInfoDto userInfoDto;
+        try {
+            Result<?> result = userClient.getUserByUID(uid);
+            ObjectMapper objectMapper = new ObjectMapper();
+            userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
+        } catch (Exception e) {
+            throw new RuntimeException("服务执行错误，请稍后重试");
+        }
         List<PlaceStarDto> places = itineraryCodeDaoList.stream()
                 .map(itineraryCodeDao -> {
                     PlaceStarDto placeStarDto = new PlaceStarDto();
@@ -80,7 +82,6 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
                     return placeStarDto;
                 })
                 .collect(Collectors.toList());
-
         GetItineraryDto getItineraryDto = new GetItineraryDto();
         getItineraryDto.setPlaces(places);
         getItineraryDto.setCreated_at(new Date());

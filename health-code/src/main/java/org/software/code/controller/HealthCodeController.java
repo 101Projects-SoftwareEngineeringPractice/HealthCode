@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class HealthCodeController {
     @Autowired
     private HealthCodeService healthCodeService;
-    private JWTUtil jwtUtil=new JWTUtil();
+
     /**
      * 用户在申请健康码页面（个人信息填写页面）申请健康码。
      *
@@ -36,9 +36,13 @@ public class HealthCodeController {
                                @RequestParam(name = "street_id") int street_id,
                                @RequestParam(name = "community_id") int community_id,
                                @RequestParam(name = "address") String address) {
-        long uid = jwtUtil.extractID(token);
-        healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
-        return Result.success();
+        try {
+            long uid = JWTUtil.extractID(token);
+            healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -49,9 +53,14 @@ public class HealthCodeController {
      */
     @GetMapping("/getCode")
     public Result<?> getCode(@RequestHeader("Authorization") String token) {
-        long uid = jwtUtil.extractID(token);
-        GetCodeDto getCodeDto = healthCodeService.getCode(uid);
-        return Result.success(getCodeDto);
+
+        try {
+            long uid = JWTUtil.extractID(token);
+            GetCodeDto getCodeDto = healthCodeService.getCode(uid);
+            return Result.success(getCodeDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -64,10 +73,13 @@ public class HealthCodeController {
     @GetMapping("/health_code")
     public Result<?> getHealthCodeInfo(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "identity_card") String identity_card) {
-
-        jwtUtil.extractID(token);
-        HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identity_card);
-        return Result.success(healthCodeInfoDto);
+        try {
+            JWTUtil.extractID(token);
+            HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identity_card);
+            return Result.success(healthCodeInfoDto);
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     /**
@@ -82,10 +94,14 @@ public class HealthCodeController {
     public Result<?> transcodingEvents(@RequestHeader("Authorization") String token,
                                        @RequestParam(name = "uid") long uid,
                                        @RequestParam(name = "event") int event) {
+        try {
 
-        jwtUtil.extractID(token);
-        healthCodeService.transcodingHealthCodeEvents(uid, event);
-        return Result.success();
+            JWTUtil.extractID(token);
+            healthCodeService.transcodingHealthCodeEvents(uid, event);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
 }

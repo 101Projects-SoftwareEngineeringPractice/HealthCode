@@ -24,49 +24,65 @@ public class PlaceCodeInternalController {
 
     @PostMapping("/addPlace")
     public Result<?> addPlace(@RequestBody AddPlaceInput placeDto) {
-        return Result.success(placeCodeService.addPlace(placeDto));
+        try {
+            return Result.success(placeCodeService.addPlace(placeDto));
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
+
     @GetMapping("/getPlaces")
     public Result<?> getPlaces() {
         return Result.success(placeCodeService.getPlaces());
     }
+
     @GetMapping("/getRecordByPid")
     public Result<?> getRecordByPid(@RequestParam("pid") long pid,
-                                     @RequestParam("start_time") String startTime,
-                                     @RequestParam("end_time") String endTime) {
-
+                                    @RequestParam("start_time") String startTime,
+                                    @RequestParam("end_time") String endTime) {
         try {
-            return Result.success(placeCodeService.getRecordByPid(pid, timeFormat.parse(startTime), timeFormat.parse(endTime)));
+            Date startDate = timeFormat.parse(startTime);
+            Date endDate = timeFormat.parse(endTime);
+            return Result.success(placeCodeService.getRecordByPid(pid, startDate, endDate));
         } catch (ParseException e) {
-            return Result.failed();
+            return Result.failed("服务执行失败，请稍后重试");
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
         }
     }
 
     @PostMapping("/scanPlaceCode")
-    public  Result<?> scanPlaceCode(@RequestParam("uid") long uid, @RequestParam("token") String token) {
-        placeCodeService.scanPlaceCode(uid, token);
-        return Result.success();
+    public Result<?> scanPlaceCode(@RequestParam("uid") long uid, @RequestParam("token") String token) {
+        try {
+            placeCodeService.scanPlaceCode(uid, token);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/oppositePlaceCode")
     public Result<?> oppositePlaceCode(@RequestParam("pid") long pid, @RequestParam("status") boolean status) {
-        placeCodeService.oppositePlaceCode(pid, status);
-        return Result.success();
+        try {
+            placeCodeService.oppositePlaceCode(pid, status);
+            return Result.success();
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/getPlacesByUserList")
     public Result<?> getPlacesByUserList(@RequestBody List<Long> uidList,
-                                          @RequestParam("start_time") String startTime,
-                                          @RequestParam("end_time") String endTime) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate = null;
-        Date endDate = null;
+                                         @RequestParam("start_time") String startTime,
+                                         @RequestParam("end_time") String endTime) {
         try {
-            startDate = formatter.parse(startTime);
-            endDate = formatter.parse(endTime);
+            Date startDate = timeFormat.parse(startTime);
+            Date endDate = timeFormat.parse(endTime);
             return Result.success(placeCodeService.getPlacesByUserList(uidList, startDate, endDate));
         } catch (ParseException e) {
-            return Result.failed();
+            return Result.failed("服务执行失败，请稍后重试");
+        } catch (Exception e) {
+            return Result.failed(e.getMessage());
         }
     }
 }
