@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.consts.FSMConst;
 import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,11 @@ public class HealthCodeController {
     @GetMapping("/{code}")
     public String getHealthCodeInfo(@PathVariable String code) {
         return healthCodeService.getHealthCodeInfo(code);
+    }
+
+    @GetMapping("/event")
+    public int updateHealthCode() {
+        return healthCodeService.updateHealthCode(FSMConst.HealthCodeEvent.FORCE_RED);
     }
 
     @GetMapping("/hello")
