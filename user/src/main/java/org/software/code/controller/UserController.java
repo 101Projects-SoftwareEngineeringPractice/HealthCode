@@ -1,16 +1,19 @@
 package org.software.code.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
-import org.software.code.dto.HealthCodeManagerDto;
-import org.software.code.dto.NucleicAcidTestPersonnelDto;
+import org.software.code.dto.*;
 import org.software.code.service.UserService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 import java.util.List;
 
+
+@Validated
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -19,125 +22,120 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public Result<?> login(@RequestParam(name = "code") String code) {
-        try {
-            String token = userService.userLogin(code);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> login(@Valid @RequestBody CodeInput input) {
+
+        String token = userService.userLogin(input.getCode());
+        return Result.success(token);
     }
+
+    @PostMapping("/login-test")
+    public Result<?> login_test(@Valid @RequestBody CodeInput input) {
+        String token = userService.userLogin_test(input.getCode());
+        return Result.success(token);
+    }
+
 
     @PutMapping("/userModify")
-    public Result<?> userModify(@RequestHeader("Authorization") String token,
-                                @RequestParam(name = "name") String name,
-                                @RequestParam(name = "phone_number") String phone_number,
-                                @RequestParam(name = "district_id") int district_id,
-                                @RequestParam(name = "street_id") int street_id,
-                                @RequestParam(name = "community_id") int community_id,
-                                @RequestParam(name = "address") String address) {
-        try {
-            long uid = JWTUtil.extractID(token);
-            userService.userModify(uid, name, phone_number, district_id, street_id, community_id, address);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> userModify(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
+                                @Valid @RequestBody UserModifyRequest request) {
+
+
+        String name = request.getName();
+        String phoneNumber = request.getPhoneNumber();
+        int districtId = request.getDistrictId();
+        int streetId = request.getStreetId();
+        long communityId = request.getCommunityId();
+        String address = request.getAddress();
+
+        long uid = JWTUtil.extractID(token);
+        userService.userModify(uid, name, phoneNumber, districtId, streetId, communityId, address);
+        return Result.success();
     }
+
 
     @PostMapping("/nucleicAcidsLogin")
-    public Result<?> nucleicAcidsLogin(@RequestParam(name = "identity_card") String identity_card,
-                                       @RequestParam(name = "password") String password) {
-        try {
-            String token = userService.nucleicAcidTestUserLogin(identity_card, password);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> nucleicAcidsLogin(@Valid @RequestBody NucleicAcidsLoginRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String password = request.getPassword();
+        String token = userService.nucleicAcidTestUserLogin(identityCard, password);
+        return Result.success(token);
     }
 
+//    @CrossOrigin(origins = "https://linbby.github.io")
     @PostMapping("/managerLogin")
-    public Result<?> managerLogin(@RequestParam(name = "identity_card") String identity_card,
-                                  @RequestParam(name = "password") String password) {
-        try {
-            String token = userService.managerLogin(identity_card, password);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> managerLogin(@Valid @RequestBody ManagerLoginRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String password = request.getPassword();
+        String token = userService.managerLogin(identityCard, password);
+        return Result.success(token);
+
     }
 
     @PostMapping("/nucleic_acid")
-    public Result<?> createNucleicAcid(@RequestHeader("Authorization") String token,
-                                       @RequestParam(name = "identity_card") String identity_card,
-                                       @RequestParam(name = "name") String name,
-                                       @RequestParam(name = "password") String password) {
-        try {
-            JWTUtil.extractID(token);
-            userService.newNucleicAcidTestUser(identity_card, name, password);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> createNucleicAcid(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
+                                       @Valid @RequestBody CreateNucleicAcidRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String name = request.getName();
+        String password = request.getPassword();
+        JWTUtil.extractID(token);
+        userService.newNucleicAcidTestUser(identityCard, name, password);
+        return Result.success();
+
     }
 
+
     @GetMapping("/nucleic_acid")
-    public Result<?> getNucleicAcidList(@RequestHeader("Authorization") String token) {
-        try {
-            JWTUtil.extractID(token);
-            List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
-            return Result.success(nucleicAcidUserInfoList);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> getNucleicAcidList(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
+
+        JWTUtil.extractID(token);
+        List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
+        return Result.success(nucleicAcidUserInfoList);
+
     }
 
     @PatchMapping("/nucleic_acid_opposite")
-    public Result<?> nucleicAcidOpposite(@RequestHeader("Authorization") String token,
-                                         @RequestParam(name = "tid") long tid) {
-        try {
-            JWTUtil.extractID(token);
-            userService.nucleicAcidOpposite(tid);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> nucleicAcidOpposite(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
+                                         @Valid @RequestBody TidInput request) {
+
+        JWTUtil.extractID(token);
+        userService.nucleicAcidOpposite(request.getTid());
+        return Result.success();
+
     }
 
     @PostMapping("/manage")
-    public Result<?> createManage(@RequestHeader("Authorization") String token,
-                                  @RequestParam(name = "identity_card") String identity_card,
-                                  @RequestParam(name = "name") String name,
-                                  @RequestParam(name = "password") String password) {
-        try {
-            JWTUtil.extractID(token);
-            userService.newMangerUser(identity_card, name, password);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> createManage(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
+                                  @Valid @RequestBody CreateManageRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String name = request.getName();
+        String password = request.getPassword();
+        JWTUtil.extractID(token);
+        userService.newMangerUser(identityCard, password,name);
+        return Result.success(token);
+
     }
 
+
     @GetMapping("/manager")
-    public Result<?> getManageList(@RequestHeader("Authorization") String token) {
-        try {
-            JWTUtil.extractID(token);
-            List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
-            return Result.success(manageUserInfoList);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> getManageList(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
+        JWTUtil.extractID(token);
+        List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
+        return Result.success(manageUserInfoList);
+
     }
 
     @PatchMapping("/manage_opposite")
-    public Result<?> manageOpposite(@RequestHeader("Authorization") String token,
-                                    @RequestParam(name = "mid") long mid) {
-        try {
-            JWTUtil.extractID(token);
-            userService.manageOpposite(mid);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> manageOpposite(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
+                                    @Valid @RequestBody MidInput request) {
+
+        JWTUtil.extractID(token);
+        userService.manageOpposite(request.getMid());
+        return Result.success();
+
     }
+
 }

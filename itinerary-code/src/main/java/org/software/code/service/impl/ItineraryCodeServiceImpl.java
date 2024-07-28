@@ -51,25 +51,16 @@ public class ItineraryCodeServiceImpl implements ItineraryCodeService {
         calendar.setTime(currentDate);
         calendar.add(Calendar.DAY_OF_MONTH, -15); // 减去15天
         Date dateBefore15Days = calendar.getTime(); // 获取15天前的日期
-        try {
-            itineraryCodeMapper.deleteItineraryCodeBeforeTime(dateBefore15Days);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        itineraryCodeMapper.deleteItineraryCodeBeforeTime(dateBefore15Days);
     }
 
 
     @Override
     public GetItineraryDto getItinerary(long uid) {
         List<ItineraryCodeDao> itineraryCodeDaoList = itineraryCodeMapper.getItineraryCodeListByUID(uid);
-        UserInfoDto userInfoDto;
-        try {
-            Result<?> result = userClient.getUserByUID(uid);
-            ObjectMapper objectMapper = new ObjectMapper();
-            userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        Result<?> result = userClient.getUserByUID(uid);
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         List<PlaceStarDto> places = itineraryCodeDaoList.stream()
                 .map(itineraryCodeDao -> {
                     PlaceStarDto placeStarDto = new PlaceStarDto();

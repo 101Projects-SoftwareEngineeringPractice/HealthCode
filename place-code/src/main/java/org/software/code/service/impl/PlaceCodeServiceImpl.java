@@ -7,10 +7,7 @@ import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dao.PlaceInfoDao;
 import org.software.code.dao.PlaceMappingDao;
-import org.software.code.dto.GetPlaceDto;
-import org.software.code.dto.PlaceCodeInfoDto;
-import org.software.code.dto.AddPlaceInput;
-import org.software.code.dto.UserInfoDto;
+import org.software.code.dto.*;
 import org.software.code.mapper.PlaceInfoMapper;
 import org.software.code.mapper.PlaceMappingMapper;
 import org.software.code.service.PlaceCodeService;
@@ -35,55 +32,39 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     UserClient userClient;
 
     public Long addPlace(AddPlaceInput placeDto) {
-        UserInfoDto userInfo;
-        try {
-            Result<?> result = userClient.getUserByUID(placeDto.getUid());
-            ObjectMapper objectMapper = new ObjectMapper();
-            userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
-        if (userInfo == null || userInfo.getUid() == 0) {
-            throw new NullPointerException("用户不存在，请重试");
-        }
-
+        Result<?> result = userClient.getUserByUID(placeDto.getUid());
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         PlaceInfoDao placeInfoDao = new PlaceInfoDao();
         BeanUtils.copyProperties(placeDto, placeInfoDao);
         placeInfoDao.setIdentity_card(userInfo.getIdentity_card());
+        placeInfoDao.setDistrict(placeDto.getDistrict()); // 默认开启
+        placeInfoDao.setStreet(placeDto.getStreet()); // 默认开启
+        placeInfoDao.setCommunity(placeInfoDao.getCommunity()); // 默认开启
+        placeInfoDao.setAddress(placeInfoDao.getAddress()); // 默认开启
         placeInfoDao.setStatus(true); // 默认开启
         long snowflakePid = IdUtil.getSnowflake().nextId();
         placeInfoDao.setPid(snowflakePid);
-        try {
-            placeInfoMapper.insertPlace(placeInfoDao);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        placeInfoMapper.insertPlace(placeInfoDao);
         return placeInfoDao.getPid();
     }
 
     public List<GetPlaceDto> getPlaces() {
         List<PlaceInfoDao> placeInfoDaoList = placeInfoMapper.findAllPlaces();
-        try {
-            return placeInfoDaoList.stream()
-                    .map(placeInfoDao -> {
-                        GetPlaceDto getPlaceDto = new GetPlaceDto();
-                        BeanUtils.copyProperties(placeInfoDao, getPlaceDto);
-                        Result<?> result = userClient.getUserByUID(placeInfoDao.getUid());
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        UserInfoDto userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-                        if (userInfo == null || userInfo.getUid() == 0) {
-                            throw new NullPointerException("用户不存在，请重试");
-                        }
-                        getPlaceDto.setPhone_number(userInfo.getPhone_number());
-                        return getPlaceDto;
-                    })
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-
-        }
+        return placeInfoDaoList.stream()
+                .map(placeInfoDao -> {
+                    GetPlaceDto getPlaceDto = new GetPlaceDto();
+                    BeanUtils.copyProperties(placeInfoDao, getPlaceDto);
+                    Result<?> result = userClient.getUserByUID(placeInfoDao.getUid());
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    UserInfoDto userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
+                    getPlaceDto.setPhone_number(userInfo.getPhone_number());
+                    return getPlaceDto;
+                })
+                .collect(Collectors.toList());
     }
 
+    @Override
     public List<Long> getRecordByPid(long pid, Date startTime, Date endTime) {
         return placeInfoMapper.findUidsByPidAndTimeRange(pid, startTime, endTime);
     }
@@ -100,12 +81,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         placeMappingDao.setPid(pid);
         placeMappingDao.setUid(uid);
         placeMappingDao.setTime(new Date());
-        try {
-            placeMappingMapper.insertPlaceMapping(placeMappingDao);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-
-        }
+        placeMappingMapper.insertPlaceMapping(placeMappingDao);
     }
 
     public List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime) {
@@ -114,19 +90,10 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
 
     @Override
-    public void createPlaceCode(String identityCard, String name, int districtId, int streetId, int communityId, String address) {
-
-        UserInfoDto userInfoDto;
-        try {
-            Result<?> result = userClient.getUserByID(identityCard);
-            ObjectMapper objectMapper = new ObjectMapper();
-            userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
-        if (userInfoDto == null) {
-            throw new NullPointerException("用户不存在，请重试");
-        }
+    public void createPlaceCode(String identityCard, String name, int districtId, int streetId, long communityId, String address) {
+        Result<?> result = userClient.getUserByID(identityCard);
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         PlaceInfoDao placeInfoDao = new PlaceInfoDao();
         long snowflakePid = IdUtil.getSnowflake().nextId();
         placeInfoDao.setPid(snowflakePid);
@@ -138,11 +105,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         placeInfoDao.setCommunity(communityId);
         placeInfoDao.setAddress(address);
         placeInfoDao.setStatus(true); // 默认开启
-        try {
-            placeInfoMapper.insertPlace(placeInfoDao);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        placeInfoMapper.insertPlace(placeInfoDao);
     }
 
     @Override
@@ -163,4 +126,6 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         Boolean status = placeInfoDao.getStatus();
         placeInfoMapper.updatePlaceStatusByPid(!status, pid);
     }
+
+
 }

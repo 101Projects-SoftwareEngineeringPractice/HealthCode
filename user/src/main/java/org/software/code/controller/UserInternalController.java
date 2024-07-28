@@ -1,174 +1,153 @@
 package org.software.code.controller;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.HealthCodeManagerDto;
-import org.software.code.dto.NucleicAcidTestPersonnelDto;
-import org.software.code.dto.UserInfoDto;
+import org.software.code.dto.*;
 import org.software.code.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Validated
 @RestController
-@RequestMapping("/user")
+@RequestMapping("user")
 public class UserInternalController {
     @Autowired
     private UserService userService;
 
 
     @GetMapping("/getUserByUID")
-    public Result<?> getUserByUID(@RequestParam(name = "uid") long uid) {
-        try {
-            UserInfoDto userInfoDto = userService.getUserByUID(uid);
-            return Result.success(userInfoDto);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> getUserByUID(@RequestParam(name = "uid") @NotNull(message = "uid不能为空") Long uid) {
+        UserInfoDto userInfoDto = userService.getUserByUID(uid);
+        return Result.success(userInfoDto);
     }
 
     @GetMapping("/getUserByID")
-    public Result<?> getUserByID(@RequestParam(name = "identity_card") String identity_card) {
-        try {
-            UserInfoDto userInfoDto = userService.getUserByID(identity_card);
-            return Result.success(userInfoDto);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> getUserByID(@RequestParam(name = "identity_card") @NotNull(message = "identity_card不能为空") String identity_card) {
+        UserInfoDto userInfoDto = userService.getUserByID(identity_card);
+        return Result.success(userInfoDto);
     }
 
     @PostMapping("/userLogin")
-    public Result<?> userLogin(@RequestParam(name = "code") String code) {
-
-        try {
-            String token = userService.userLogin(code);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> userLogin(@Valid @RequestBody CodeInput input) {
+        String token = userService.userLogin(input.getCode());
+        return Result.success(token);
     }
 
     @PostMapping("/nucleicAcidTestUserLogin")
-    public Result<?> nucleicAcidTestUserLogin(@RequestParam(name = "identity_card") String identity_card,
-                                              @RequestParam(name = "password") String password) {
-        try {
-            String token = userService.nucleicAcidTestUserLogin(identity_card, password);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> nucleicAcidTestUserLogin(@RequestBody NucleicAcidsLoginRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String password = request.getPassword();
+
+        String token = userService.nucleicAcidTestUserLogin(identityCard, password);
+        return Result.success(token);
     }
 
     @GetMapping("/getNucleicAcidTestUser")
     public Result<?> getNucleicAcidTestUser() {
-        try {
-            List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
-            return Result.success(nucleicAcidUserInfoList);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+        List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
+        return Result.success(nucleicAcidUserInfoList);
     }
 
     @GetMapping("/getManagerUser")
     public Result<?> getManagerUser() {
-        try {
-            List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
-            return Result.success(manageUserInfoList);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+        List<HealthCodeManagerDto> manageUserInfoList = userService.getManagerUser();
+        return Result.success(manageUserInfoList);
     }
 
     @PostMapping("/newNucleicAcidTestUser")
-    public Result<?> newNucleicAcidTestUser(@RequestParam(name = "identity_card") String identity_card,
-                                            @RequestParam(name = "password") String password,
-                                            @RequestParam(name = "name") String name) {
-        try {
-            userService.newNucleicAcidTestUser(identity_card, password, name);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> newNucleicAcidTestUser(@Valid @RequestBody CreateNucleicAcidRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String name = request.getName();
+        String password = request.getPassword();
+        userService.newNucleicAcidTestUser(identityCard, password, name);
+        return Result.success();
     }
 
     @PostMapping("/newMangerUser")
-    public Result<?> newMangerUser(@RequestParam(name = "identity_card") String identity_card,
-                                   @RequestParam(name = "password") String password,
-                                   @RequestParam(name = "name") String name) {
-        try {
-            userService.newMangerUser(identity_card, password, name);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> newMangerUser(@Valid @RequestBody CreateManageRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String name = request.getName();
+        String password = request.getPassword();
+        userService.newMangerUser(identityCard, password, name);
+        return Result.success();
     }
 
     @PostMapping("/managerUserLogin")
-    public Result<?> managerLogin(@RequestParam(name = "identity_card") String identity_card,
-                                  @RequestParam(name = "password") String password) {
-        try {
-            String token = userService.managerLogin(identity_card, password);
-            return Result.success(token);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> managerLogin(@Valid @RequestBody ManagerLoginRequest request) {
+
+        String identityCard = request.getIdentityCard();
+        String password = request.getPassword();
+        String token = userService.managerLogin(identityCard, password);
+        return Result.success(token);
     }
 
     @PutMapping("/modifyUserInfo")
-    public Result<?> modifyUserInfo(@RequestParam(name = "uid") long uid,
-                                    @RequestParam(name = "name") String name,
-                                    @RequestParam(name = "phone_number") String phone_number,
-                                    @RequestParam(name = "identity_card") String identity_card,
-                                    @RequestParam(name = "district") int district,
-                                    @RequestParam(name = "street") int street,
-                                    @RequestParam(name = "community") int community,
-                                    @RequestParam(name = "address") String address) {
-        try {
-            userService.modifyUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> modifyUserInfo(@Valid @RequestBody UserInfoRequest request) {
+
+        Long uid = request.getUid();
+        String name = request.getName();
+        String phoneNumber = request.getPhoneNumber();
+        String identityCard = request.getIdentityCard();
+        Integer district = request.getDistrict();
+        Integer street = request.getStreet();
+        Long community = request.getCommunity();
+        String address = request.getAddress();
+        userService.modifyUserInfo(uid, name, phoneNumber, identityCard, district, street, community, address);
+        return Result.success();
     }
 
     @PatchMapping("/statusNucleicAcidTestUser")
-    public Result<?> statusNucleicAcidTestUser(@RequestParam(name = "tid") long tid,
-                                               @RequestParam(name = "status") boolean status) {
-        try {
-            userService.statusNucleicAcidTestUser(tid, status);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> statusNucleicAcidTestUser(@Valid @RequestBody StatusNucleicAcidTestUserRequest request) {
+
+        Long tid = request.getTid();
+        Boolean status = request.getStatus();
+        userService.statusNucleicAcidTestUser(tid, status);
+        return Result.success();
     }
 
     @PatchMapping("/statusManager")
-    public Result<?> statusManager(@RequestParam(name = "mid") long mid,
-                                   @RequestParam(name = "status") boolean status) {
-        try {
-            userService.statusManager(mid, status);
-            return Result.success();
-        } catch (
-                Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> statusManager(@Valid @RequestBody StatusManagerRequest request) {
+
+        Long mid = request.getMid();
+        Boolean status = request.getStatus();
+        userService.statusManager(mid, status);
+        return Result.success();
     }
 
     @PutMapping("/addUserInfo")
-    public Result<?> addUserInfo(@RequestParam(name = "uid") long uid,
-                                 @RequestParam(name = "name") String name,
-                                 @RequestParam(name = "phone_number") String phone_number,
-                                 @RequestParam(name = "identity_card") String identity_card,
-                                 @RequestParam(name = "district") int district,
-                                 @RequestParam(name = "street") int street,
-                                 @RequestParam(name = "community") int community,
-                                 @RequestParam(name = "address") String address) {
-        try {
-            userService.addUserInfo(uid, name, phone_number, identity_card, district, street, community, address);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> addUserInfo(@Valid @RequestBody UserInfoRequest request) {
+
+        Long uid = request.getUid();
+        String name = request.getName();
+        String phoneNumber = request.getPhoneNumber();
+        String identityCard = request.getIdentityCard();
+        Integer district = request.getDistrict();
+        Integer street = request.getStreet();
+        Long community = request.getCommunity();
+        String address = request.getAddress();
+        userService.addUserInfo(uid, name, phoneNumber, identityCard, district, street, community, address);
+        return Result.success();
     }
+
+    @GetMapping("/delete")
+    public Result<?> deleteUserInfo(@RequestParam("uid") @NotNull(message = "uid不能为空") Long uid) {
+        userService.deleteUserInfo(uid);
+        return Result.success();
+    }
+
+    @PostMapping("/testuid")
+    public Result<?> testuid(@RequestBody @Valid TidInput tidInpt) {
+        System.out.println(tidInpt.getTid());
+//        userService.deleteUserInfo(uid);
+        return Result.success();
+    }
+
 
 }

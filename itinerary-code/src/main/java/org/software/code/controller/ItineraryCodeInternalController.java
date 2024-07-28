@@ -4,13 +4,16 @@ import org.software.code.common.result.Result;
 import org.software.code.dto.PlaceStatusDto;
 import org.software.code.service.ItineraryCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping("/itinerary-code")
 public class ItineraryCodeInternalController {
@@ -24,13 +27,11 @@ public class ItineraryCodeInternalController {
      * @return
      */
     @GetMapping("/getItineraryCodeList")
-    public Result<?> getItineraryCodeList(@RequestParam(name = "uid") long uid) {
-        try{
+    public Result<?> getItineraryCodeList(@RequestParam(name = "uid") @NotNull(message = "uid不能为空") Long uid) {
+        
         List<PlaceStatusDto> placeStatusDtoList = itineraryCodeService.getItineraryCodeList(uid);
         return Result.success(placeStatusDtoList);
-    } catch (Exception e) {
-        return Result.failed(e.getMessage());
-    }
+    
     }
 
     /**
@@ -39,11 +40,9 @@ public class ItineraryCodeInternalController {
      */
     @GetMapping("/cleanItinerary")
     public Result<?> cleanItinerary() {
-        try{
+        
         itineraryCodeService.cleanItinerary();
         return Result.success();
-    } catch (Exception e) {
-        return Result.failed(e.getMessage());
-        }
+    
     }
 }

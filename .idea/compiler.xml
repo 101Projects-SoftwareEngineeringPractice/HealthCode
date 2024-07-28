@@ -9,11 +9,16 @@
         <outputRelativeToContentRoot value="true" />
         <module name="itinerary-code" />
         <module name="health-code" />
-        <module name="user" />
         <module name="nucleic-acids" />
+        <module name="user" />
         <module name="gateway" />
         <module name="place-code" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="user (1)" target="1.8" />
+      <module name="user (2)" target="1.8" />
+      <module name="user (3)" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

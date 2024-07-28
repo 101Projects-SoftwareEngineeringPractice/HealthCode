@@ -1,6 +1,5 @@
 package org.software.code.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.software.code.dto.HealthCodeManagerDto;
 import org.software.code.dto.NucleicAcidTestPersonnelDto;
 import org.software.code.dto.UserInfoDto;
@@ -28,17 +27,23 @@ public interface UserService {
 
     String managerLogin(String identityCard, String password);
 
-    void modifyUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, int community, String address);
+    void modifyUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address);
 
     void statusNucleicAcidTestUser(long tid, boolean status);
 
     void statusManager(long mid, boolean status);
 
-    void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, int communityId, String address);
+    void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, long communityId, String address);
 
     void nucleicAcidOpposite(long tid);
 
     void manageOpposite(long mid);
 
-    void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, int community, String address);
+    void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address);
+
+    String userLogin_test(String code);
+
+    void deleteUserInfo(long uid);
+
+
 }

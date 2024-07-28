@@ -50,7 +50,7 @@ public interface NucleicAcidTestMapper {
     List<NucleicAcidTestRecordDao> findUnreTestedRecordsWithinDays(@Param("threeDaysAgo") Date threeDaysAgo);
 
 
-    @Select("SELECT uid FROM health_code_nucleic_acids.health_code_nucleic_acids WHERE kind = 0 AND result = 1 AND DATE(created_at) = DATE(#{twoDaysAgo})")
+    @Select("SELECT uid FROM health_code_nucleic_acids.nucleic_acid_test WHERE kind = 0 AND result = 1 AND DATE(created_at) = DATE(#{twoDaysAgo})")
     List<Long> findPositiveSingleTubeUids(@Param("twoDaysAgo") Date twoDaysAgo);
 
 }

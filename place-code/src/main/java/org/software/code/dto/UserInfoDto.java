@@ -11,7 +11,7 @@ public class UserInfoDto {
 
     private  int street;
 
-    private int community;
+    private long community;
 
     private String address;
 
@@ -64,11 +64,11 @@ public class UserInfoDto {
         this.street = street;
     }
 
-    public int getCommunity() {
+    public long getCommunity() {
         return community;
     }
 
-    public void setCommunity(int community) {
+    public void setCommunity(long community) {
         this.community = community;
     }
 

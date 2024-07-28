@@ -4,9 +4,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.jetbrains.annotations.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "nucleic_acid_test", schema = "health_code_user")
@@ -57,7 +57,7 @@ public class NucleicAcidTestRecordDao {
 
     @NotNull
     @Column(name = "community", nullable = false)
-    private Integer community;
+    private Long community;
 
     @Size(max = 255)
     @NotNull
@@ -165,11 +165,11 @@ public class NucleicAcidTestRecordDao {
     }
 
     @NotNull
-    public Integer getCommunity() {
+    public Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(@NotNull Integer community) {
+    public void setCommunity(@NotNull Long community) {
         this.community = community;
     }
 

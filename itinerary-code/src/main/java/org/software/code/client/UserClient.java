@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "user")
 public interface UserClient {
     @GetMapping("/user/getUserByUID")
-    Result<?> getUserByUID(@RequestParam(name = "uid") long uid);
+    Result<?> getUserByUID(@RequestParam(name = "uid") Long uid);
 }

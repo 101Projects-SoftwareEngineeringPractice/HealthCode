@@ -1,7 +1,10 @@
 package org.software.code.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class HealthCodeManagerDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long mid;
     private String identity_card;
     private String name;

@@ -1,11 +1,19 @@
 package org.software.code.dto;
 
+import javax.validation.constraints.NotNull;
+
 public class AddPlaceInput {
+    @NotNull
     private Long uid;
+    @NotNull
     private String name;
+    @NotNull
     private Integer district;
+    @NotNull
     private Integer street;
-    private Integer community;
+    @NotNull
+    private Long community;
+    @NotNull
     private String address;
 
     public Long getUid() {
@@ -41,11 +49,11 @@ public class AddPlaceInput {
         this.street = street;
     }
 
-    public Integer getCommunity() {
+    public Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(Integer community) {
+    public void setCommunity(Long community) {
         this.community = community;
     }
 
