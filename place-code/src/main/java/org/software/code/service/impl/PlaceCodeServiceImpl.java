@@ -4,6 +4,8 @@ import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.software.code.client.UserClient;
 import org.software.code.common.JWTUtil;
+import org.software.code.common.except.BusinessException;
+import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
 import org.software.code.dao.PlaceInfoDao;
 import org.software.code.dao.PlaceMappingDao;
@@ -123,6 +125,9 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     @Override
     public void placeCodeOpposite(Long pid) {
         PlaceInfoDao placeInfoDao = placeInfoMapper.getPlaceInfoByPID(pid);
+        if(placeInfoDao==null){
+            throw new BusinessException(ExceptionEnum.PLACE_CODE_NOT_FIND);
+        }
         Boolean status = placeInfoDao.getStatus();
         placeInfoMapper.updatePlaceStatusByPid(!status, pid);
     }

@@ -12,7 +12,6 @@ import org.software.code.dao.NucleicAcidTestPersonnelDao;
 import org.software.code.dao.UidMappingDao;
 import org.software.code.dao.UserInfoDao;
 import org.software.code.dto.HealthCodeManagerDto;
-import org.software.code.dto.CodeInput;
 import org.software.code.dto.NucleicAcidTestPersonnelDto;
 import org.software.code.dto.UserInfoDto;
 import org.software.code.kafka.KafkaConsumer;
@@ -24,7 +23,6 @@ import org.software.code.mapper.UidMappingMapper;
 import org.software.code.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -40,9 +38,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
-import static org.software.code.common.except.ExceptionEnum.MANAGER_USER_DELETE_FAIL;
-import static org.software.code.common.except.ExceptionEnum.USER_LOGIN_EXIST_NULL_FAIL;
 
 
 @Service
@@ -69,32 +64,47 @@ public class UserServiceImpl implements UserService {
     // 加载持久化的布隆过滤器数据
     private static final String BLOOM_FILTER_FILE = "bloomfilter.data";
 
+
     @PostConstruct
     public void init() {
-        File file = new File(BLOOM_FILTER_FILE);
-        if (file.exists()) {
-            try (InputStream is = Files.newInputStream(file.toPath())) {
-                bloomFilter = BloomFilter.readFrom(is, Funnels.stringFunnel(Charset.defaultCharset()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            bloomFilter = BloomFilter.create(
-                    Funnels.stringFunnel(StandardCharsets.UTF_8),
-                    1000000,
-                    0.01);
-        }
+        bloomFilter = getInitBloomFilter();
     }
 
     @PreDestroy
     public void shutdown() {
+        saveBloomFilter();
+    }
+
+    private BloomFilter<CharSequence> getInitBloomFilter() {
+        try {
+            File file = new File(BLOOM_FILTER_FILE);
+            if (file.exists()) {
+                InputStream is = Files.newInputStream(file.toPath());
+                bloomFilter = BloomFilter.readFrom(is, Funnels.stringFunnel(Charset.defaultCharset()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (bloomFilter == null) {
+            try {
+                bloomFilter = BloomFilter.create(
+                        Funnels.stringFunnel(StandardCharsets.UTF_8),
+                        1000000,
+                        0.01);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return bloomFilter;
+    }
+
+    private void saveBloomFilter() {
         try (OutputStream os = Files.newOutputStream(Paths.get(BLOOM_FILTER_FILE))) {
             bloomFilter.writeTo(os);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     @Override
 //    @Cacheable(value = "user_info", key = "#uid")
@@ -122,33 +132,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin(String code) {
+        if (bloomFilter == null) { // 确保bloomFilter已经初始化
+            getInitBloomFilter();
+        }
         String openID = WeChatUtil.getOpenIDFromWX(code);
-        boolean exists = false;
-        if (bloomFilter != null) {
-            exists = bloomFilter.mightContain(openID);
-        }
-        // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
-        long uid;
-        if (!exists) {
-            uid = IdUtil.getSnowflake().nextId();
-            // 将新的OpenID添加到布隆过滤器中
-            bloomFilter.put(openID);
-            UidMappingDao uidMappingDao = new UidMappingDao();
-            uidMappingDao.setUid(uid);
-            uidMappingDao.setOpenid(openID);
-            try {
+        try {
+            boolean exists = bloomFilter.mightContain(openID);
+            if (!exists) {
+                long uid = IdUtil.getSnowflake().nextId();
+                // 将新的OpenID添加到布隆过滤器中
+                bloomFilter.put(openID);
+                UidMappingDao uidMappingDao = new UidMappingDao();
+                uidMappingDao.setUid(uid);
+                uidMappingDao.setOpenid(openID);
                 userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-            } catch (Exception e) {
-                uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
+                return JWTUtil.generateJWToken(uid, 3600000);
             }
-        } else {
-            // 如果OpenID已存在，则获取其对应的UID（假设通过数据库或缓存获取）
-            uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        String token = JWTUtil.generateJWToken(uid, 3600000);
-        return token;
-    }
+        long uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
+        return JWTUtil.generateJWToken(uid, 3600000);
 
+    }
 
     @Override
     public String nucleicAcidTestUserLogin(String identityCard, String password) {
@@ -358,11 +364,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin_test(String code) {
-        String openID = "openid-" + code;
-        boolean exists = false;
-        if (bloomFilter != null) {
-            exists = bloomFilter.mightContain(openID);
+        // 确保bloomFilter已经初始化
+        if (bloomFilter == null) {
+            init();
         }
+
+        String openID = "openid-" + code;
+        boolean exists = bloomFilter.mightContain(openID);
+
         // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
         long uid;
         if (!exists) {
@@ -403,6 +412,4 @@ public class UserServiceImpl implements UserService {
             userInfoMapper.deleteById(uid);
         }
     }
-
-
 }

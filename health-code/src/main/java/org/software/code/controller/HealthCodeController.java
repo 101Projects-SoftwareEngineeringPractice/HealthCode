@@ -33,7 +33,6 @@ public class HealthCodeController {
     public Result<?> applyCode(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                @Valid @RequestBody ApplyCodeRequest input) {
         long uid = JWTUtil.extractID(token);
-        input.setUid(uid);
         String name = input.getName();
         String phone_number = input.getPhoneNumber();
         String identity_card = input.getIdentityCard();
@@ -42,7 +41,6 @@ public class HealthCodeController {
         long community_id = input.getCommunityId();
         String address = input.getAddress();
         healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
-
         return Result.success();
 
     }

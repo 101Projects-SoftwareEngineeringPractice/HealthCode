@@ -6,8 +6,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class ApplyCodeRequest {
-    @JsonProperty("uid")
-    private Long uid;
 
     @NotBlank
     @JsonProperty("name")
@@ -39,13 +37,6 @@ public class ApplyCodeRequest {
 
     // Getters and Setters
 
-    public Long getUid() {
-        return uid;
-    }
-
-    public void setUid(Long uid) {
-        this.uid = uid;
-    }
 
     public String getName() {
         return name;

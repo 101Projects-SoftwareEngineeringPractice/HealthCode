@@ -28,6 +28,9 @@ public enum ExceptionEnum {
     USER_PLACE_CODE_UPDATE_FAIL("60006", "用户场所码记录更新失败"),
     USER_PLACE_CODE_DELETE_FAIL("60007", "用户场所码记录删除失败"),
     USER_PLACE_CODE_SELECT_FAIL("60008", "用户场所码记录查询失败"),
+
+    PLACE_CODE_NOT_FIND("60009", "场所码不存在"),
+
     ;
 
     /**
