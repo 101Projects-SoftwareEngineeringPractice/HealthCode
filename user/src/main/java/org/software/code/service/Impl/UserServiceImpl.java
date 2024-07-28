@@ -12,7 +12,6 @@ import org.software.code.dao.NucleicAcidTestPersonnelDao;
 import org.software.code.dao.UidMappingDao;
 import org.software.code.dao.UserInfoDao;
 import org.software.code.dto.HealthCodeManagerDto;
-import org.software.code.dto.CodeInput;
 import org.software.code.dto.NucleicAcidTestPersonnelDto;
 import org.software.code.dto.UserInfoDto;
 import org.software.code.kafka.KafkaConsumer;
@@ -77,6 +76,11 @@ public class UserServiceImpl implements UserService {
                 bloomFilter = BloomFilter.readFrom(is, Funnels.stringFunnel(Charset.defaultCharset()));
             } catch (IOException e) {
                 e.printStackTrace();
+                // 初始化新的布隆过滤器实例
+                bloomFilter = BloomFilter.create(
+                        Funnels.stringFunnel(StandardCharsets.UTF_8),
+                        1000000,
+                        0.01);
             }
         } else {
             bloomFilter = BloomFilter.create(
@@ -94,8 +98,6 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
         }
     }
-
-
     @Override
 //    @Cacheable(value = "user_info", key = "#uid")
     public UserInfoDto getUserByUID(long uid) {
@@ -122,11 +124,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin(String code) {
-        String openID = WeChatUtil.getOpenIDFromWX(code);
-        boolean exists = false;
-        if (bloomFilter != null) {
-            exists = bloomFilter.mightContain(openID);
+        // 确保bloomFilter已经初始化
+        if (bloomFilter == null) {
+            init();
         }
+
+        String openID = WeChatUtil.getOpenIDFromWX(code);
+        boolean exists = bloomFilter.mightContain(openID);
+
         // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
         long uid;
         if (!exists) {
@@ -148,7 +153,6 @@ public class UserServiceImpl implements UserService {
         String token = JWTUtil.generateJWToken(uid, 3600000);
         return token;
     }
-
 
     @Override
     public String nucleicAcidTestUserLogin(String identityCard, String password) {
@@ -358,11 +362,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin_test(String code) {
-        String openID = "openid-" + code;
-        boolean exists = false;
-        if (bloomFilter != null) {
-            exists = bloomFilter.mightContain(openID);
+        // 确保bloomFilter已经初始化
+        if (bloomFilter == null) {
+            init();
         }
+
+        String openID = "openid-" + code;
+        boolean exists = bloomFilter.mightContain(openID);
+
         // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
         long uid;
         if (!exists) {
@@ -403,6 +410,4 @@ public class UserServiceImpl implements UserService {
             userInfoMapper.deleteById(uid);
         }
     }
-
-
 }
