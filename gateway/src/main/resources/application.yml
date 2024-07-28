@@ -4,26 +4,12 @@ server:
 spring:
   application:
     name: gateway
-
   cloud:
     nacos:
       discovery:
         server-addr: localhost:8848
         namespace: public
-#    gateway:
-#      globalcors:
-#        add-to-simple-url-handler-mapping: true
-#        cors-configurations:
-#          '[/**]':
-#            allowedOrigins: "*"
-#            allowedMethods:
-#              - GET
-#              - POST
-#              - PUT
-#              - DELETE
-#              - OPTIONS
-#            allowedHeaders: "*"
-#            allowCredentials: true
+    gateway:
       routes:
         - id: health-code
           uri: lb://health-code
