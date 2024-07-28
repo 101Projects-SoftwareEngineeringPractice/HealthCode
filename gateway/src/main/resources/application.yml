@@ -43,5 +43,5 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
-      default-filters:
-        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+#      default-filters:
+#        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
