@@ -62,7 +62,6 @@ public class UserController {
         return Result.success(token);
     }
 
-//    @CrossOrigin(origins = "https://linbby.github.io")
     @PostMapping("/managerLogin")
     public Result<?> managerLogin(@Valid @RequestBody ManagerLoginRequest request) {
 

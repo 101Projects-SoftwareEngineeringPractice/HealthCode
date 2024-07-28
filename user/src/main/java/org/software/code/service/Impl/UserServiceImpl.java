@@ -343,7 +343,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ExceptionEnum.NUCLEIC_ACID_TEST_USER_NOT_FIND);
         }
         Boolean status = uerDao.getStatus();
-        healthCodeMangerMapper.updateStatusByMID(!status, tid);
+        nucleicAcidTestPersonnelMapper.updateStatusByTID(!status, tid);
     }
 
     @Override

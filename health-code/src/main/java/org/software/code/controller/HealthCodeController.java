@@ -26,6 +26,7 @@ public class HealthCodeController {
     private HealthCodeService healthCodeService;
 
     /**
+     * applyCode
      * 用户在申请健康码页面（个人信息填写页面）申请健康码。
      */
     @PostMapping("/applyCode")
@@ -48,11 +49,11 @@ public class HealthCodeController {
 
 
     /**
+     * getCode
      * 用户登录后，在首页展示健康码状态，包括绿码、黄码和红码。每次返回首页都需要重新获取，每分钟自动刷新一次。
      */
     @GetMapping("/getCode")
     public Result<?> getCode(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
-
         long uid = JWTUtil.extractID(token);
         GetCodeDto getCodeDto = healthCodeService.getCode(uid);
         return Result.success(getCodeDto);
@@ -61,6 +62,7 @@ public class HealthCodeController {
     }
 
     /**
+     * health_code
      * 用户登录管理系统后，在转码管理页面选择通过身份证来对用户进行转码。
      */
     @GetMapping("/health_code")
@@ -73,6 +75,7 @@ public class HealthCodeController {
     }
 
     /**
+     * transcodingEvents
      * 用户登录管理系统后，在转码管理页面选择通过身份证来对用户进行转码。
      */
     @PostMapping("/transcodingEvents")

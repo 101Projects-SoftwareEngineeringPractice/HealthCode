@@ -29,6 +29,7 @@ public class NucleicAcidsController {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
+     * getLastNucleicAcidTestRecord
      * 用户登录后，在首页展示最近一次核酸检测信息。
      */
     @GetMapping("/getLastNucleicAcidTestRecord")
@@ -41,6 +42,7 @@ public class NucleicAcidsController {
     }
 
     /**
+     * getNucleicAcidTestRecord
      * 用户也可点击首页的查看核酸结果功能，进入核酸结果页面查看近十四天的所有核酸记录。如果用户近十四天没有核酸检测记录，弹出该用户近十四天未做核酸。
      */
     @GetMapping("/getNucleicAcidTestRecord")
@@ -53,6 +55,7 @@ public class NucleicAcidsController {
     }
 
     /**
+     * addNucleicAcidTestRecordByToken
      * 用户登录核酸小程序后，在核酸采样页面扫描条形码添加试管ID并开管（仅该试管所检测人员的第一位需要开管，后面人员延续该试管直到达到类型上限），试管ID首位代表试管类型（0单管， 1 十人混管， 2 二十人混管）。随后扫描受检者健康码提交用户信息。
      */
     @PostMapping("/addNucleicAcidTestRecordByToken")
@@ -71,6 +74,7 @@ public class NucleicAcidsController {
     }
 
     /**
+     * addNucleicAcidTestRecordByID
      * 用户登录核酸小程序后，在核酸采样页面扫描条形码添加试管ID并开管（仅该试管所检测人员的第一位需要开管，后面人员延续该试管直到达到类型上限），试管ID首位代表试管类型（0单管， 1 十人混管， 2 二十人混管）。随后输入身份证号（若缺少信息则需要登记用户信息申请健康码后才能继续，该申请调用applyCode接口），提交用户信息。
      */
     @PostMapping("/addNucleicAcidTestRecordByID")
@@ -89,6 +93,7 @@ public class NucleicAcidsController {
     }
 
     /**
+     * enterNucleicAcidTestRecord
      * 用户登录核酸小程序后，在录入核酸检测结果页面填写核酸检测结果并提交，扫描试管条形码并选择检测结果（阴性or阳性）。如果检测为阳性，根据管类型为单管或混管，对用户赋红码或黄码。
      */
     @PutMapping("/enterNucleicAcidTestRecord")
@@ -103,6 +108,7 @@ public class NucleicAcidsController {
 
 
     /**
+     * getNucleicAcidTestInfo
      * 用户登录管理系统后，在管理首页筛选某时间段内核酸检测参与人员信息及状态统计。
      */
     @GetMapping("/getNucleicAcidTestInfo")
@@ -120,6 +126,7 @@ public class NucleicAcidsController {
     }
 
     /**
+     * getPositiveInfo
      * 用户查看某时间段内核酸检测阳性人员信息及状态。
      */
     @GetMapping("/getPositiveInfo")

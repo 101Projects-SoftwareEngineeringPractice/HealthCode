@@ -31,6 +31,7 @@ public class PlaceCodeController {
     }
 
     /**
+     * placeCode
      * 用户登录管理系统后，新建场所码。
      */
     @PostMapping("/placeCode")
@@ -51,6 +52,7 @@ public class PlaceCodeController {
 
 
     /**
+     * placeCode
      * 用户登录管理系统后，获取所有场所码。
      */
     @GetMapping("/placeCode")

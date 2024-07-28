@@ -42,7 +42,6 @@ public class NucleicAcidsInternalController {
 
     }
 
-
     @GetMapping("/getLastNucleicAcidTestRecordByUID")
     public Result<?> getLastNucleicAcidTestRecordByUID(@RequestParam @NotNull(message = "uid不能为空") Long uid) {
 
