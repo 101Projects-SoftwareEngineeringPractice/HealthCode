@@ -1,8 +1,5 @@
 package org.software.code.dao;
 
-import org.software.code.dto.UserInfoDto;
-import org.software.code.mapper.UserMapper;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -16,17 +13,17 @@ import java.time.Instant;
 public class UserInfoDao {
     @Id
     @Column(name = "uid", nullable = false)
-    private Long id;
+    private Long uid;
 
     @Size(max = 18)
     @NotNull
     @Column(name = "identity_card", nullable = false, length = 18)
-    private String identityCard;
+    private String identity_card;
 
     @Size(max = 11)
     @NotNull
     @Column(name = "phone_number", nullable = false, length = 11)
-    private String phoneNumber;
+    private String phone_number;
 
     @Size(max = 255)
     @NotNull
@@ -51,33 +48,33 @@ public class UserInfoDao {
     private String address;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private Instant created_at;
 
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private Instant updated_at;
 
-    public Long getId() {
-        return id;
+    public Long getUid() {
+        return uid;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUid(Long iid) {
+        this.uid = iid;
     }
 
-    public String getIdentityCard() {
-        return identityCard;
+    public String getIdentity_card() {
+        return identity_card;
     }
 
-    public void setIdentityCard(String identityCard) {
-        this.identityCard = identityCard;
+    public void setIdentity_card(String identity_card) {
+        this.identity_card = identity_card;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone_number() {
+        return phone_number;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
     }
 
     public String getName() {
@@ -120,21 +117,19 @@ public class UserInfoDao {
         this.address = address;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
+    public Instant getCreated_at() {
+        return created_at;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+    public void setCreated_at(Instant created_at) {
+        this.created_at = created_at;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public Instant getUpdated_at() {
+        return updated_at;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setUpdated_at(Instant updated_at) {
+        this.updated_at = updated_at;
     }
-
-
 }
