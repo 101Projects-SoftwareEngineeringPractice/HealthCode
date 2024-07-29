@@ -55,7 +55,6 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         if (healthCode == null) {
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
-        healthCode.setColor(FSMConst.HealthCodeColor.GREEN.ordinal());
         String stateMachineId = String.valueOf(healthCode.getUid());
         StateMachine<FSMConst.HealthCodeColor, FSMConst.HealthCodeEvent> stateMachine = stateMachineService.acquireStateMachine(stateMachineId);
         stateMachine.stopReactively().block();
@@ -65,8 +64,8 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         stateMachine.startReactively().block();
         stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(event).build())).blockFirst();
         FSMConst.HealthCodeColor newColor = stateMachine.getState().getId();
-        healthCode.setColor(newColor.ordinal());
-        int color = healthCode.getColor();
+        int color = newColor.ordinal();
+        healthCode.setColor(color);
         healthCodeMapper.updateColorByUID(color, uid);
         stateMachine.stopReactively().block();
         stateMachineService.releaseStateMachine(stateMachineId);
