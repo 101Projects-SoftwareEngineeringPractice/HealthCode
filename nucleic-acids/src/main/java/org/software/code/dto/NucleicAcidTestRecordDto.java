@@ -10,7 +10,7 @@ public class NucleicAcidTestRecordDto {
     private String name;
     private Integer district;
     private Integer street;
-    private Integer community;
+    private Long community;
     private String address;
     private String test_address;
     private Integer result;
@@ -89,11 +89,11 @@ public class NucleicAcidTestRecordDto {
         this.street = street;
     }
 
-    public Integer getCommunity() {
+    public Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(Integer community) {
+    public void setCommunity(Long community) {
         this.community = community;
     }
 

@@ -23,10 +23,11 @@ public interface PlaceCodeService {
     List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime);
 
 
-    void createPlaceCode(String identityCard, String name, int districtId, int streetId, int communityId, String address);
+    void createPlaceCode(String identityCard, String name, int districtId, int streetId, long communityId, String address);
 
     List<PlaceCodeInfoDto> getPlaceInfoList();
 
     void placeCodeOpposite(Long pid);
 
+//    Object getRecordByPid(getRecordByPidInput input);
 }

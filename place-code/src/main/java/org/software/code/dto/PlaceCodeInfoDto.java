@@ -1,13 +1,16 @@
 package org.software.code.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class PlaceCodeInfoDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long pid;
     private String identity_card;
     private  String name;
     private Integer district_id;
     private Integer street_id;
-    private  Integer community_id;
+    private  Long community_id;
     private  String address;
     private Boolean status;
 
@@ -51,11 +54,11 @@ public class PlaceCodeInfoDto {
         this.street_id = street_id;
     }
 
-    public Integer getCommunity_id() {
+    public Long getCommunity_id() {
         return community_id;
     }
 
-    public void setCommunity_id(Integer community_id) {
+    public void setCommunity_id(Long community_id) {
         this.community_id = community_id;
     }
 

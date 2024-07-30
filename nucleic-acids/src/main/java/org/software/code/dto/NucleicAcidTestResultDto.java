@@ -1,9 +1,15 @@
 package org.software.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class NucleicAcidTestResultDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date created_at;
+    private Integer result;
+    private String testing_organization;
+
 
     public Date getCreated_at() {
         return created_at;
@@ -29,7 +35,5 @@ public class NucleicAcidTestResultDto {
         this.testing_organization = testing_organization;
     }
 
-    private Integer result;
-    private String testing_organization;
 
 }

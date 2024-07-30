@@ -35,32 +35,24 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     UserClient userClient;
 
     public void addNucleicAcidTestRecord(NucleicAcidTestRecordDto testRecordDto) {
-        try {
-            NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
-            BeanUtils.copyProperties(testRecordDto, testRecordDao);
-            nucleicAcidTestMapper.insertTestRecord(testRecordDao); // 调用 Mapper 层进行数据库操作
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
+        BeanUtils.copyProperties(testRecordDto, testRecordDao);
+        nucleicAcidTestMapper.insertTestRecord(testRecordDao); // 调用 Mapper 层进行数据库操作
     }
 
     public void enterNucleicAcidTestRecordList(List<NucleicAcidTestRecordInput> testRecords) {
-        try {
-            for (NucleicAcidTestRecordInput input : testRecords) {
-                // 更新检测结果
-                nucleicAcidTestMapper.updateTestRecord(input.getTubeid(), input.getKind(), input.getResult(), input.getTesting_organization());
-                if (input.getKind() != 0 && input.getResult() == 1) { // 混管且阳性
-                    nucleicAcidTestMapper.updateRetestStatus(input.getTubeid(), false);
-                } else if (input.getKind() == 0 && input.getResult() == 1) { // 单管且阳性
-                    // 发送消息队列派人处理
-                    // sendMessageToQueue(input.getTubeid());
-                } else if (input.getResult() == 0) { // 阴性
-                    //nucleicAcidTestMapper.updateHealthCodeStatus(input.getTubeid(), "green");
-                    System.out.println("阴性无需处理");
-                }
+        for (NucleicAcidTestRecordInput input : testRecords) {
+            // 更新检测结果
+            nucleicAcidTestMapper.updateTestRecord(input.getTubeid(), input.getKind(), input.getResult(), input.getTesting_organization());
+            if (input.getKind() != 0 && input.getResult() == 1) { // 混管且阳性
+                nucleicAcidTestMapper.updateRetestStatus(input.getTubeid(), false);
+            } else if (input.getKind() == 0 && input.getResult() == 1) { // 单管且阳性
+                // 发送消息队列派人处理
+                // sendMessageToQueue(input.getTubeid());
+            } else if (input.getResult() == 0) { // 阴性
+                //nucleicAcidTestMapper.updateHealthCodeStatus(input.getTubeid(), "green");
+                System.out.println("阴性无需处理");
             }
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
         }
     }
 
@@ -70,11 +62,7 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
             return null;
         }
         NucleicAcidTestResultDto resultDto = new NucleicAcidTestResultDto();
-        try {
-            BeanUtils.copyProperties(recordDao, resultDto);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        BeanUtils.copyProperties(recordDao, resultDto);
         return resultDto;
     }
 
@@ -127,58 +115,48 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     }
 
     public int autoModify() {
-        try {
-            // 获取前天的日期
-            Date twoDaysAgo = new Date(System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000);
-            // 获取前天一天内单管阳性用户uid集合
-            List<Long> uids = nucleicAcidTestMapper.findPositiveSingleTubeUids(twoDaysAgo);
-            // 格式化日期为"yyyy-MM-dd HH:mm:ss"
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String twoDaysAgoFormatted = dateFormat.format(twoDaysAgo);
-            // 获取当天的开始时间和结束时间
-            Date now = new Date();
-            String nowFormatted = dateFormat.format(now);
-            // 调用placeCodeClient的getPlacesByUserList方法
-            Result<?> result = placeCodeClient.getPlacesByUserList(uids, twoDaysAgoFormatted, nowFormatted);
-            ObjectMapper objectMapper = new ObjectMapper();
-            List<Long> pids = objectMapper.convertValue(result.getData(), List.class);
-            // 调用场所微服务获取对应的场所pid
-            // 调用场所微服务获取这些pid中前天进入的uid
-            Set<Long> affectedUids = pids.stream()
-                    .flatMap(pid -> {
-                        List<Long> users = objectMapper.convertValue(placeCodeClient.getRecordByPid(pid, twoDaysAgoFormatted, nowFormatted), List.class);
-                        return users.stream();
-                    })
-                    .collect(Collectors.toSet());
-            // 调用健康码微服务获取健康码颜色并设定为黄码
-            int count = 0;
-            for (Long uid : affectedUids) {
-                Integer healthCode = objectMapper.convertValue(healthCodeClient.getHealthCode(uid), Integer.class);
-                if (healthCode != null && healthCode != 2) { // 非红码用户
-                    healthCodeClient.transcodingHealthCodeEvents(uid, 1);
-                    count++;
-                }
+        // 获取前天的日期
+        Date twoDaysAgo = new Date(System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000);
+        // 获取前天一天内单管阳性用户uid集合
+        List<Long> uids = nucleicAcidTestMapper.findPositiveSingleTubeUids(twoDaysAgo);
+        // 格式化日期为"yyyy-MM-dd HH:mm:ss"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String twoDaysAgoFormatted = dateFormat.format(twoDaysAgo);
+        // 获取当天的开始时间和结束时间
+        Date now = new Date();
+        String nowFormatted = dateFormat.format(now);
+        // 调用placeCodeClient的getPlacesByUserList方法
+        GetPlacesByUserListRequest getPlacesByUserListRequest = new GetPlacesByUserListRequest(uids, twoDaysAgoFormatted, nowFormatted);
+        Result<?> result = placeCodeClient.getPlacesByUserList(getPlacesByUserListRequest);
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Long> pids = objectMapper.convertValue(result.getData(), List.class);
+        // 调用场所微服务获取对应的场所pid
+        // 调用场所微服务获取这些pid中前天进入的uid
+        Set<Long> affectedUids = pids.stream()
+                .flatMap(pid -> {
+                    List<Long> users = objectMapper.convertValue(placeCodeClient.getRecordByPid(pid, twoDaysAgoFormatted, nowFormatted), List.class);
+                    return users.stream();
+                })
+                .collect(Collectors.toSet());
+        // 调用健康码微服务获取健康码颜色并设定为黄码
+        int count = 0;
+        for (Long uid : affectedUids) {
+            Integer healthCode = objectMapper.convertValue(healthCodeClient.getHealthCode(uid), Integer.class);
+            if (healthCode != null && healthCode != 2) { // 非红码用户
+                TranscodingEventsRequest transcodingEventsRequest=new TranscodingEventsRequest(uid, 1);
+                healthCodeClient.transcodingHealthCodeEvents(transcodingEventsRequest);
+                count++;
             }
-            return count;
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
         }
+        return count;
     }
 
 
     @Override
     public void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress) {
-        UserInfoDto userInfoDto;
-        try {
-            Result<?> result = userClient.getUserByUID(uid);
-            ObjectMapper objectMapper = new ObjectMapper();
-            userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
-        if (userInfoDto == null) {
-            throw new NullPointerException("用户不存在，请重试");
-        }
+        Result<?> result = userClient.getUserByUID(uid);
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
         testRecordDao.setUid(uid);
         testRecordDao.setTid(tid);
@@ -192,27 +170,14 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         testRecordDao.setCommunity(userInfoDto.getCommunity());
         testRecordDao.setAddress(userInfoDto.getAddress());
         testRecordDao.setTest_address(testAddress);
-        try {
-            nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
     }
 
     @Override
-    public void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String
-            testAddress) {
-        UserInfoDto userInfoDto;
-        try {
-            Result<?> result = userClient.getUserByID(identityCard);
-            ObjectMapper objectMapper = new ObjectMapper();
-            userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
-        if (userInfoDto == null) {
-            throw new NullPointerException("用户不存在，请重试");
-        }
+    public void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress) {
+        Result<?> result = userClient.getUserByID(identityCard);
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
         testRecordDao.setUid(userInfoDto.getUid());
         testRecordDao.setTid(tid);
@@ -226,10 +191,6 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         testRecordDao.setCommunity(userInfoDto.getCommunity());
         testRecordDao.setAddress(userInfoDto.getAddress());
         testRecordDao.setTest_address(testAddress);
-        try {
-            nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
-        } catch (Exception e) {
-            throw new RuntimeException("服务执行错误，请稍后重试");
-        }
+        nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
     }
 }

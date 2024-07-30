@@ -8,7 +8,7 @@ public class GetPlaceDto {
     private String name;
     private Integer district;
     private Integer street;
-    private Integer community;
+    private Long community;
     private String address;
 
     public Long getUid() {
@@ -67,11 +67,11 @@ public class GetPlaceDto {
         this.street = street;
     }
 
-    public Integer getCommunity() {
+    public Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(Integer community) {
+    public void setCommunity(Long community) {
         this.community = community;
     }
 

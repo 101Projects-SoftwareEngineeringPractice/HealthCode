@@ -1,6 +1,9 @@
 package org.software.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class HealthCodeInfoDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long uid;
     private String name;
     private int status;

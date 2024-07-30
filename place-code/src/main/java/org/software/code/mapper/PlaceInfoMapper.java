@@ -14,6 +14,10 @@ public interface PlaceInfoMapper {
     @Options(useGeneratedKeys = true, keyProperty = "pid")
     void insertPlace(PlaceInfoDao placeDao);
 
+    @Update("UPDATE health_code_place_code.place_info SET status = #{status} WHERE pid = #{pid}")
+    void updatePlaceStatusByPid(@Param("status") boolean status,@Param("pid") long pid);
+
+
     @Select("SELECT * FROM health_code_place_code.place_info")
     List<PlaceInfoDao> findAllPlaces();
 
@@ -25,7 +29,5 @@ public interface PlaceInfoMapper {
     PlaceInfoDao getPlaceInfoByPID(@Param("pid") long pid);
 
 
-    @Update("UPDATE health_code_place_code.place_info SET status = #{status} WHERE pid = #{pid}")
-    void updatePlaceStatusByPid(@Param("status") boolean status,@Param("pid") long pid);
 
 }

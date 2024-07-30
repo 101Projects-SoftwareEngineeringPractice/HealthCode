@@ -3,6 +3,8 @@ package org.software.code.common;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.software.code.common.except.BusinessException;
+import org.software.code.common.except.ExceptionEnum;
 
 import java.util.Date;
 
@@ -28,7 +30,7 @@ public class JWTUtil {
             Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
             return Long.parseLong(claims.getSubject());
         } catch (Exception e) {
-            throw new NullPointerException("无效Token");
+            throw new BusinessException(ExceptionEnum.TOKEN_EXPIRED);
         }
     }
 
