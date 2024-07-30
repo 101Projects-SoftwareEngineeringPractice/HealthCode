@@ -40,7 +40,7 @@ public class PlaceInfoDao {
 
     @NotNull
     @Column(name = "community", nullable = false)
-    private Integer community;
+    private Long community;
 
     @Size(max = 255)
     @NotNull
@@ -107,11 +107,11 @@ public class PlaceInfoDao {
         this.street = street;
     }
 
-    public @NotNull Integer getCommunity() {
+    public @NotNull Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(@NotNull Integer community) {
+    public void setCommunity(@NotNull Long community) {
         this.community = community;
     }
 

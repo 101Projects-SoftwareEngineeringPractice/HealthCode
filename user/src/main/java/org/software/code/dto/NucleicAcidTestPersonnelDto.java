@@ -1,6 +1,9 @@
 package org.software.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class NucleicAcidTestPersonnelDto {
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long tid;
     private String identity_card;
     private String name;

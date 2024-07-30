@@ -6,8 +6,9 @@
     <parent>
         <groupId>org.software.code</groupId>
         <artifactId>healthcode</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
+
     <artifactId>itinerary-code</artifactId>
 
 
@@ -87,7 +88,12 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.16</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -105,4 +111,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

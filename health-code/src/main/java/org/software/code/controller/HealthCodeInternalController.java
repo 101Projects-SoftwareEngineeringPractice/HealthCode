@@ -1,12 +1,22 @@
 package org.software.code.controller;
 
 import org.software.code.common.consts.FSMConst;
+import org.software.code.common.except.BusinessException;
+import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
 import org.software.code.dto.HealthQRCodeDto;
+import org.software.code.dto.TranscodingEventsRequest;
+import org.software.code.dto.UidInput;
 import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.Map;
+
+@Validated
 @RestController
 @RequestMapping("/health-code")
 public class HealthCodeInternalController {
@@ -15,48 +25,37 @@ public class HealthCodeInternalController {
 
 
     @PostMapping("/applyHealthCode")
-    public Result<?> applyHealthCode(@RequestParam(name = "uid") long uid) {
-        try {
-            healthCodeService.applyHealthCode(uid);
-            return Result.success();
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> applyHealthCode(@Valid @RequestBody UidInput request) {
+        long uid = request.getUid();
+        healthCodeService.applyHealthCode(uid);
+        return Result.success();
     }
 
     @GetMapping("/getHealthCode")
-    public Result<?> getHealthCode(@RequestParam(name = "uid") long uid) {
-        try {
-            HealthQRCodeDto healthQRCodeDto = healthCodeService.getHealthCode(uid);
-            return Result.success(healthQRCodeDto);
-        } catch (Exception e) {
-            return Result.failed(e.getMessage());
-        }
+    public Result<?> getHealthCode(@RequestParam(name = "uid") @NotNull(message = "uid不能为空") Long uid) {
+        HealthQRCodeDto healthQRCodeDto = healthCodeService.getHealthCode(uid);
+        return Result.success(healthQRCodeDto);
     }
 
     @PatchMapping("/transcodingHealthCodeEvents")
-    public Result<?> transcodingHealthCodeEvents(@RequestParam(name = "uid") long uid,
-                                                 @RequestParam(name = "event") int event) {
+    public Result<?> transcodingHealthCodeEvents(@Valid @RequestBody TranscodingEventsRequest request) {
+        long uid = request.getUid();
+        int event = request.getEvent();
         FSMConst.HealthCodeEvent healthCodeEvent;
-        if(event==0){
-            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
+        switch (event) {
+            case 0:
+                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_GREEN;
+                break;
+            case 1:
+                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_YELLOW;
+                break;
+            case 2:
+                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_RED;
+                break;
+            default:
+                throw new BusinessException(ExceptionEnum.HEALTH_CODE_EVENT_INVALID);
         }
-        else if(event==1){
-            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
-
-        }
-        else if (event==2){
-            healthCodeEvent=FSMConst.HealthCodeEvent.FORCE_GREEN;
-        }
-        else {
-            return Result.failed("服务执行错误，请稍后重试");
-        }
-        try {
-            healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
-            return Result.success();
-        } catch (
-                Exception e) {
-            return Result.failed(e.getMessage());
-        }
+        healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
+        return Result.success();
     }
 }

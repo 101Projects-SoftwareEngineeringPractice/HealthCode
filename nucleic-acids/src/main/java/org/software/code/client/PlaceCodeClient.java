@@ -1,6 +1,7 @@
 package org.software.code.client;
 
 import org.software.code.common.result.Result;
+import org.software.code.dto.GetPlacesByUserListRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,13 +13,11 @@ import java.util.List;
 @FeignClient(name = "place-code")
 public interface PlaceCodeClient {
 
-    @PostMapping("/getPlacesByUserList")
-    Result<?> getPlacesByUserList(@RequestBody List<Long> uidList,
-                                         @RequestParam("start_time") String startTime,
-                                         @RequestParam("end_time") String endTime);
+    @PostMapping("/place-code/getPlacesByUserList")
+    Result<?> getPlacesByUserList(@RequestBody GetPlacesByUserListRequest request);
 
-    @GetMapping("/getRecordByPid")
-    public Result<?> getRecordByPid(@RequestParam("pid") long pid,
+    @GetMapping("/place-code/getRecordByPid")
+    Result<?> getRecordByPid(@RequestParam("pid") Long pid,
                                     @RequestParam("start_time") String startTime,
                                     @RequestParam("end_time") String endTime);
 }

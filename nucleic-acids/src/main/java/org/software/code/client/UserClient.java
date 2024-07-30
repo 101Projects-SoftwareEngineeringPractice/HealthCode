@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "user")
 public interface UserClient {
     @GetMapping("/user/getUserByUID")
-    Result<?> getUserByUID(@RequestParam(name = "uid") long uid);
+    Result<?> getUserByUID(@RequestParam(name = "uid") Long uid);
 
     @GetMapping("/user/getUserByID")
     Result<?> getUserByID(@RequestParam(name = "identity_card") String identity_card);

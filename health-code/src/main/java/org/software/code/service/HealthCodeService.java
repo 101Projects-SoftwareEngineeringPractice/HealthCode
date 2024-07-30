@@ -13,12 +13,11 @@ public interface HealthCodeService {
 
     HealthQRCodeDto getHealthCode(long uid);
 
-    int transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event);
+    void transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event);
 
-    void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, int communityId, String address);
+    void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, long communityId, String address);
 
     GetCodeDto getCode(long uid);
 
     HealthCodeInfoDto getHealthCodeInfo(String identityCard);
-
 }
