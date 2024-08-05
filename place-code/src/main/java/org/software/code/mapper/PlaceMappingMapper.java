@@ -12,12 +12,12 @@ import java.util.List;
 @Mapper
 public interface PlaceMappingMapper {
 
-    @Insert("INSERT INTO place_mapping (pid, uid, time) VALUES (#{pid}, #{uid}, #{time})")
+    @Insert("INSERT INTO health_code_place_code.place_mapping (pid, uid, time) VALUES (#{pid}, #{uid}, #{time})")
     void insertPlaceMapping(PlaceMappingDao placeMappingDao);
 
     @Select({
             "<script>",
-            "SELECT DISTINCT pid FROM place_mapping",
+            "SELECT DISTINCT pid FROM health_code_place_code.place_mapping",
             "WHERE uid IN",
             "<foreach item='item' index='index' collection='uidList' open='(' separator=',' close=')'>",
             "#{item}",

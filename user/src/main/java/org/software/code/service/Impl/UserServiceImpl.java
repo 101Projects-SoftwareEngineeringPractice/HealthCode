@@ -130,28 +130,52 @@ public class UserServiceImpl implements UserService {
         return userInfoDto;
     }
 
+    private long getInLogin(String openID) {
+        long uid = -1;
+        UidMappingDao uidMappingDao = userMappingMapper.getUidMappingByOpenID(openID);
+        if (uidMappingDao != null) {
+            uid = uidMappingDao.getUid();
+        }
+        return uid;
+    }
+
+    private long addInLogin(String openID) {
+        System.out.println("000");
+
+        long uid;
+        try {
+            uid = IdUtil.getSnowflake().nextId();
+            UidMappingDao uidMappingDao = new UidMappingDao();
+            uidMappingDao.setUid(uid);
+            uidMappingDao.setOpenid(openID);
+            userMappingMapper.addUserMapping(uidMappingDao);
+
+        } catch (Exception e) {
+            System.out.println("000");
+            System.out.println(e.getMessage());
+            System.out.println("000");
+            e.printStackTrace();
+            uid = -1;
+        }
+        return uid;
+    }
+
     @Override
     public String userLogin(String code) {
+        String openID = WeChatUtil.getOpenIDFromWX(code);
         if (bloomFilter == null) { // 确保bloomFilter已经初始化
             getInitBloomFilter();
         }
-        String openID = WeChatUtil.getOpenIDFromWX(code);
-        try {
-            boolean exists = bloomFilter.mightContain(openID);
-            if (!exists) {
-                long uid = IdUtil.getSnowflake().nextId();
-                // 将新的OpenID添加到布隆过滤器中
-                bloomFilter.put(openID);
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                return JWTUtil.generateJWToken(uid, 3600000);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        long uid = -1;
+        if (bloomFilter != null && !bloomFilter.mightContain(openID)) {
+            uid = addInLogin(openID);
         }
-        long uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
+        if (uid == -1) {
+            uid = getInLogin(openID);
+            if (uid == -1) {
+                uid = addInLogin(openID);
+            }
+        }
         return JWTUtil.generateJWToken(uid, 3600000);
 
     }
@@ -364,46 +388,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin_test(String code) {
-        // 确保bloomFilter已经初始化
-        if (bloomFilter == null) {
-            init();
-        }
-
         String openID = "openid-" + code;
-        boolean exists = bloomFilter.mightContain(openID);
 
-        // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
-        long uid;
-        if (!exists) {
-            try {
-                uid = IdUtil.getSnowflake().nextId();
-
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                bloomFilter.put(openID); // 将新的OpenID添加到布隆过滤器中
-            } catch (Exception e) {
-                UidMappingDao uidMappingDao = userMappingMapper.getUidMappingByOpenID(openID); // 从存储中获取UID的方法
-                if (uidMappingDao == null) {
-                    throw new BusinessException(ExceptionEnum.USER_LOGIN_EXIST_NULL_FAIL);
-                }
-                uid = uidMappingDao.getUid();
-            }
-        } else { // 如果OpenID已存在，则获取其对应的UID（假设通过数据库或缓存获取）
-            try {
-                uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 从存储中获取UID的方法
-            } catch (Exception e) {
-                uid = IdUtil.getSnowflake().nextId();
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                bloomFilter.put(openID); // 将新的OpenID添加到布隆过滤器中
-            }
+        if (bloomFilter == null) { // 确保bloomFilter已经初始化
+            getInitBloomFilter();
         }
-        String token = JWTUtil.generateJWToken(uid, 3600000);
-        return token;
+        long uid = -1;
+        if (bloomFilter != null &&!bloomFilter.mightContain(openID)){
+                uid = addInLogin(openID);
+            if (uid == -1) {
+                uid = getInLogin(openID);
+            }
+                bloomFilter.put(openID);
+            return JWTUtil.generateJWToken(uid, 3600000);
+        }
+        uid = getInLogin(openID);
+        if (uid == -1) {
+            uid = addInLogin(openID);
+        }
+        return JWTUtil.generateJWToken(uid, 3600000);
     }
 
     @Override

@@ -59,14 +59,14 @@ public class NucleicAcidsController {
      * 用户登录核酸小程序后，在核酸采样页面扫描条形码添加试管ID并开管（仅该试管所检测人员的第一位需要开管，后面人员延续该试管直到达到类型上限），试管ID首位代表试管类型（0单管， 1 十人混管， 2 二十人混管）。随后扫描受检者健康码提交用户信息。
      */
     @PostMapping("/addNucleicAcidTestRecordByToken")
-    public Result<?> addNucleicAcidTestRecordByToken(@RequestHeader("Authorization") String tidToken,
+    public Result<?> addNucleicAcidTestRecordByToken(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                                      @Valid @RequestBody AddNucleicAcidTestRecordRequest request) {
         String qrToken = request.getToken();
         int kind = request.getKind();
         Long tubeId = request.getTubeid();
         String testAddress = request.getTest_address();
 
-        long tid = JWTUtil.extractID(tidToken);
+        long tid = JWTUtil.extractID(token);
         long uid = JWTUtil.extractID(qrToken);
         nucleicAcidsService.addNucleicAcidTestRecordByToken(tid, uid, kind, tubeId, testAddress);
         return Result.success();

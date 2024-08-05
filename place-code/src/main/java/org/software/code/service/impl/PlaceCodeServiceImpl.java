@@ -77,8 +77,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     }
 
 
-    public void scanPlaceCode(long uid, String token) {
-        long pid = JWTUtil.extractID(token);
+    public void scanPlaceCode(long uid, long pid) {
         PlaceMappingDao placeMappingDao = new PlaceMappingDao();
         placeMappingDao.setPid(pid);
         placeMappingDao.setUid(uid);

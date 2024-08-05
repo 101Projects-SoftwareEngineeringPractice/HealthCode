@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 
 public class PidTokenInput {
 
-    @NotBlank(message = "token不能为空")
+    @NotBlank(message = "token(pid)不能为空")
     @JsonProperty("token")
     private String token;
 
