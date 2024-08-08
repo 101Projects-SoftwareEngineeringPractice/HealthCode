@@ -68,7 +68,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     @Override
     public List<Long> getRecordByPid(long pid, Date startTime, Date endTime) {
-        return placeInfoMapper.findUidsByPidAndTimeRange(pid, startTime, endTime);
+        return placeMappingMapper.findUidsByPidAndTimeRange(pid, startTime, endTime);
     }
 
 
@@ -132,6 +132,11 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         }
         Boolean status = placeInfoDao.getStatus();
         placeInfoMapper.updatePlaceStatusByPid(!status, pid);
+    }
+
+    @Override
+    public List<Long> getAllPids() {
+        return placeInfoMapper.getAllPids();
     }
 
 

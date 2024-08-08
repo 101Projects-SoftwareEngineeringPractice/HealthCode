@@ -23,7 +23,7 @@ public interface NucleicAcidsService {
 
     List<NucleicAcidTestRecordDto> getNoticeReTestRecords();
 
-    int autoModify();
+    void autoModify();
 
     void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress);
 

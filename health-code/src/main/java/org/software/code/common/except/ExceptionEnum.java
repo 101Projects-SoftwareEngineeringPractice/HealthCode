@@ -24,7 +24,7 @@ public enum ExceptionEnum {
     HEALTH_CODE_UPDATE_FAIL("30004", "健康码更新失败"),
     HEALTH_CODE_DELETE_FAIL("30005", "健康码删除失败"),
     HEALTH_CODE_SELECT_FAIL("30006", "健康码查询失败"),
-    HEALTH_CODE_EVENT_INVALID("3007", "健康码事件无效"),
+    HEALTH_CODE_EVENT_INVALID("30007", "健康码事件无效"),
 
     ;
     /**

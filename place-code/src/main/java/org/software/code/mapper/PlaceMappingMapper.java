@@ -26,4 +26,10 @@ public interface PlaceMappingMapper {
             "</script>"
     })
     List<Long> findPidsByUidListAndTimeRange(@Param("uidList") List<Long> uidList, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+    @Select("SELECT uid FROM health_code_place_code.place_mapping WHERE pid = #{pid} AND time BETWEEN #{startTime} AND #{endTime}")
+    List<Long> findUidsByPidAndTimeRange(@Param("pid") long pid, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+
+
+
 }

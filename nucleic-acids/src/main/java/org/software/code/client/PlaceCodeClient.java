@@ -3,10 +3,7 @@ package org.software.code.client;
 import org.software.code.common.result.Result;
 import org.software.code.dto.GetPlacesByUserListRequest;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,4 +17,10 @@ public interface PlaceCodeClient {
     Result<?> getRecordByPid(@RequestParam("pid") Long pid,
                                     @RequestParam("start_time") String startTime,
                                     @RequestParam("end_time") String endTime);
+
+    @GetMapping("/place-code/getAllPids")
+    Result<?> getAllPids();
+
+    @PutMapping("/place-code/setPlaceRisk")
+    Result<?> setPlaceRisk(@RequestParam("pid") Long pid, @RequestParam("risk")  String risk);
 }
