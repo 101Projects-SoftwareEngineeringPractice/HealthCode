@@ -79,6 +79,9 @@ public class HealthCodeController {
     @PostMapping("/transcodingEvents")
     public Result<?> transcodingEvents(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                        @Valid @RequestBody TranscodingEventsRequest request) {
+        // TODO: 根据转码事件，修改健康码状态
+        // FIXME: 健康码创建时应该默认为绿色，不应为null
+        // WARNING: 这个方法可能会抛出异常，需要进行异常处理
         long uid = request.getUid();
         int event = request.getEvent();
         FSMConst.HealthCodeEvent healthCodeEvent;
