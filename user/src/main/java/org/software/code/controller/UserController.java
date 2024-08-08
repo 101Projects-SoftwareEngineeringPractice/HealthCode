@@ -80,7 +80,7 @@ public class UserController {
         String name = request.getName();
         String password = request.getPassword();
         JWTUtil.extractID(token);
-        userService.newNucleicAcidTestUser(identityCard, name, password);
+        userService.newNucleicAcidTestUser(identityCard, password, name);
         return Result.success();
 
     }

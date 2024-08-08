@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.dto.*;
 import org.software.code.service.UserService;
@@ -147,6 +148,12 @@ public class UserInternalController {
         System.out.println(tidInpt.getTid());
 //        userService.deleteUserInfo(uid);
         return Result.success();
+    }
+
+    @GetMapping("/getuid")
+    public Result<?> createManage(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
+        return Result.success(JWTUtil.extractID(token));
+
     }
 
 

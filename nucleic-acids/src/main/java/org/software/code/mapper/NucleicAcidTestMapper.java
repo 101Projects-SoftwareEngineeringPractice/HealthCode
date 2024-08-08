@@ -34,7 +34,7 @@ public interface NucleicAcidTestMapper {
     @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE created_at BETWEEN #{startTime} AND #{endTime}")
     long countRecordsWithinTimeRange(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
-    @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE result = 2 AND created_at BETWEEN #{startTime} AND #{endTime}")
+    @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE (result = 2 OR result IS NULL) AND created_at BETWEEN #{startTime} AND #{endTime}")
     long countUncheckRecordsWithinTimeRange(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
     @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE kind = 0 AND result = 1 AND created_at BETWEEN #{startTime} AND #{endTime}")

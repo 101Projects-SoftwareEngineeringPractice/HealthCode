@@ -47,10 +47,10 @@ public class HealthCodeInternalController {
                 healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_GREEN;
                 break;
             case 1:
-                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_GREEN;
+                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_YELLOW;
                 break;
             case 2:
-                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_GREEN;
+                healthCodeEvent = FSMConst.HealthCodeEvent.FORCE_RED;
                 break;
             default:
                 throw new BusinessException(ExceptionEnum.HEALTH_CODE_EVENT_INVALID);
