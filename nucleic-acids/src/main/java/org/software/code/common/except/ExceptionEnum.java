@@ -23,7 +23,9 @@ public enum ExceptionEnum {
     NUCLEIC_ACID_TEST_UPDATE_FAIL("50002", "核酸记录更新失败"),
     NUCLEIC_ACID_TEST_DELETE_FAIL("50003", "核酸记录删除失败"),
     NUCLEIC_ACID_TEST_SELECT_FAIL("50004", "核酸记录查询失败"),
-    
+    RISK_CALCULATION_NOT_FIND("50005", "地区风险策略不存在"),
+    RETEST_NOTIFICATION_EXCEPTION("50006", "通知复检时异常"),
+
     ;
 
     /**
