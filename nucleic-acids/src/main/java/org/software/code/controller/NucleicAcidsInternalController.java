@@ -90,7 +90,8 @@ public class NucleicAcidsInternalController {
 
     @GetMapping("/noticeReTest")
     public Result<?> noticeReTest() {
-        return Result.success(nucleicAcidsService.getNoticeReTestRecords());
+        nucleicAcidsService.getNoticeReTestRecords();
+        return Result.success();
 
     }
 
