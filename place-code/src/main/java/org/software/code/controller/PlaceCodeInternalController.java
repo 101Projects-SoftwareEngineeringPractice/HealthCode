@@ -17,13 +17,9 @@ import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-<<<<<<< HEAD
 import java.util.List;
-
-=======
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
->>>>>>> fb963c6ebd3d8cf6ab3d697c87e090f05d6a17e8
 
 @Validated
 @RestController
@@ -89,7 +85,6 @@ public class PlaceCodeInternalController {
         }
         return Result.success(placeCodeService.getPlacesByUserList(request.getUidList(), startDate, endDate));
     }
-<<<<<<< HEAD
 
     @GetMapping("/getAllPids")
     public Result<?> getAllPids() {
@@ -102,8 +97,5 @@ public class PlaceCodeInternalController {
         //TODO 设置场所的风险等级
         return Result.success();
     }
+}
 
-}
-=======
-}
->>>>>>> fb963c6ebd3d8cf6ab3d697c87e090f05d6a17e8
