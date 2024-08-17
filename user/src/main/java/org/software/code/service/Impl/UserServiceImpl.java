@@ -23,7 +23,10 @@ import org.software.code.mapper.UidMappingMapper;
 import org.software.code.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -34,14 +37,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.hash.BloomFilter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserInfoMapper userInfoMapper;
@@ -58,21 +61,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private KafkaConsumer kafkaConsumer;
 
-    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private BloomFilter<CharSequence> bloomFilter;
 
-    // 加载持久化的布隆过滤器数据
     private static final String BLOOM_FILTER_FILE = "bloomfilter.data";
-
 
     @PostConstruct
     public void init() {
         bloomFilter = getInitBloomFilter();
+        logger.info("Bloom filter initialized.");
     }
 
     @PreDestroy
     public void shutdown() {
         saveBloomFilter();
+        logger.info("Bloom filter saved.");
     }
 
     private BloomFilter<CharSequence> getInitBloomFilter() {
@@ -81,9 +84,10 @@ public class UserServiceImpl implements UserService {
             if (file.exists()) {
                 InputStream is = Files.newInputStream(file.toPath());
                 bloomFilter = BloomFilter.readFrom(is, Funnels.stringFunnel(Charset.defaultCharset()));
+                logger.info("Bloom filter loaded from file.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to load Bloom filter: {}", e.getMessage());
         }
         if (bloomFilter == null) {
             try {
@@ -91,8 +95,9 @@ public class UserServiceImpl implements UserService {
                         Funnels.stringFunnel(StandardCharsets.UTF_8),
                         1000000,
                         0.01);
+                logger.info("New Bloom filter created.");
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Failed to create Bloom filter: {}", e.getMessage());
             }
         }
         return bloomFilter;
@@ -101,16 +106,17 @@ public class UserServiceImpl implements UserService {
     private void saveBloomFilter() {
         try (OutputStream os = Files.newOutputStream(Paths.get(BLOOM_FILTER_FILE))) {
             bloomFilter.writeTo(os);
+            logger.info("Bloom filter saved to file.");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to save Bloom filter: {}", e.getMessage());
         }
     }
 
     @Override
-//    @Cacheable(value = "user_info", key = "#uid")
     public UserInfoDto getUserByUID(long uid) {
         UserInfoDao userInfo = userInfoMapper.getUserInfoByUID(uid);
         if (userInfo == null) {
+            logger.error("User not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.UID_NOT_FIND);
         }
         UserInfoDto userInfoDto = new UserInfoDto();
@@ -119,10 +125,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-//    @Cacheable(value = "user_info", key = "#identity_card")
     public UserInfoDto getUserByID(String identity_card) {
         UserInfoDao userInfo = userInfoMapper.getUserInfoByID(identity_card);
         if (userInfo == null) {
+            logger.error("User not found for identity card: {}", identity_card);
             throw new BusinessException(ExceptionEnum.ID_NOT_FIND);
         }
         UserInfoDto userInfoDto = new UserInfoDto();
@@ -130,42 +136,64 @@ public class UserServiceImpl implements UserService {
         return userInfoDto;
     }
 
+    private long getInLogin(String openID) {
+        long uid = -1;
+        UidMappingDao uidMappingDao = userMappingMapper.getUidMappingByOpenID(openID);
+        if (uidMappingDao != null) {
+            uid = uidMappingDao.getUid();
+        }
+        return uid;
+    }
+
+    private long addInLogin(String openID) {
+        long uid;
+        try {
+            uid = IdUtil.getSnowflake().nextId();
+            UidMappingDao uidMappingDao = new UidMappingDao();
+            uidMappingDao.setUid(uid);
+            uidMappingDao.setOpenid(openID);
+            userMappingMapper.addUserMapping(uidMappingDao);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error during user login: {}", e.getMessage());
+            uid = -1;
+        }
+        return uid;
+    }
+
     @Override
     public String userLogin(String code) {
+        String openID = WeChatUtil.getOpenIDFromWX(code);
         if (bloomFilter == null) { // 确保bloomFilter已经初始化
             getInitBloomFilter();
         }
-        String openID = WeChatUtil.getOpenIDFromWX(code);
-        try {
-            boolean exists = bloomFilter.mightContain(openID);
-            if (!exists) {
-                long uid = IdUtil.getSnowflake().nextId();
-                // 将新的OpenID添加到布隆过滤器中
-                bloomFilter.put(openID);
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                return JWTUtil.generateJWToken(uid, 3600000);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        long uid = -1;
+        if (bloomFilter != null && !bloomFilter.mightContain(openID)) {
+            uid = addInLogin(openID);
         }
-        long uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 假设从存储中获取UID的方法
+        if (uid == -1) {
+            uid = getInLogin(openID);
+            if (uid == -1) {
+                uid = addInLogin(openID);
+            }
+        }
         return JWTUtil.generateJWToken(uid, 3600000);
-
     }
 
     @Override
     public String nucleicAcidTestUserLogin(String identityCard, String password) {
         NucleicAcidTestPersonnelDao userDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
         if (userDao == null) {
+            logger.error("User not found for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         if (!userDao.getStatus()) {
+            logger.error("User is inactive for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
+            logger.error("Password mismatch for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         String token = JWTUtil.generateJWToken(userDao.getTid(), 3600000);
@@ -198,13 +226,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void newNucleicAcidTestUser(String identityCard, String password, String name) {
-        // 检查是否存在相同身份证号的用户
         NucleicAcidTestPersonnelDao existingUserDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
         if (existingUserDao != null) {
+            logger.error("Duplicate identity card found: {}", identityCard);
             throw new BusinessException(ExceptionEnum.ID_EXIST);
         }
-        // 创建新用户
-        NucleicAcidTestPersonnelDao newUserDao = new NucleicAcidTestPersonnelDao();  // 创建新用户
+        NucleicAcidTestPersonnelDao newUserDao = new NucleicAcidTestPersonnelDao();
         newUserDao.setIdentity_card(identityCard);
         String password_hash = passwordEncoder.encode(password);
         newUserDao.setPassword_hash(password_hash);
@@ -212,18 +239,17 @@ public class UserServiceImpl implements UserService {
         newUserDao.setStatus(true);
         long tid = IdUtil.getSnowflake().nextId();
         newUserDao.setTid(tid);
-        nucleicAcidTestPersonnelMapper.addNucleicAcidTestPersonnel(newUserDao); // 保存用户到数据库
+        nucleicAcidTestPersonnelMapper.addNucleicAcidTestPersonnel(newUserDao);
     }
 
     @Override
     public void newMangerUser(String identityCard, String password, String name) {
-        // 检查是否存在相同身份证号的用户
         HealthCodeManagerDao existingUserDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
         if (existingUserDao != null) {
+            logger.error("Duplicate identity card found: {}", identityCard);
             throw new BusinessException(ExceptionEnum.ID_EXIST);
         }
-        // 创建新用户
-        HealthCodeManagerDao newUserDao = new HealthCodeManagerDao();  // 创建新用户
+        HealthCodeManagerDao newUserDao = new HealthCodeManagerDao();
         newUserDao.setIdentity_card(identityCard);
         String password_hash = passwordEncoder.encode(password);
         newUserDao.setPassword_hash(password_hash);
@@ -231,19 +257,22 @@ public class UserServiceImpl implements UserService {
         newUserDao.setStatus(true);
         long mid = IdUtil.getSnowflake().nextId();
         newUserDao.setMid(mid);
-        healthCodeMangerMapper.addHealthCodeManager(newUserDao); // 保存用户到数据库
+        healthCodeMangerMapper.addHealthCodeManager(newUserDao);
     }
 
     @Override
     public String managerLogin(String identityCard, String password) {
         HealthCodeManagerDao userDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
         if (userDao == null) {
+            logger.error("Manager not found for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         if (!userDao.getStatus()) {
+            logger.error("Manager is inactive for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
+            logger.error("Password mismatch for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
         String token = JWTUtil.generateJWToken(userDao.getMid(), 3600000);
@@ -252,7 +281,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void modifyUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address) {
-        // 查询数据库中是否存在该用户信息
         UserInfoDao userInfoDao = userInfoMapper.getUserInfoByID(identityCard);
         if (userInfoDao == null) {
             userInfoDao = new UserInfoDao();
@@ -268,6 +296,7 @@ public class UserServiceImpl implements UserService {
 
         } else {
             if (userInfoDao.getUid() != uid) {
+                logger.error("UID mismatch for identity card: {}, expected UID: {}, found UID: {}", identityCard, uid, userInfoDao.getUid());
                 throw new BusinessException(ExceptionEnum.ID_EXIST);
             }
             userInfoDao.setName(name);
@@ -290,14 +319,18 @@ public class UserServiceImpl implements UserService {
         healthCodeMangerMapper.updateStatusByMID(status, mid);
     }
 
-
     @Override
     public void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address) {
-        // 查询数据库中是否存在该用户信息
         UserInfoDao userInfoDao_id = userInfoMapper.getUserInfoByID(identityCard);
-        if (userInfoDao_id != null) throw new BusinessException(ExceptionEnum.ID_EXIST);
+        if (userInfoDao_id != null) {
+            logger.error("Duplicate identity card found: {}", identityCard);
+            throw new BusinessException(ExceptionEnum.ID_EXIST);
+        }
         UserInfoDao userInfoDao_phone = userInfoMapper.getUserInfoByPhone(phoneNumber);
-        if (userInfoDao_phone != null) throw new BusinessException(ExceptionEnum.PHONE_EXIST);
+        if (userInfoDao_phone != null) {
+            logger.error("Duplicate phone number found: {}", phoneNumber);
+            throw new BusinessException(ExceptionEnum.PHONE_EXIST);
+        }
         UserInfoDao userInfoDao = userInfoMapper.getUserInfoByUID(uid);
         if (userInfoDao == null) {
             userInfoDao = new UserInfoDao();
@@ -323,10 +356,8 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
     @Override
     public void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, long communityId, String address) {
-        // 查询数据库中是否存在该用户信息
         UserInfoDao userInfoDao = userInfoMapper.getUserInfoByUID(uid);
         if (userInfoDao != null) {
             userInfoDao.setName(name);
@@ -337,15 +368,16 @@ public class UserServiceImpl implements UserService {
             userInfoDao.setAddress(address);
             userInfoMapper.updateUserInfo(userInfoDao);
         } else {
+            logger.error("User not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.UID_NOT_FIND);
         }
     }
-
 
     @Override
     public void nucleicAcidOpposite(long tid) {
         NucleicAcidTestPersonnelDao uerDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByTID(tid);
         if (uerDao == null) {
+            logger.error("Nucleic acid test user not found for TID: {}", tid);
             throw new BusinessException(ExceptionEnum.NUCLEIC_ACID_TEST_USER_NOT_FIND);
         }
         Boolean status = uerDao.getStatus();
@@ -364,52 +396,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String userLogin_test(String code) {
-        // 确保bloomFilter已经初始化
-        if (bloomFilter == null) {
-            init();
-        }
-
         String openID = "openid-" + code;
-        boolean exists = bloomFilter.mightContain(openID);
-
-        // 如果OpenID不存在，则生成新的UID（假设使用雪花算法生成）
-        long uid;
-        if (!exists) {
-            try {
-                uid = IdUtil.getSnowflake().nextId();
-
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                bloomFilter.put(openID); // 将新的OpenID添加到布隆过滤器中
-            } catch (Exception e) {
-                UidMappingDao uidMappingDao = userMappingMapper.getUidMappingByOpenID(openID); // 从存储中获取UID的方法
-                if (uidMappingDao == null) {
-                    throw new BusinessException(ExceptionEnum.USER_LOGIN_EXIST_NULL_FAIL);
-                }
-                uid = uidMappingDao.getUid();
-            }
-        } else { // 如果OpenID已存在，则获取其对应的UID（假设通过数据库或缓存获取）
-            try {
-                uid = userMappingMapper.getUidMappingByOpenID(openID).getUid(); // 从存储中获取UID的方法
-            } catch (Exception e) {
-                uid = IdUtil.getSnowflake().nextId();
-                UidMappingDao uidMappingDao = new UidMappingDao();
-                uidMappingDao.setUid(uid);
-                uidMappingDao.setOpenid(openID);
-                userMappingMapper.addUserMapping(uidMappingDao); // 假设从存储中获取UID的方法
-                bloomFilter.put(openID); // 将新的OpenID添加到布隆过滤器中
-            }
+        if (bloomFilter == null) { // 确保bloomFilter已经初始化
+            getInitBloomFilter();
         }
-        String token = JWTUtil.generateJWToken(uid, 3600000);
-        return token;
+        long uid = -1;
+        if (bloomFilter != null && !bloomFilter.mightContain(openID)) {
+            uid = addInLogin(openID);
+            if (uid == -1) {
+                uid = getInLogin(openID);
+            }
+            bloomFilter.put(openID);
+            return JWTUtil.generateJWToken(uid, 3600000);
+        }
+        uid = getInLogin(openID);
+        if (uid == -1) {
+            uid = addInLogin(openID);
+        }
+        return JWTUtil.generateJWToken(uid, 3600000);
     }
+
 
     @Override
     public void deleteUserInfo(long uid) {
         if (userInfoMapper.existsById(uid)) {
             userInfoMapper.deleteById(uid);
+        } else {
+            logger.warn("Attempted to delete non-existent user info for UID: {}", uid);
         }
     }
 }
