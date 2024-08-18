@@ -85,7 +85,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         userClient.addUserInfo(userInfoRequest);
         HealthCodeDao healthCodeDao = new HealthCodeDao();
         healthCodeDao.setUid(uid);
-        healthCodeDao.setColor(1);
+        healthCodeDao.setColor(0);
         healthCodeMapper.addHealthCode(healthCodeDao);
     }
 

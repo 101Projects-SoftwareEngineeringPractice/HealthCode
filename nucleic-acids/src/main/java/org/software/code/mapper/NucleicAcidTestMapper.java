@@ -23,13 +23,16 @@ public interface NucleicAcidTestMapper {
     void updateRetestStatus(@Param("tubeid") Long tubeid,
                             @Param("re_test") Boolean re_test);
 
+    @Update("UPDATE health_code_nucleic_acids.nucleic_acid_test SET re_test = true WHERE uid = #{uid} AND created_at >= #{time} AND re_test= false")
+    void updateTestRecordReTestToTrueByUidAndTime(@Param("uid") Long uid,
+                                                  @Param("time") String time);
 
     @Select("SELECT created_at, result, testing_organization FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} ORDER BY created_at DESC LIMIT 1")
     NucleicAcidTestRecordDao findLastTestRecordByUid(Long uid);
 
-    @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} AND created_at >= #{fourteenDaysAgo}")
+    @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} AND created_at >= #{time}")
     List<NucleicAcidTestRecordDao> findTestRecordsByUidWithinDays(@Param("uid") Long uid,
-                                                                  @Param("fourteenDaysAgo") Date fourteenDaysAgo);
+                                                                  @Param("time") Date time);
 
     @Select("SELECT COUNT(*) FROM health_code_nucleic_acids.nucleic_acid_test WHERE created_at BETWEEN #{startTime} AND #{endTime}")
     long countRecordsWithinTimeRange(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
@@ -46,11 +49,16 @@ public interface NucleicAcidTestMapper {
     @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE result = 1 AND created_at BETWEEN #{startTime} AND #{endTime}")
     List<NucleicAcidTestRecordDao> findPositiveRecordsWithinTimeRange(@Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
-    @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE re_test = false AND created_at >= #{threeDaysAgo}")
-    List<NucleicAcidTestRecordDao> findUnreTestedRecordsWithinDays(@Param("threeDaysAgo") Date threeDaysAgo);
+    @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE re_test = false AND created_at >= #{time}")
+    List<NucleicAcidTestRecordDao> findUnreTestedRecordsWithinDays(@Param("time") Date time);
 
 
-    @Select("SELECT uid FROM health_code_nucleic_acids.nucleic_acid_test WHERE kind = 0 AND result = 1 AND DATE(created_at) = DATE(#{twoDaysAgo})")
-    List<Long> findPositiveSingleTubeUids(@Param("twoDaysAgo") Date twoDaysAgo);
+    @Select("SELECT uid FROM health_code_nucleic_acids.nucleic_acid_test WHERE kind = 0 AND result = 1 AND DATE(created_at) = DATE(#{time})")
+    List<Long> findPositiveSingleTubeUids(@Param("time") Date time);
 
+    @Select("SELECT uid FROM health_code_nucleic_acids.nucleic_acid_test WHERE tubeid = #{tubeid}")
+    List<Long> findUidsByTubeid(@Param("tubeid") Long tubeid);
+    @Select("SELECT * FROM health_code_nucleic_acids.nucleic_acid_test WHERE uid = #{uid} AND tubeid = #{tubeid} LIMIT 1")
+    NucleicAcidTestRecordDao findTestRecordsByUidAndTubeid(@Param("uid") Long uid,
+                                                           @Param("tubeid")Long tubeid);
 }

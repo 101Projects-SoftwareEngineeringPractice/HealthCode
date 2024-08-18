@@ -75,6 +75,16 @@ public class NucleicAcidTestRecordDao {
     @Column(name = "testing_organization")
     private String testing_organization;
 
+    @Column(name = "re_test")
+    private Boolean re_test;
+
+    @Column(name = "created_at")
+    private Date created_at;
+
+    @Column(name = "updated_at")
+    private Date updated_at;
+
+
     public Long getId() {
         return id;
     }
@@ -231,15 +241,5 @@ public class NucleicAcidTestRecordDao {
         this.updated_at = updated_at;
     }
 
-    @Column(name = "re_test")
-    private Boolean re_test;
-
-    @Column(name = "created_at")
-    private Date created_at;
-
-    @Column(name = "updated_at")
-    private Date updated_at;
-
-    // Getters and Setters
 }
 
