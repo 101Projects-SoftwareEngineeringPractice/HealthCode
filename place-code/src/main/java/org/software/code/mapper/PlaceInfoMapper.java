@@ -21,13 +21,9 @@ public interface PlaceInfoMapper {
     @Select("SELECT * FROM health_code_place_code.place_info")
     List<PlaceInfoDao> findAllPlaces();
 
-    @Select("SELECT uid FROM health_code_place_code.place_mapping WHERE pid = #{pid} AND time BETWEEN #{startTime} AND #{endTime}")
-    List<Long> findUidsByPidAndTimeRange(@Param("pid") long pid, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
-
-
-    @Select("SELECT uid FROM health_code_place_code.place_mapping WHERE pid = #{pid} limit 1")
+    @Select("SELECT * FROM health_code_place_code.place_info WHERE pid = #{pid} limit 1")
     PlaceInfoDao getPlaceInfoByPID(@Param("pid") long pid);
 
-
-
+    @Select("SELECT pid FROM health_code_place_code.place_info")
+    List<Long> getAllPids();
 }

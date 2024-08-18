@@ -14,6 +14,7 @@ import org.software.code.service.notification.CommunityNotificationHandler;
 import org.software.code.service.notification.EpidemicPreventionNotificationHandler;
 import org.software.code.service.notification.NotificationChain;
 import org.software.code.service.notification.SmsNotificationHandler;
+import org.software.code.service.strategy.RiskCalculationContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,9 +40,12 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     @Autowired
     UserClient userClient;
 
-
     @Autowired
     private NotificationProducer notificationProducer;
+
+    @Autowired
+    private RiskCalculationContext riskCalculationContext;
+
 
     public void addNucleicAcidTestRecord(NucleicAcidTestRecordDto testRecordDto) {
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
@@ -157,41 +161,30 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         }
     }
 
-    public int autoModify() {
-        // 获取前天的日期
-        Date twoDaysAgo = new Date(System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000);
-        // 获取前天一天内单管阳性用户uid集合
-        List<Long> uids = nucleicAcidTestMapper.findPositiveSingleTubeUids(twoDaysAgo);
-        // 格式化日期为"yyyy-MM-dd HH:mm:ss"
+    public void autoModify() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Date oneDayAgo = new Date(System.currentTimeMillis() - 1L * 24 * 60 * 60 * 1000);
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String twoDaysAgoFormatted = dateFormat.format(twoDaysAgo);
-        // 获取当天的开始时间和结束时间
+        String oneDayAgoFormatted = dateFormat.format(oneDayAgo);
         Date now = new Date();
         String nowFormatted = dateFormat.format(now);
-        // 调用placeCodeClient的getPlacesByUserList方法
-        GetPlacesByUserListRequest getPlacesByUserListRequest = new GetPlacesByUserListRequest(uids, twoDaysAgoFormatted, nowFormatted);
-        Result<?> result = placeCodeClient.getPlacesByUserList(getPlacesByUserListRequest);
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Long> pids = objectMapper.convertValue(result.getData(), List.class);
-        // 调用场所微服务获取对应的场所pid
-        // 调用场所微服务获取这些pid中前天进入的uid
-        Set<Long> affectedUids = pids.stream()
-                .flatMap(pid -> {
-                    List<Long> users = objectMapper.convertValue(placeCodeClient.getRecordByPid(pid, twoDaysAgoFormatted, nowFormatted), List.class);
-                    return users.stream();
-                })
-                .collect(Collectors.toSet());
-        // 调用健康码微服务获取健康码颜色并设定为黄码
-        int count = 0;
-        for (Long uid : affectedUids) {
-            Integer healthCode = objectMapper.convertValue(healthCodeClient.getHealthCode(uid), Integer.class);
-            if (healthCode != null && healthCode != 2) { // 非红码用户
-                TranscodingEventsRequest transcodingEventsRequest=new TranscodingEventsRequest(uid, 1);
-                healthCodeClient.transcodingHealthCodeEvents(transcodingEventsRequest);
-                count++;
-            }
+        //获取所有场所码
+        List<Long> pids = objectMapper.convertValue(placeCodeClient.getAllPids().getData(), List.class);
+        //对于每个场所
+        for (Long pid : pids) {
+            // 获取前一天到过该场所的人员
+            List<Long> uids = objectMapper.convertValue(placeCodeClient.getRecordByPid(pid, oneDayAgoFormatted, nowFormatted).getData(), List.class);
+            uids = uids.stream().distinct().collect(Collectors.toList()); //去重
+            int totalPersons = uids.size();  // 获取总人数
+            // 获取阳性人数
+            List<Long> positiveUids = nucleicAcidTestMapper.findPositiveSingleTubeUids(oneDayAgo);
+            Set<Long> positivePersons = uids.stream()
+                    .filter(positiveUids::contains)
+                    .collect(Collectors.toSet());
+            int positiveCount = positivePersons.size();
+            String risk = riskCalculationContext.calculateRiskLevel(totalPersons, positiveCount);
+            placeCodeClient.setPlaceRisk(pid, risk);
         }
-        return count;
     }
 
 
