@@ -18,14 +18,19 @@ import org.software.code.dao.HealthCodeDao;
 import org.software.code.mapper.HealthCodeMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Service
 public class HealthCodeServiceImpl implements HealthCodeService {
+    private static final Logger logger = LogManager.getLogger(HealthCodeServiceImpl.class);
+
     @Autowired
     private StateMachineService<FSMConst.HealthCodeColor, FSMConst.HealthCodeEvent> stateMachineService;
-    @Autowired
 
+    @Autowired
     private UserClient userClient;
+
     @Autowired
     private HealthCodeMapper healthCodeMapper;
 
@@ -33,6 +38,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     public void applyHealthCode(long uid) {
         HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
         if (healthCodeDao != null) {
+            logger.error("Health code already exists for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_EXIST);
         }
     }
@@ -41,6 +47,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     public HealthQRCodeDto getHealthCode(long uid) {
         HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
         if (healthCodeDao == null) {
+            logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         HealthQRCodeDto healthQRCodeDto = new HealthQRCodeDto();
@@ -53,6 +60,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     public void transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event) {
         HealthCodeDao healthCode = healthCodeMapper.getHealthCodeByUID(uid);
         if (healthCode == null) {
+            logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         String stateMachineId = String.valueOf(healthCode.getUid());
@@ -73,7 +81,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
 
     @Override
     public void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, long communityId, String address) {
-        UserInfoRequest userInfoRequest=new UserInfoRequest(uid, name, phoneNumber, identityCard, districtId, streetId, communityId, address);
+        UserInfoRequest userInfoRequest = new UserInfoRequest(uid, name, phoneNumber, identityCard, districtId, streetId, communityId, address);
         userClient.addUserInfo(userInfoRequest);
         HealthCodeDao healthCodeDao = new HealthCodeDao();
         healthCodeDao.setUid(uid);
@@ -85,6 +93,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     public GetCodeDto getCode(long uid) {
         HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
         if (healthCodeDao == null) {
+            logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         Result<?> result = userClient.getUserByUID(uid);
@@ -105,6 +114,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         long uid = userInfoDto.getUid();
         HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
         if (healthCodeDao == null) {
+            logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         HealthCodeInfoDto healthCodeInfoDto = new HealthCodeInfoDto();
@@ -114,6 +124,4 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         healthCodeInfoDto.setIdentity_card(identityCard);
         return healthCodeInfoDto;
     }
-
-
 }

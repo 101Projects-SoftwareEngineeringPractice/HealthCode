@@ -17,12 +17,16 @@ import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Validated
 @RestController
 @RequestMapping("/place-code")
 public class PlaceCodeInternalController {
+
+    private static final Logger logger = LogManager.getLogger(PlaceCodeInternalController.class);
 
     @Autowired
     private PlaceCodeService placeCodeService;
@@ -49,6 +53,7 @@ public class PlaceCodeInternalController {
             startDate = timeFormat.parse(start_time);
             endDate = timeFormat.parse(end_time);
         } catch (ParseException e) {
+            logger.error("Date parsing error: start_time={}, end_time={}, message={}", start_time, end_time, e.getMessage());
             return Result.failed(ExceptionEnum.DATETIME_FORMAT_ERROR.getMsg());
         }
         return Result.success(placeCodeService.getRecordByPid(pid, startDate, endDate));
@@ -75,6 +80,7 @@ public class PlaceCodeInternalController {
             startDate = timeFormat.parse(request.getStart_time());
             endDate = timeFormat.parse(request.getEnd_time());
         } catch (ParseException e) {
+            logger.error("Date parsing error: start_time={}, end_time={}, message={}", request.getStart_time(), request.getEnd_time(), e.getMessage());
             return Result.failed(ExceptionEnum.DATETIME_FORMAT_ERROR.getMsg());
         }
         return Result.success(placeCodeService.getPlacesByUserList(request.getUidList(), startDate, endDate));

@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class PlaceCodeServiceImpl implements PlaceCodeService {
+    private static final Logger logger = LogManager.getLogger(PlaceCodeServiceImpl.class);
+
+
     @Autowired
     private PlaceInfoMapper placeInfoMapper;
 
@@ -130,6 +133,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     public void placeCodeOpposite(Long pid) {
         PlaceInfoDao placeInfoDao = placeInfoMapper.getPlaceInfoByPID(pid);
         if(placeInfoDao==null){
+            logger.error("Place code not found for PID: {}", pid);
             throw new BusinessException(ExceptionEnum.PLACE_CODE_NOT_FIND);
         }
         Boolean status = placeInfoDao.getStatus();
