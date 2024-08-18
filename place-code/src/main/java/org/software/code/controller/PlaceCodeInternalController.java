@@ -1,5 +1,6 @@
 package org.software.code.controller;
 
+import org.software.code.common.JWTUtil;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
 import org.software.code.dto.AddPlaceInput;
@@ -28,12 +29,9 @@ public class PlaceCodeInternalController {
 
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
     @PostMapping("/addPlace")
     public Result<?> addPlace(@RequestBody @Valid AddPlaceInput placeDto) {
-
         return Result.success(placeCodeService.addPlace(placeDto));
-
     }
 
     @GetMapping("/getPlaces")
@@ -58,9 +56,9 @@ public class PlaceCodeInternalController {
 
     @PostMapping("/scanPlaceCode")
     public Result<?> scanPlaceCode(@Valid @RequestBody ScanPlaceCodeRequest request) {
-        placeCodeService.scanPlaceCode(request.getUid(), request.getToken());
+        long pid = JWTUtil.extractID(request.getToken());
+        placeCodeService.scanPlaceCode(request.getUid(), pid);
         return Result.success();
-
     }
 
     @PostMapping("/oppositePlaceCode")
