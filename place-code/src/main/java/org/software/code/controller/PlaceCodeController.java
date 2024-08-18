@@ -21,12 +21,20 @@ public class PlaceCodeController {
     @Autowired
     private PlaceCodeService placeCodeService;
 
-    @PostMapping("/scanCode")
-    public Result<?> scanCode(@RequestHeader("Authorization") String idToken,
+    @PostMapping("/scanCodeByToken")
+    public Result<?> scanCodeByToken(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                               @Valid @RequestBody PidTokenInput request) {
-        String token = request.getToken();
-        long uid = JWTUtil.extractID(idToken);
-        placeCodeService.scanPlaceCode(uid, token);
+        long pid = JWTUtil.extractID(request.getToken());
+        long uid = JWTUtil.extractID(token);
+        placeCodeService.scanPlaceCode(uid, pid);
+        return Result.success();
+    }
+    @PostMapping("/scanCode")
+    public Result<?> scanCode(@RequestHeader("authorization") @NotNull(message = "token不能为空") String token,
+                              @Valid @RequestBody PidInput request) {
+        long pid = request.getPid();
+        long uid = JWTUtil.extractID(token);
+        placeCodeService.scanPlaceCode(uid, pid);
         return Result.success();
     }
 
