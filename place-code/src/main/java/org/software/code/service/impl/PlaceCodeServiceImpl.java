@@ -117,6 +117,9 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
                 .map(placeInfoDao -> {
                     PlaceCodeInfoDto placeCodeInfoDto = new PlaceCodeInfoDto();
                     BeanUtils.copyProperties(placeInfoDao, placeCodeInfoDto);
+                    placeCodeInfoDto.setCommunity_id(placeInfoDao.getCommunity());
+                    placeCodeInfoDto.setDistrict_id(placeInfoDao.getDistrict());
+                    placeCodeInfoDto.setStreet_id(placeInfoDao.getStreet());
                     return placeCodeInfoDto;
                 })
                 .collect(Collectors.toList());
