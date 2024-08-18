@@ -2,6 +2,8 @@ package org.software.code.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.software.code.client.UserClient;
 import org.software.code.common.JWTUtil;
 import org.software.code.common.except.BusinessException;
@@ -77,8 +79,7 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     }
 
 
-    public void scanPlaceCode(long uid, String token) {
-        long pid = JWTUtil.extractID(token);
+    public void scanPlaceCode(long uid, long pid) {
         PlaceMappingDao placeMappingDao = new PlaceMappingDao();
         placeMappingDao.setPid(pid);
         placeMappingDao.setUid(uid);

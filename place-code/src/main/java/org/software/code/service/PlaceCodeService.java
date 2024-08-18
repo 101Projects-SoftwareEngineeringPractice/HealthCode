@@ -18,7 +18,7 @@ public interface PlaceCodeService {
 
     void oppositePlaceCode(long pid, boolean status);
 
-    void scanPlaceCode(long uid, String token);
+    void scanPlaceCode(long uid, long pid);
 
     List<Long> getPlacesByUserList(List<Long> uidList, Date startTime, Date endTime);
 
