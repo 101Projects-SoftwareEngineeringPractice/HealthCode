@@ -96,8 +96,8 @@ public class NucleicAcidsInternalController {
 
     @GetMapping("/autoModify")
     public Result<?> autoModify() {
-
-        return Result.success(nucleicAcidsService.autoModify());
+        nucleicAcidsService.autoModify();
+        return Result.success();
 
     }
 

@@ -29,5 +29,5 @@ public interface PlaceCodeService {
 
     void placeCodeOpposite(Long pid);
 
-//    Object getRecordByPid(getRecordByPidInput input);
+    List<Long> getAllPids();
 }

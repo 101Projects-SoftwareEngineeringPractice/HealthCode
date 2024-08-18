@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 @Validated
@@ -82,5 +83,16 @@ public class PlaceCodeInternalController {
         return Result.success(placeCodeService.getPlacesByUserList(request.getUidList(), startDate, endDate));
     }
 
+    @GetMapping("/getAllPids")
+    public Result<?> getAllPids() {
+        List<Long> pids = placeCodeService.getAllPids();
+        return Result.success(pids);
+    }
+
+    @PutMapping("/setPlaceRisk")
+    public Result<?> setPlaceRisk(@RequestParam("pid") Long pid, @RequestParam("risk") String risk) {
+        //TODO 设置场所的风险等级
+        return Result.success();
+    }
 
 }
