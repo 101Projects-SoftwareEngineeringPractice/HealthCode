@@ -21,9 +21,9 @@ public interface NucleicAcidsService {
 
     List<PositiveInfoDto> getPositiveInfoByTime(Date startTime, Date endTime);
 
-    List<NucleicAcidTestRecordDto> getNoticeReTestRecords();
+    void getNoticeReTestRecords();
 
-    int autoModify();
+    void autoModify();
 
     void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress);
 

@@ -1,5 +1,7 @@
 package org.software.code.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class PositiveInfoDto {
@@ -12,10 +14,12 @@ public class PositiveInfoDto {
     private String identity_card;
     private Integer district;
     private Integer street;
-    private Integer community;
+    private Long community;
     private String address;
     private String test_address;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date created_at;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updated_at;
     private Integer result;
     private String testing_organization;
@@ -94,11 +98,11 @@ public class PositiveInfoDto {
         this.street = street;
     }
 
-    public Integer getCommunity() {
+    public Long getCommunity() {
         return community;
     }
 
-    public void setCommunity(Integer community) {
+    public void setCommunity(Long community) {
         this.community = community;
     }
 

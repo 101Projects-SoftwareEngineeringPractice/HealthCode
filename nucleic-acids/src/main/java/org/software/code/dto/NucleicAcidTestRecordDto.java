@@ -13,9 +13,7 @@ public class NucleicAcidTestRecordDto {
     private Long community;
     private String address;
     private String test_address;
-    private Integer result;
     private String testing_organization;
-    private Boolean re_test;
 
     public Long getUid() {
         return uid;
@@ -113,14 +111,6 @@ public class NucleicAcidTestRecordDto {
         this.test_address = test_address;
     }
 
-    public Integer getResult() {
-        return result;
-    }
-
-    public void setResult(Integer result) {
-        this.result = result;
-    }
-
     public String getTesting_organization() {
         return testing_organization;
     }
@@ -128,17 +118,4 @@ public class NucleicAcidTestRecordDto {
     public void setTesting_organization(String testing_organization) {
         this.testing_organization = testing_organization;
     }
-
-    public Boolean getRe_test() {
-        return re_test;
-    }
-
-    public void setRe_test(Boolean re_test) {
-        this.re_test = re_test;
-    }
-
-
-
-    // Getters and Setters
-
 }
