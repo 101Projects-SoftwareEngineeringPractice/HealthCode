@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import static org.software.code.common.except.ExceptionEnum.*;
-import static org.software.code.common.except.ExceptionEnum.TOKEN_NOT_FIND;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     /**
@@ -42,7 +39,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result<?>> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
         Result<?> result;
         if (e.getHeaderName().equals("Authorization")) {
-            result = Result.failed(TOKEN_NOT_FIND.getMsg());
+            result = Result.failed(ExceptionEnum.TOKEN_NOT_FIND.getMsg());
         } else {
             String errorMessage = String.format("参数%s缺失", e.getHeaderName());
             result = Result.failed(errorMessage);
@@ -56,7 +53,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Result<?>> handleMHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        Result<?> result= Result.failed(REQUEST_PARAMETER_ERROR.getMsg());
+        Result<?> result= Result.failed(ExceptionEnum.REQUEST_PARAMETER_ERROR.getMsg());
         return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
     }
 
@@ -92,7 +89,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BeansException.class)
     public ResponseEntity<Result<?>> handleBeansExceptions(BeansException ex) {
         ex.printStackTrace();
-        return new ResponseEntity<>(Result.failed(BEAN_FORMAT_ERROR.getMsg()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Result.failed(ExceptionEnum.BEAN_FORMAT_ERROR.getMsg()), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -108,7 +105,7 @@ public class GlobalExceptionHandler {
             resultEx = objectMapper.readValue(ex.contentUTF8(), Result.class);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(Result.failed(FEIGN_EXCEPTION.getMsg()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Result.failed(ExceptionEnum.FEIGN_EXCEPTION.getMsg()), HttpStatus.BAD_REQUEST);
         }
         Result<?> result = Result.failed(resultEx.getMessage());
         return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
@@ -130,6 +127,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<?>> handleExceptions(Exception ex) {
         ex.printStackTrace();
-        return new ResponseEntity<>(Result.failed(RUN_EXCEPTION.getMsg()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Result.failed(ExceptionEnum.RUN_EXCEPTION.getMsg()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

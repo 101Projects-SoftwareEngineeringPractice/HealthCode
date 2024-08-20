@@ -1,7 +1,7 @@
 package org.software.code.service;
 
-import org.software.code.dto.GetItineraryDto;
-import org.software.code.dto.PlaceStatusDto;
+import org.software.code.model.dto.GetItineraryDto;
+import org.software.code.model.dto.PlaceStatusDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

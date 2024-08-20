@@ -1,14 +1,14 @@
 package org.software.code.controller;
 
 import org.software.code.common.consts.FSMConst;
-import org.software.code.common.JWTUtil;
+import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.except.BusinessException;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
-import org.software.code.dto.ApplyCodeRequest;
-import org.software.code.dto.GetCodeDto;
-import org.software.code.dto.HealthCodeInfoDto;
-import org.software.code.dto.TranscodingEventsRequest;
+import org.software.code.model.input.ApplyCodeRequest;
+import org.software.code.model.dto.GetCodeDto;
+import org.software.code.model.dto.HealthCodeInfoDto;
+import org.software.code.model.input.TranscodingEventsRequest;
 import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 @Validated
 @RestController

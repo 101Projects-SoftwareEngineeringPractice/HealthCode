@@ -1,8 +1,8 @@
 package org.software.code.controller;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.NucleicAcidTestRecordDto;
-import org.software.code.dto.NucleicAcidTestRecordInput;
+import org.software.code.model.dto.NucleicAcidTestRecordDto;
+import org.software.code.model.input.NucleicAcidTestRecordInput;
 import org.software.code.service.NucleicAcidsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

@@ -1,7 +1,7 @@
 package org.software.code.controller;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.PlaceStatusDto;
+import org.software.code.model.dto.PlaceStatusDto;
 import org.software.code.service.ItineraryCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

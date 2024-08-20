@@ -3,7 +3,7 @@ package org.software.code.kafaka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.software.code.common.except.BusinessException;
 import org.software.code.common.except.ExceptionEnum;
-import org.software.code.dto.NotificationMessage;
+import org.software.code.model.message.NotificationMessage;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 

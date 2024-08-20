@@ -1,8 +1,8 @@
 package org.software.code.service;
 
-import org.software.code.dto.GetPlaceDto;
-import org.software.code.dto.PlaceCodeInfoDto;
-import org.software.code.dto.AddPlaceInput;
+import org.software.code.model.dto.GetPlaceDto;
+import org.software.code.model.dto.PlaceCodeInfoDto;
+import org.software.code.model.input.AddPlaceInput;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

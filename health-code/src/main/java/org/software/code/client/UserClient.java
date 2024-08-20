@@ -1,11 +1,9 @@
 package org.software.code.client;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.UserInfoRequest;
+import org.software.code.model.input.UserInfoRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @FeignClient(name = "user")
 public interface UserClient {

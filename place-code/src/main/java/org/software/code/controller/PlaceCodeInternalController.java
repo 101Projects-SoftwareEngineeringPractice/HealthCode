@@ -1,12 +1,12 @@
 package org.software.code.controller;
 
-import org.software.code.common.JWTUtil;
+import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
-import org.software.code.dto.AddPlaceInput;
-import org.software.code.dto.GetPlacesByUserListRequest;
-import org.software.code.dto.OppositePlaceCodeRequest;
-import org.software.code.dto.ScanPlaceCodeRequest;
+import org.software.code.model.input.AddPlaceInput;
+import org.software.code.model.input.GetPlacesByUserListRequest;
+import org.software.code.model.input.OppositePlaceCodeRequest;
+import org.software.code.model.input.ScanPlaceCodeRequest;
 import org.software.code.service.PlaceCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
