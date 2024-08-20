@@ -1,11 +1,11 @@
 package org.software.code.controller;
 
-import org.software.code.common.JWTUtil;
+import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.result.Result;
-import org.software.code.dto.PidTokenInput;
-import org.software.code.dto.CreatePlaceCodeRequest;
-import org.software.code.dto.PidInput;
-import org.software.code.dto.PlaceCodeInfoDto;
+import org.software.code.model.input.PidTokenInput;
+import org.software.code.model.input.CreatePlaceCodeRequest;
+import org.software.code.model.input.PidInput;
+import org.software.code.model.dto.PlaceCodeInfoDto;
 import org.software.code.service.PlaceCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

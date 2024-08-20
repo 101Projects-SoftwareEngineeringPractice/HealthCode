@@ -1,7 +1,7 @@
 package org.software.code.client;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.TranscodingEventsRequest;
+import org.software.code.model.input.TranscodingEventsRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;

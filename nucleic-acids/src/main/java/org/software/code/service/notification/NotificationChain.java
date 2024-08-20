@@ -1,6 +1,6 @@
 package org.software.code.service.notification;
 
-import org.software.code.dto.NotificationMessage;
+import org.software.code.model.message.NotificationMessage;
 
 import java.util.ArrayList;
 import java.util.List;

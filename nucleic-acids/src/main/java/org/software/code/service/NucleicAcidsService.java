@@ -1,6 +1,10 @@
 package org.software.code.service;
 
-import org.software.code.dto.*;
+import org.software.code.model.dto.NucleicAcidTestInfoDto;
+import org.software.code.model.dto.NucleicAcidTestRecordDto;
+import org.software.code.model.dto.NucleicAcidTestResultDto;
+import org.software.code.model.dto.PositiveInfoDto;
+import org.software.code.model.input.NucleicAcidTestRecordInput;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

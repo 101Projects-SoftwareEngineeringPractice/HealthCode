@@ -1,8 +1,8 @@
 package org.software.code.service;
 
-import org.software.code.dto.HealthCodeManagerDto;
-import org.software.code.dto.NucleicAcidTestPersonnelDto;
-import org.software.code.dto.UserInfoDto;
+import org.software.code.model.dto.HealthCodeManagerDto;
+import org.software.code.model.dto.NucleicAcidTestPersonnelDto;
+import org.software.code.model.dto.UserInfoDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,8 +1,9 @@
 package org.software.code.controller;
 
-import org.software.code.common.JWTUtil;
+import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.result.Result;
-import org.software.code.dto.*;
+import org.software.code.model.dto.*;
+import org.software.code.model.input.*;
 import org.software.code.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

@@ -1,7 +1,7 @@
 package org.software.code.kafaka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.software.code.dto.NotificationMessage;
+import org.software.code.model.message.NotificationMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

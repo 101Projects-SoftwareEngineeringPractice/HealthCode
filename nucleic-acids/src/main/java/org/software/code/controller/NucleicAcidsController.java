@@ -1,12 +1,12 @@
 package org.software.code.controller;
 
-import org.software.code.common.JWTUtil;
+import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
-import org.software.code.dto.AddNucleicAcidTestRecordByIDRequest;
-import org.software.code.dto.AddNucleicAcidTestRecordRequest;
-import org.software.code.dto.NucleicAcidTestRecordInput;
-import org.software.code.dto.NucleicAcidTestResultDto;
+import org.software.code.model.input.AddNucleicAcidTestRecordByIDRequest;
+import org.software.code.model.input.AddNucleicAcidTestRecordRequest;
+import org.software.code.model.input.NucleicAcidTestRecordInput;
+import org.software.code.model.dto.NucleicAcidTestResultDto;
 import org.software.code.service.NucleicAcidsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

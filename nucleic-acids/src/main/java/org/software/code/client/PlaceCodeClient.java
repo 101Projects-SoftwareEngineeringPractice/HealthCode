@@ -1,11 +1,9 @@
 package org.software.code.client;
 
 import org.software.code.common.result.Result;
-import org.software.code.dto.GetPlacesByUserListRequest;
+import org.software.code.model.input.GetPlacesByUserListRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @FeignClient(name = "place-code")
 public interface PlaceCodeClient {

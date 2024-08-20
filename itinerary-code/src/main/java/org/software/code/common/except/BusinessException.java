@@ -1,7 +1,5 @@
 package org.software.code.common.except;
 
-import org.software.code.common.except.ExceptionEnum;
-
 public class BusinessException extends RuntimeException {
 
     private String code;
