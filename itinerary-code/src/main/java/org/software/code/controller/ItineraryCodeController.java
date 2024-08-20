@@ -18,11 +18,8 @@ public class ItineraryCodeController {
     private ItineraryCodeService itineraryCodeService;
     @GetMapping("/getItinerary")
     public Result<?> getItinerary (@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
-        
         long uid=JWTUtil.extractID(token);
         GetItineraryDto getItineraryDto = itineraryCodeService.getItinerary(uid);
         return Result.success(getItineraryDto);
-    
     }
-
 }

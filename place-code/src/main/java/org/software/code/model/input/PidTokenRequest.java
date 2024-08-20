@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotBlank;
 
-public class PidTokenInput {
+public class PidTokenRequest {
 
     @NotBlank(message = "token不能为空")
     @JsonProperty("token")

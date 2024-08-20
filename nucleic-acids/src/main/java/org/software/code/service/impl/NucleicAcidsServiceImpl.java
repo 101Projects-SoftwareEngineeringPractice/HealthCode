@@ -9,8 +9,7 @@ import org.software.code.dao.NucleicAcidTestRecordDao;
 import org.software.code.kafaka.NotificationProducer;
 import org.software.code.mapper.NucleicAcidTestMapper;
 import org.software.code.model.dto.*;
-import org.software.code.model.input.NucleicAcidTestRecordInput;
-import org.software.code.model.input.TranscodingEventsRequest;
+import org.software.code.model.input.*;
 import org.software.code.model.message.NotificationMessage;
 import org.software.code.service.NucleicAcidsService;
 import org.software.code.service.notification.CommunityNotificationHandler;
@@ -50,7 +49,7 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
     private RiskCalculationContext riskCalculationContext;
 
 
-    public void addNucleicAcidTestRecord(NucleicAcidTestRecordDto testRecordDto) {
+    public void addNucleicAcidTestRecord(AddNucleicAcidTestRecordRequest testRecordDto) {
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
         BeanUtils.copyProperties(testRecordDto, testRecordDao);
         //如果为单管类型，还需将该uid三天内的其他核酸检测记录标记为已复检状态，否则置为空
@@ -63,8 +62,8 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         nucleicAcidTestMapper.insertTestRecord(testRecordDao); // 调用 Mapper 层进行数据库操作
     }
 
-    public void enterNucleicAcidTestRecordList(List<NucleicAcidTestRecordInput> testRecords) {
-        for (NucleicAcidTestRecordInput input : testRecords) {
+    public void enterNucleicAcidTestRecordList(List<enterNucleicAcidTestRecordRequestItem> testRecords) {
+        for (enterNucleicAcidTestRecordRequestItem input : testRecords) {
             // 更新检测结果
             nucleicAcidTestMapper.updateTestRecord(input.getTubeid(), input.getKind(), input.getResult(), input.getTesting_organization());
             // 混管且阳性，转黄码
@@ -192,15 +191,15 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
 
 
     @Override
-    public void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress) {
-        Result<?> result = userClient.getUserByUID(uid);
+    public void addNucleicAcidTestRecordByToken(AddNucleicAcidTestRecordByTokenInput input) {
+        Result<?> result = userClient.getUserByUID(input.getUid());
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
-        testRecordDao.setUid(uid);
-        testRecordDao.setTid(tid);
-        testRecordDao.setKind(kind);
-        testRecordDao.setTubeid(tubeid);
+        testRecordDao.setUid(input.getUid());
+        testRecordDao.setTid(input.getTid());
+        testRecordDao.setKind(input.getKind());
+        testRecordDao.setTubeid(input.getTubeId());
         testRecordDao.setIdentity_card(userInfoDto.getIdentity_card());
         testRecordDao.setPhone_number(userInfoDto.getPhone_number());
         testRecordDao.setName(userInfoDto.getName());
@@ -208,37 +207,37 @@ public class NucleicAcidsServiceImpl implements NucleicAcidsService {
         testRecordDao.setStreet(userInfoDto.getStreet());
         testRecordDao.setCommunity(userInfoDto.getCommunity());
         testRecordDao.setAddress(userInfoDto.getAddress());
-        testRecordDao.setTest_address(testAddress);
+        testRecordDao.setTest_address(input.getTestAddress());
         //如果为单管类型，还需将该uid三天内的其他核酸检测记录标记为已复检状态，否则置为空
-        if (kind == 0) {
+        if (input.getKind() == 0) {
             Date oneDayAgo = new Date(System.currentTimeMillis() - 3L * 24 * 60 * 60 * 1000);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String threeDayAgoFormatted = dateFormat.format(oneDayAgo);
-            nucleicAcidTestMapper.updateTestRecordReTestToTrueByUidAndTime(uid, threeDayAgoFormatted);
+            nucleicAcidTestMapper.updateTestRecordReTestToTrueByUidAndTime(input.getUid(), threeDayAgoFormatted);
         }
         nucleicAcidTestMapper.insertTestRecord(testRecordDao);// 调用 Mapper 层进行数据库操作
     }
 
     @Override
-    public void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress) {
-        Result<?> result = userClient.getUserByID(identityCard);
+    public void addNucleicAcidTestRecordByID(AddNucleicAcidTestRecordByIDInput input) {
+        Result<?> result = userClient.getUserByID(input.getIdentityCard());
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         NucleicAcidTestRecordDao testRecordDao = new NucleicAcidTestRecordDao();
         testRecordDao.setUid(userInfoDto.getUid());
-        testRecordDao.setTid(tid);
-        testRecordDao.setKind(kind);
-        testRecordDao.setTubeid(tubeid);
-        testRecordDao.setIdentity_card(identityCard);
+        testRecordDao.setTid(input.getTid());
+        testRecordDao.setKind(input.getKind());
+        testRecordDao.setTubeid(input.getTubeId());
+        testRecordDao.setIdentity_card(input.getIdentityCard());
         testRecordDao.setPhone_number(userInfoDto.getPhone_number());
         testRecordDao.setName(userInfoDto.getName());
         testRecordDao.setDistrict(userInfoDto.getDistrict());
         testRecordDao.setStreet(userInfoDto.getStreet());
         testRecordDao.setCommunity(userInfoDto.getCommunity());
         testRecordDao.setAddress(userInfoDto.getAddress());
-        testRecordDao.setTest_address(testAddress);
+        testRecordDao.setTest_address(input.getTestAddress());
         //如果为单管类型，还需将该uid三天内的其他核酸检测记录标记为已复检状态，否则置为空
-        if (kind == 0) {
+        if (input.getKind() == 0) {
             Date oneDayAgo = new Date(System.currentTimeMillis() - 3L * 24 * 60 * 60 * 1000);
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String threeDayAgoFormatted = dateFormat.format(oneDayAgo);

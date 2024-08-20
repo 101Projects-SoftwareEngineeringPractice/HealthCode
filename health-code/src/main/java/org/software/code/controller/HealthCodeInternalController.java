@@ -6,7 +6,8 @@ import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
 import org.software.code.model.dto.HealthQRCodeDto;
 import org.software.code.model.input.TranscodingEventsRequest;
-import org.software.code.model.input.UidInput;
+import org.software.code.model.input.TranscodingHealthCodeEventsInput;
+import org.software.code.model.input.UidRequest;
 import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +25,7 @@ public class HealthCodeInternalController {
 
 
     @PostMapping("/applyHealthCode")
-    public Result<?> applyHealthCode(@Valid @RequestBody UidInput request) {
+    public Result<?> applyHealthCode(@Valid @RequestBody UidRequest request) {
         long uid = request.getUid();
         healthCodeService.applyHealthCode(uid);
         return Result.success();
@@ -38,7 +39,6 @@ public class HealthCodeInternalController {
 
     @PatchMapping("/transcodingHealthCodeEvents")
     public Result<?> transcodingHealthCodeEvents(@Valid @RequestBody TranscodingEventsRequest request) {
-        long uid = request.getUid();
         int event = request.getEvent();
         FSMConst.HealthCodeEvent healthCodeEvent;
         switch (event) {
@@ -54,7 +54,8 @@ public class HealthCodeInternalController {
             default:
                 throw new BusinessException(ExceptionEnum.HEALTH_CODE_EVENT_INVALID);
         }
-        healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
+        TranscodingHealthCodeEventsInput input= new TranscodingHealthCodeEventsInput(request.getUid(),healthCodeEvent);
+        healthCodeService.transcodingHealthCodeEvents(input);
         return Result.success();
     }
 }

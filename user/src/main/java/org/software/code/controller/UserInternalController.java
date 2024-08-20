@@ -34,18 +34,14 @@ public class UserInternalController {
     }
 
     @PostMapping("/userLogin")
-    public Result<?> userLogin(@Valid @RequestBody CodeInput input) {
+    public Result<?> userLogin(@Valid @RequestBody CodeRequest input) {
         String token = userService.userLogin(input.getCode());
         return Result.success(token);
     }
 
     @PostMapping("/nucleicAcidTestUserLogin")
     public Result<?> nucleicAcidTestUserLogin(@RequestBody NucleicAcidsLoginRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String password = request.getPassword();
-
-        String token = userService.nucleicAcidTestUserLogin(identityCard, password);
+        String token = userService.nucleicAcidTestUserLogin(request);
         return Result.success(token);
     }
 
@@ -63,78 +59,43 @@ public class UserInternalController {
 
     @PostMapping("/newNucleicAcidTestUser")
     public Result<?> newNucleicAcidTestUser(@Valid @RequestBody CreateNucleicAcidRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String name = request.getName();
-        String password = request.getPassword();
-        userService.newNucleicAcidTestUser(identityCard, password, name);
+        userService.newNucleicAcidTestUser(request);
         return Result.success();
     }
 
     @PostMapping("/newMangerUser")
     public Result<?> newMangerUser(@Valid @RequestBody CreateManageRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String name = request.getName();
-        String password = request.getPassword();
-        userService.newMangerUser(identityCard, password, name);
+        userService.newMangerUser(request);
         return Result.success();
     }
 
     @PostMapping("/managerUserLogin")
     public Result<?> managerLogin(@Valid @RequestBody ManagerLoginRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String password = request.getPassword();
-        String token = userService.managerLogin(identityCard, password);
+        String token = userService.managerLogin(request);
         return Result.success(token);
     }
 
     @PutMapping("/modifyUserInfo")
     public Result<?> modifyUserInfo(@Valid @RequestBody UserInfoRequest request) {
-
-        Long uid = request.getUid();
-        String name = request.getName();
-        String phoneNumber = request.getPhoneNumber();
-        String identityCard = request.getIdentityCard();
-        Integer district = request.getDistrict();
-        Integer street = request.getStreet();
-        Long community = request.getCommunity();
-        String address = request.getAddress();
-        userService.modifyUserInfo(uid, name, phoneNumber, identityCard, district, street, community, address);
+        userService.modifyUserInfo(request);
         return Result.success();
     }
 
     @PatchMapping("/statusNucleicAcidTestUser")
     public Result<?> statusNucleicAcidTestUser(@Valid @RequestBody StatusNucleicAcidTestUserRequest request) {
-
-        Long tid = request.getTid();
-        Boolean status = request.getStatus();
-        userService.statusNucleicAcidTestUser(tid, status);
+        userService.statusNucleicAcidTestUser(request);
         return Result.success();
     }
 
     @PatchMapping("/statusManager")
     public Result<?> statusManager(@Valid @RequestBody StatusManagerRequest request) {
-
-        Long mid = request.getMid();
-        Boolean status = request.getStatus();
-        userService.statusManager(mid, status);
+        userService.statusManager(request);
         return Result.success();
     }
 
     @PutMapping("/addUserInfo")
     public Result<?> addUserInfo(@Valid @RequestBody UserInfoRequest request) {
-
-        Long uid = request.getUid();
-        String name = request.getName();
-        String phoneNumber = request.getPhoneNumber();
-        String identityCard = request.getIdentityCard();
-        Integer district = request.getDistrict();
-        Integer street = request.getStreet();
-        Long community = request.getCommunity();
-        String address = request.getAddress();
-        userService.addUserInfo(uid, name, phoneNumber, identityCard, district, street, community, address);
+        userService.addUserInfo(request);
         return Result.success();
     }
 
@@ -145,17 +106,13 @@ public class UserInternalController {
     }
 
     @PostMapping("/testuid")
-    public Result<?> testuid(@RequestBody @Valid TidInput tidInpt) {
+    public Result<?> testuid(@RequestBody @Valid TidRequest tidInpt) {
         System.out.println(tidInpt.getTid());
-//        userService.deleteUserInfo(uid);
         return Result.success();
     }
 
     @GetMapping("/getuid")
     public Result<?> createManage(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
         return Result.success(JWTUtil.extractID(token));
-
     }
-
-
 }

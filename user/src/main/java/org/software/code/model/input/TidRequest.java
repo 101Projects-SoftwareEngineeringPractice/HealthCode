@@ -1,9 +1,9 @@
-package org.software.code.model.dto;
+package org.software.code.model.input;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotNull;
 
-public class TidInput {
+public class TidRequest {
 
     @NotNull(message = "tid不能为空")
     @JsonProperty("tid")

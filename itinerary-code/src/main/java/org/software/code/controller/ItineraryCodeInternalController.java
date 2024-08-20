@@ -26,10 +26,8 @@ public class ItineraryCodeInternalController {
      */
     @GetMapping("/getItineraryCodeList")
     public Result<?> getItineraryCodeList(@RequestParam(name = "uid") @NotNull(message = "uid不能为空") Long uid) {
-        
         List<PlaceStatusDto> placeStatusDtoList = itineraryCodeService.getItineraryCodeList(uid);
         return Result.success(placeStatusDtoList);
-    
     }
 
     /**
@@ -38,9 +36,7 @@ public class ItineraryCodeInternalController {
      */
     @GetMapping("/cleanItinerary")
     public Result<?> cleanItinerary() {
-        
         itineraryCodeService.cleanItinerary();
         return Result.success();
-    
     }
 }

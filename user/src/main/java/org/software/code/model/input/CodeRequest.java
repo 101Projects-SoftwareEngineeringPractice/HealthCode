@@ -1,10 +1,10 @@
-package org.software.code.model.dto;
+package org.software.code.model.input;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotBlank;
 
-public class CodeInput {
+public class CodeRequest {
     @NotBlank(message = "code 不能为空")
     @JsonProperty("code")
     private String code;

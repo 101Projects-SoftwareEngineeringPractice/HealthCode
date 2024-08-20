@@ -3,10 +3,7 @@ package org.software.code.controller;
 import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
-import org.software.code.model.input.AddPlaceInput;
-import org.software.code.model.input.GetPlacesByUserListRequest;
-import org.software.code.model.input.OppositePlaceCodeRequest;
-import org.software.code.model.input.ScanPlaceCodeRequest;
+import org.software.code.model.input.*;
 import org.software.code.service.PlaceCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -34,8 +31,8 @@ public class PlaceCodeInternalController {
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @PostMapping("/addPlace")
-    public Result<?> addPlace(@RequestBody @Valid AddPlaceInput placeDto) {
-        return Result.success(placeCodeService.addPlace(placeDto));
+    public Result<?> addPlace(@RequestBody @Valid AddPlaceRequest request) {
+        return Result.success(placeCodeService.addPlace(request));
     }
 
     @GetMapping("/getPlaces")
@@ -62,28 +59,20 @@ public class PlaceCodeInternalController {
     @PostMapping("/scanPlaceCode")
     public Result<?> scanPlaceCode(@Valid @RequestBody ScanPlaceCodeRequest request) {
         long pid = JWTUtil.extractID(request.getToken());
-        placeCodeService.scanPlaceCode(request.getUid(), pid);
+        ScanPlaceCodeInput input=new ScanPlaceCodeInput(request.getUid(),pid);
+        placeCodeService.scanPlaceCode(input);
         return Result.success();
     }
 
     @PostMapping("/oppositePlaceCode")
     public Result<?> oppositePlaceCode(@Valid @RequestBody OppositePlaceCodeRequest request) {
-        placeCodeService.oppositePlaceCode(request.getPid(), request.getStatus());
+        placeCodeService.oppositePlaceCode(request);
         return Result.success();
     }
 
     @PostMapping("/getPlacesByUserList")
     public Result<?> getPlacesByUserList(@Valid @RequestBody GetPlacesByUserListRequest request) {
-        Date startDate;
-        Date endDate;
-        try {
-            startDate = timeFormat.parse(request.getStart_time());
-            endDate = timeFormat.parse(request.getEnd_time());
-        } catch (ParseException e) {
-            logger.error("Date parsing error: start_time={}, end_time={}, message={}", request.getStart_time(), request.getEnd_time(), e.getMessage());
-            return Result.failed(ExceptionEnum.DATETIME_FORMAT_ERROR.getMsg());
-        }
-        return Result.success(placeCodeService.getPlacesByUserList(request.getUidList(), startDate, endDate));
+        return Result.success(placeCodeService.getPlacesByUserList(request));
     }
 
     @GetMapping("/getAllPids")

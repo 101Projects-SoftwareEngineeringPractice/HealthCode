@@ -4,6 +4,9 @@ import org.software.code.common.consts.FSMConst;
 import org.software.code.model.dto.GetCodeDto;
 import org.software.code.model.dto.HealthCodeInfoDto;
 import org.software.code.model.dto.HealthQRCodeDto;
+import org.software.code.model.input.ApplyCodeRequest;
+import org.software.code.model.input.TranscodingHealthCodeEventsInput;
+import org.software.code.model.input.UserInfoRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,9 +16,9 @@ public interface HealthCodeService {
 
     HealthQRCodeDto getHealthCode(long uid);
 
-    void transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event);
+    void transcodingHealthCodeEvents(TranscodingHealthCodeEventsInput input);
 
-    void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, long communityId, String address);
+    void applyCode(UserInfoRequest userInfoRequest);
 
     GetCodeDto getCode(long uid);
 

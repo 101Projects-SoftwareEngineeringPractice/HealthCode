@@ -9,7 +9,10 @@ import org.software.code.model.input.ApplyCodeRequest;
 import org.software.code.model.dto.GetCodeDto;
 import org.software.code.model.dto.HealthCodeInfoDto;
 import org.software.code.model.input.TranscodingEventsRequest;
+import org.software.code.model.input.TranscodingHealthCodeEventsInput;
+import org.software.code.model.input.UserInfoRequest;
 import org.software.code.service.HealthCodeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,18 +33,13 @@ public class HealthCodeController {
      */
     @PostMapping("/applyCode")
     public Result<?> applyCode(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                               @Valid @RequestBody ApplyCodeRequest input) {
+                               @Valid @RequestBody ApplyCodeRequest applyCodeRequest) {
         long uid = JWTUtil.extractID(token);
-        String name = input.getName();
-        String phone_number = input.getPhoneNumber();
-        String identity_card = input.getIdentityCard();
-        int district_id = input.getDistrictId();
-        int street_id = input.getStreetId();
-        long community_id = input.getCommunityId();
-        String address = input.getAddress();
-        healthCodeService.applyCode(uid, name, phone_number, identity_card, district_id, street_id, community_id, address);
+        UserInfoRequest userInfoRequest = new UserInfoRequest();
+        BeanUtils.copyProperties(applyCodeRequest, userInfoRequest);
+        userInfoRequest.setUid(uid);
+        healthCodeService.applyCode(userInfoRequest);
         return Result.success();
-
     }
 
 
@@ -81,7 +79,6 @@ public class HealthCodeController {
         // TODO: 根据转码事件，修改健康码状态
         // FIXME: 健康码创建时应该默认为绿色，不应为null
         // WARNING: 这个方法可能会抛出异常，需要进行异常处理
-        long uid = request.getUid();
         int event = request.getEvent();
         FSMConst.HealthCodeEvent healthCodeEvent;
         switch (event) {
@@ -98,7 +95,8 @@ public class HealthCodeController {
                 throw new BusinessException(ExceptionEnum.HEALTH_CODE_EVENT_INVALID);
         }
         JWTUtil.extractID(token);
-        healthCodeService.transcodingHealthCodeEvents(uid, healthCodeEvent);
+        TranscodingHealthCodeEventsInput input= new TranscodingHealthCodeEventsInput(request.getUid(),healthCodeEvent);
+        healthCodeService.transcodingHealthCodeEvents(input);
         return Result.success();
     }
 

@@ -1,7 +1,7 @@
 package org.software.code.model.input;
 
 
-public class NucleicAcidTestRecordInput {
+public class enterNucleicAcidTestRecordRequestItem {
     private Long tubeid;
     private Integer kind;
     private Integer result;
