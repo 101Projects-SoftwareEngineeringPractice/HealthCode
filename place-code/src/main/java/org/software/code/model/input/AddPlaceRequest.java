@@ -2,7 +2,7 @@ package org.software.code.model.input;
 
 import javax.validation.constraints.NotNull;
 
-public class AddPlaceInput {
+public class AddPlaceRequest {
     @NotNull
     private Long uid;
     @NotNull

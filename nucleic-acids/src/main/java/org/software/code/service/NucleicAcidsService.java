@@ -1,10 +1,10 @@
 package org.software.code.service;
 
-import org.software.code.model.dto.NucleicAcidTestInfoDto;
-import org.software.code.model.dto.NucleicAcidTestRecordDto;
-import org.software.code.model.dto.NucleicAcidTestResultDto;
-import org.software.code.model.dto.PositiveInfoDto;
-import org.software.code.model.input.NucleicAcidTestRecordInput;
+import org.software.code.model.dto.*;
+import org.software.code.model.input.AddNucleicAcidTestRecordByIDInput;
+import org.software.code.model.input.AddNucleicAcidTestRecordByTokenInput;
+import org.software.code.model.input.AddNucleicAcidTestRecordRequest;
+import org.software.code.model.input.enterNucleicAcidTestRecordRequestItem;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -13,9 +13,9 @@ import java.util.List;
 @Service
 public interface NucleicAcidsService {
 
-    void addNucleicAcidTestRecord(NucleicAcidTestRecordDto testRecord);
+    void addNucleicAcidTestRecord(AddNucleicAcidTestRecordRequest testRecord);
 
-    void enterNucleicAcidTestRecordList(List<NucleicAcidTestRecordInput> testRecords);
+    void enterNucleicAcidTestRecordList(List<enterNucleicAcidTestRecordRequestItem> testRecords);
 
     NucleicAcidTestResultDto getLastNucleicAcidTestRecordByUID(long uid);
 
@@ -29,8 +29,8 @@ public interface NucleicAcidsService {
 
     void autoModify();
 
-    void addNucleicAcidTestRecordByToken(long tid, long uid, int kind, Long tubeid, String testAddress);
+    void addNucleicAcidTestRecordByToken(AddNucleicAcidTestRecordByTokenInput input);
 
-    void addNucleicAcidTestRecordByID(long tid, String identityCard, int kind, Long tubeid, String testAddress);
+    void addNucleicAcidTestRecordByID(AddNucleicAcidTestRecordByIDInput input);
 
 }

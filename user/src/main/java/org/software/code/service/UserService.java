@@ -1,8 +1,7 @@
 package org.software.code.service;
 
-import org.software.code.model.dto.HealthCodeManagerDto;
-import org.software.code.model.dto.NucleicAcidTestPersonnelDto;
-import org.software.code.model.dto.UserInfoDto;
+import org.software.code.model.dto.*;
+import org.software.code.model.input.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,31 +14,31 @@ public interface UserService {
 
     String userLogin(String code);
 
-    String nucleicAcidTestUserLogin(String identityCard, String password);
+    String nucleicAcidTestUserLogin(NucleicAcidsLoginRequest request);
 
     List<NucleicAcidTestPersonnelDto> getNucleicAcidTestUser();
 
     List<HealthCodeManagerDto> getManagerUser();
 
-    void newNucleicAcidTestUser(String identityCard, String password, String name);
+    void newNucleicAcidTestUser(CreateNucleicAcidRequest request);
 
-    void newMangerUser(String identityCard, String password, String name);
+    void newMangerUser(CreateManageRequest request);
 
-    String managerLogin(String identityCard, String password);
+    String managerLogin(ManagerLoginRequest request);
 
-    void modifyUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address);
+    void modifyUserInfo(UserInfoRequest request);
 
-    void statusNucleicAcidTestUser(long tid, boolean status);
+    void statusNucleicAcidTestUser(StatusNucleicAcidTestUserRequest request);
 
-    void statusManager(long mid, boolean status);
+    void statusManager(StatusManagerRequest request);
 
-    void userModify(long uid, String name, String phoneNumber, int districtId, int streetId, long communityId, String address);
+    void userModify(UserModifyInput input);
 
     void nucleicAcidOpposite(long tid);
 
     void manageOpposite(long mid);
 
-    void addUserInfo(long uid, String name, String phoneNumber, String identityCard, int district, int street, long community, String address);
+    void addUserInfo(UserInfoRequest request);
 
     String userLogin_test(String code);
 

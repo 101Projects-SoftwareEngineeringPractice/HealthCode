@@ -3,9 +3,7 @@ package org.software.code.controller;
 import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
-import org.software.code.model.input.AddNucleicAcidTestRecordByIDRequest;
-import org.software.code.model.input.AddNucleicAcidTestRecordRequest;
-import org.software.code.model.input.NucleicAcidTestRecordInput;
+import org.software.code.model.input.*;
 import org.software.code.model.dto.NucleicAcidTestResultDto;
 import org.software.code.service.NucleicAcidsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,34 +46,27 @@ public class NucleicAcidsController {
 
     @PostMapping("/addNucleicAcidTestRecordByToken")
     public Result<?> addNucleicAcidTestRecordByToken(@RequestHeader("Authorization") String tidToken,
-                                                     @Valid @RequestBody AddNucleicAcidTestRecordRequest request) {
+                                                     @Valid @RequestBody AddNucleicAcidTestRecordByTokenRequest request) {
         String qrToken = request.getToken();
-        int kind = request.getKind();
-        Long tubeId = request.getTubeid();
-        String testAddress = request.getTest_address();
-
         long tid = JWTUtil.extractID(tidToken);
         long uid = JWTUtil.extractID(qrToken);
-        nucleicAcidsService.addNucleicAcidTestRecordByToken(tid, uid, kind, tubeId, testAddress);
+        AddNucleicAcidTestRecordByTokenInput input=new AddNucleicAcidTestRecordByTokenInput(tid,uid,request.getKind(), request.getTubeid(),request.getTest_address());
+        nucleicAcidsService.addNucleicAcidTestRecordByToken(input);
         return Result.success();
     }
 
     @PostMapping("/addNucleicAcidTestRecordByID")
     public Result<?> addNucleicAcidTestRecordByID(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                                   @Valid @RequestBody AddNucleicAcidTestRecordByIDRequest request) {
-        String identityCard = request.getIdentity_card();
-        int kind = request.getKind();
-        Long tubeId = request.getTubeid();
-        String testAddress = request.getTest_address();
-
         long tid = JWTUtil.extractID(token);
-        nucleicAcidsService.addNucleicAcidTestRecordByID(tid, identityCard, kind, tubeId, testAddress);
+        AddNucleicAcidTestRecordByIDInput input=new AddNucleicAcidTestRecordByIDInput(tid,request.getIdentity_card(),request.getKind(), request.getTubeid(),request.getTest_address());
+        nucleicAcidsService.addNucleicAcidTestRecordByID(input);
         return Result.success();
     }
 
     @PutMapping("/enterNucleicAcidTestRecord")
     public Result<?> enterNucleicAcidTestRecord(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                                @RequestBody List<NucleicAcidTestRecordInput> inputs) {
+                                                @RequestBody List<enterNucleicAcidTestRecordRequestItem> inputs) {
         JWTUtil.extractID(token);
         nucleicAcidsService.enterNucleicAcidTestRecordList(inputs);
         return Result.success();
@@ -85,8 +76,8 @@ public class NucleicAcidsController {
     public Result<?> getNucleicAcidTestInfo(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                             @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String start_time,
                                             @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String end_time) {
+        JWTUtil.extractID(token);
         try {
-            JWTUtil.extractID(token);
             Date startDate = dateFormat.parse(start_time);
             Date endDate = dateFormat.parse(end_time);
             return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(startDate, endDate));
@@ -100,8 +91,8 @@ public class NucleicAcidsController {
     public Result<?> getPositiveInfo(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                      @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String start_time,
                                      @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String end_time) {
+        JWTUtil.extractID(token);
         try {
-            JWTUtil.extractID(token);
             Date startDate = dateFormat.parse(start_time);
             Date endDate = dateFormat.parse(end_time);
             return Result.success(nucleicAcidsService.getPositiveInfoByTime(startDate, endDate));

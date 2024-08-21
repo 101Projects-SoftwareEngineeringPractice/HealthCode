@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 
-public class UidInput {
+public class UidRequest {
 
     @NotNull(message = "uid不能为空")
     @JsonProperty("uid")

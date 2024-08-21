@@ -39,6 +39,8 @@ public class UserInfoRequest {
     @JsonProperty("address")
     private String address;
 
+    public UserInfoRequest() {
+    }
 
     public UserInfoRequest(Long uid, String name, String phoneNumber, String identityCard, Integer district, Integer street, Long community, String address) {
         this.uid = uid;

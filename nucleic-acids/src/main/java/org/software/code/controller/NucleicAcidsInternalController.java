@@ -1,8 +1,8 @@
 package org.software.code.controller;
 
 import org.software.code.common.result.Result;
-import org.software.code.model.dto.NucleicAcidTestRecordDto;
-import org.software.code.model.input.NucleicAcidTestRecordInput;
+import org.software.code.model.input.AddNucleicAcidTestRecordRequest;
+import org.software.code.model.input.enterNucleicAcidTestRecordRequestItem;
 import org.software.code.service.NucleicAcidsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +29,13 @@ public class NucleicAcidsInternalController {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @PostMapping("/addNucleicAcidTestRecord")
-    public Result<?> addNucleicAcidTestRecord(@RequestBody @Valid NucleicAcidTestRecordDto testRecord) {
+    public Result<?> addNucleicAcidTestRecord(@RequestBody @Valid AddNucleicAcidTestRecordRequest testRecord) {
         nucleicAcidsService.addNucleicAcidTestRecord(testRecord);
         return Result.success(testRecord);
     }
 
     @PutMapping("/enterNucleicAcidTestRecordList")
-    public Result<?> enterNucleicAcidTestRecordList(@RequestBody @Valid List<NucleicAcidTestRecordInput> testRecords) {
+    public Result<?> enterNucleicAcidTestRecordList(@RequestBody @Valid List<enterNucleicAcidTestRecordRequestItem> testRecords) {
         nucleicAcidsService.enterNucleicAcidTestRecordList(testRecords);
         return Result.success(testRecords);
     }
@@ -86,13 +86,11 @@ public class NucleicAcidsInternalController {
     public Result<?> noticeReTest() {
         nucleicAcidsService.getNoticeReTestRecords();
         return Result.success();
-
     }
 
     @GetMapping("/autoModify")
     public Result<?> autoModify() {
         nucleicAcidsService.autoModify();
         return Result.success();
-
     }
 }

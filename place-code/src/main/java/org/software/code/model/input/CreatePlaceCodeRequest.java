@@ -31,7 +31,6 @@ public class CreatePlaceCodeRequest {
     @JsonProperty("address")
     private String address;
 
-    // Getters and Setters
     public String getIdentity_card() {
         return identity_card;
     }

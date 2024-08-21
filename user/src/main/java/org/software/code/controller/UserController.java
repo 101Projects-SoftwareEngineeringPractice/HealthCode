@@ -4,11 +4,9 @@ package org.software.code.controller;
 import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.result.Result;
 import org.software.code.model.dto.*;
-import org.software.code.model.input.CreateManageRequest;
-import org.software.code.model.input.CreateNucleicAcidRequest;
-import org.software.code.model.input.NucleicAcidsLoginRequest;
-import org.software.code.model.input.UserModifyRequest;
+import org.software.code.model.input.*;
 import org.software.code.service.UserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +24,14 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public Result<?> login(@Valid @RequestBody CodeInput input) {
+    public Result<?> login(@Valid @RequestBody CodeRequest input) {
 
         String token = userService.userLogin(input.getCode());
         return Result.success(token);
     }
 
     @PostMapping("/login-test")
-    public Result<?> login_test(@Valid @RequestBody CodeInput input) {
+    public Result<?> login_test(@Valid @RequestBody CodeRequest input) {
         String token = userService.userLogin_test(input.getCode());
         return Result.success(token);
     }
@@ -42,49 +40,32 @@ public class UserController {
     @PutMapping("/userModify")
     public Result<?> userModify(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                 @Valid @RequestBody UserModifyRequest request) {
-
-
-        String name = request.getName();
-        String phoneNumber = request.getPhoneNumber();
-        int districtId = request.getDistrictId();
-        int streetId = request.getStreetId();
-        long communityId = request.getCommunityId();
-        String address = request.getAddress();
-
         long uid = JWTUtil.extractID(token);
-        userService.userModify(uid, name, phoneNumber, districtId, streetId, communityId, address);
+        UserModifyInput input=new UserModifyInput();
+        BeanUtils.copyProperties(request,input);
+        input.setUid(uid);
+        userService.userModify(input);
         return Result.success();
     }
 
 
     @PostMapping("/nucleicAcidsLogin")
     public Result<?> nucleicAcidsLogin(@Valid @RequestBody NucleicAcidsLoginRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String password = request.getPassword();
-        String token = userService.nucleicAcidTestUserLogin(identityCard, password);
+        String token = userService.nucleicAcidTestUserLogin(request);
         return Result.success(token);
     }
 
     @PostMapping("/managerLogin")
     public Result<?> managerLogin(@Valid @RequestBody ManagerLoginRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String password = request.getPassword();
-        String token = userService.managerLogin(identityCard, password);
+        String token = userService.managerLogin(request);
         return Result.success(token);
-
     }
 
     @PostMapping("/nucleic_acid")
     public Result<?> createNucleicAcid(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                        @Valid @RequestBody CreateNucleicAcidRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String name = request.getName();
-        String password = request.getPassword();
         JWTUtil.extractID(token);
-        userService.newNucleicAcidTestUser(identityCard, password, name);
+        userService.newNucleicAcidTestUser(request);
         return Result.success();
 
     }
@@ -92,7 +73,6 @@ public class UserController {
 
     @GetMapping("/nucleic_acid")
     public Result<?> getNucleicAcidList(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token) {
-
         JWTUtil.extractID(token);
         List<NucleicAcidTestPersonnelDto> nucleicAcidUserInfoList = userService.getNucleicAcidTestUser();
         return Result.success(nucleicAcidUserInfoList);
@@ -101,7 +81,7 @@ public class UserController {
 
     @PatchMapping("/nucleic_acid_opposite")
     public Result<?> nucleicAcidOpposite(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                         @Valid @RequestBody TidInput request) {
+                                         @Valid @RequestBody TidRequest request) {
 
         JWTUtil.extractID(token);
         userService.nucleicAcidOpposite(request.getTid());
@@ -112,12 +92,8 @@ public class UserController {
     @PostMapping("/manage")
     public Result<?> createManage(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                   @Valid @RequestBody CreateManageRequest request) {
-
-        String identityCard = request.getIdentityCard();
-        String name = request.getName();
-        String password = request.getPassword();
         JWTUtil.extractID(token);
-        userService.newMangerUser(identityCard, password,name);
+        userService.newMangerUser(request);
         return Result.success(token);
 
     }
@@ -133,8 +109,7 @@ public class UserController {
 
     @PatchMapping("/manage_opposite")
     public Result<?> manageOpposite(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                    @Valid @RequestBody MidInput request) {
-
+                                    @Valid @RequestBody MidRequest request) {
         JWTUtil.extractID(token);
         userService.manageOpposite(request.getMid());
         return Result.success();

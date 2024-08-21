@@ -7,6 +7,7 @@ import org.software.code.model.dto.GetCodeDto;
 import org.software.code.model.dto.HealthCodeInfoDto;
 import org.software.code.model.dto.HealthQRCodeDto;
 import org.software.code.model.dto.UserInfoDto;
+import org.software.code.model.input.TranscodingHealthCodeEventsInput;
 import org.software.code.model.input.UserInfoRequest;
 import org.software.code.service.HealthCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +62,10 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     }
 
     @Override
-    public void transcodingHealthCodeEvents(long uid, FSMConst.HealthCodeEvent event) {
-        HealthCodeDao healthCode = healthCodeMapper.getHealthCodeByUID(uid);
+    public void transcodingHealthCodeEvents(TranscodingHealthCodeEventsInput input) {
+        HealthCodeDao healthCode = healthCodeMapper.getHealthCodeByUID(input.getUid());
         if (healthCode == null) {
-            logger.error("Health code not found for UID: {}", uid);
+            logger.error("Health code not found for UID: {}", input.getUid());
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         String stateMachineId = String.valueOf(healthCode.getUid());
@@ -74,21 +75,20 @@ public class HealthCodeServiceImpl implements HealthCodeService {
                 .doWithAllRegions(access -> access.resetStateMachineReactively(
                         new DefaultStateMachineContext<>(FSMConst.HealthCodeColor.values()[healthCode.getColor()], null, null, null)).block());
         stateMachine.startReactively().block();
-        stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(event).build())).blockFirst();
+        stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(input.healthCodeEvent).build())).blockFirst();
         FSMConst.HealthCodeColor newColor = stateMachine.getState().getId();
         int color = newColor.ordinal();
         healthCode.setColor(color);
-        healthCodeMapper.updateColorByUID(color, uid);
+        healthCodeMapper.updateColorByUID(color, input.getUid());
         stateMachine.stopReactively().block();
         stateMachineService.releaseStateMachine(stateMachineId);
     }
 
     @Override
-    public void applyCode(long uid, String name, String phoneNumber, String identityCard, int districtId, int streetId, long communityId, String address) {
-        UserInfoRequest userInfoRequest = new UserInfoRequest(uid, name, phoneNumber, identityCard, districtId, streetId, communityId, address);
+    public void applyCode(UserInfoRequest userInfoRequest) {
         userClient.addUserInfo(userInfoRequest);
         HealthCodeDao healthCodeDao = new HealthCodeDao();
-        healthCodeDao.setUid(uid);
+        healthCodeDao.setUid(userInfoRequest.getUid());
         healthCodeDao.setColor(0);
         healthCodeMapper.addHealthCode(healthCodeDao);
     }

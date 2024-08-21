@@ -1,4 +1,4 @@
-package org.software.code.model.dto;
+package org.software.code.model.input;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotBlank;
