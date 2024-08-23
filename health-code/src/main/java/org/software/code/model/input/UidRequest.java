@@ -10,7 +10,7 @@ public class UidRequest {
     @JsonProperty("uid")
     private Long uid;
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

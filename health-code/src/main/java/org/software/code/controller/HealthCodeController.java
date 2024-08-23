@@ -38,6 +38,10 @@ public class HealthCodeController {
         UserInfoRequest userInfoRequest = new UserInfoRequest();
         BeanUtils.copyProperties(applyCodeRequest, userInfoRequest);
         userInfoRequest.setUid(uid);
+        userInfoRequest.setDistrict(applyCodeRequest.getDistrictId());
+        userInfoRequest.setStreet(applyCodeRequest.getStreetId());
+        userInfoRequest.setCommunity(applyCodeRequest.getCommunityId());
+        userInfoRequest.setAddress(applyCodeRequest.getAddress());
         healthCodeService.applyCode(userInfoRequest);
         return Result.success();
     }
@@ -62,11 +66,10 @@ public class HealthCodeController {
      */
     @GetMapping("/health_code")
     public Result<?> getHealthCodeInfo(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                       @RequestParam(name = "identity_card") @NotNull(message = "identity_card不能为空") String identity_card) {
+                                       @RequestParam(name = "identity_card") @NotNull(message = "identity_card不能为空") String identityCard) {
         JWTUtil.extractID(token);
-        HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identity_card);
+        HealthCodeInfoDto healthCodeInfoDto = healthCodeService.getHealthCodeInfo(identityCard);
         return Result.success(healthCodeInfoDto);
-
     }
 
     /**

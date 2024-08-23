@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.NucleicAcidTestPersonnelDao">
+    <resultMap type="org.software.code.model.entity.NucleicAcidTestPersonnel" id="NucleicAcidTestPersonnelMap">
+        <result property="tid" column="tid" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="identityCard" column="identity_card" jdbcType="VARCHAR"/>
+        <result property="passwordHash" column="password_hash" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <!-- 添加核酸检测人员 -->
+    <insert id="addNucleicAcidTestPersonnel">
+        INSERT INTO health_code_user.nucleic_acid_test_personnel
+            (tid, identity_card, password_hash, name, status)
+        VALUES
+            (#{tid}, #{identityCard}, #{passwordHash}, #{name}, #{status});
+    </insert>
+
+    <!-- 根据 TID 更新状态 -->
+    <update id="updateStatusByTID">
+        UPDATE health_code_user.nucleic_acid_test_personnel
+        SET status = #{status}
+        WHERE tid = #{tid};
+    </update>
+
+    <!-- 查询所有核酸检测人员信息 -->
+    <select id="getNucleicAcidUserInfoList" resultMap="NucleicAcidTestPersonnelMap">
+        SELECT *
+        FROM health_code_user.nucleic_acid_test_personnel;
+    </select>
+
+    <!-- 根据身份证号查询核酸检测人员 -->
+    <select id="getNucleicAcidTestPersonnelByID" resultMap="NucleicAcidTestPersonnelMap">
+        SELECT *
+        FROM health_code_user.nucleic_acid_test_personnel
+        WHERE identity_card = #{identityCard}
+            LIMIT 1;
+    </select>
+
+    <!-- 根据 TID 查询核酸检测人员 -->
+    <select id="getNucleicAcidTestPersonnelByTID" resultMap="NucleicAcidTestPersonnelMap">
+        SELECT *
+        FROM health_code_user.nucleic_acid_test_personnel
+        WHERE tid = #{tid}
+            LIMIT 1;
+    </select>
+
+</mapper>

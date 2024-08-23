@@ -1,19 +1,49 @@
 package org.software.code.model.input;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.validation.constraints.NotNull;
+
 public class AddNucleicAcidTestRecordRequest {
+    @NotNull(message = "uid不能为空")
+    @JsonProperty("uid")
     private Long uid;
+    @NotNull(message = "tid不能为空")
+    @JsonProperty("tid")
     private Long tid;
+    @NotNull(message = "kind不能为空")
+    @JsonProperty("kind")
     private Integer kind;
+    @NotNull(message = "tubeid不能为空")
+    @JsonProperty("tubeid")
     private Long tubeid;
-    private String identity_card;
-    private String phone_number;
+    @NotNull(message = "identity_card不能为空")
+    @JsonProperty("identity_card")
+    private String identityCard;
+    @NotNull(message = "phoneNumber不能为空")
+    @JsonProperty("phoneNumber")
+    private String phoneNumber;
+    @NotNull(message = "name不能为空")
+    @JsonProperty("name")
     private String name;
+    @NotNull(message = "district不能为空")
+    @JsonProperty("district")
     private Integer district;
+    @NotNull(message = "street不能为空")
+    @JsonProperty("street")
     private Integer street;
+    @NotNull(message = "community不能为空")
+    @JsonProperty("community")
     private Long community;
+    @NotNull(message = "address不能为空")
+    @JsonProperty("address")
     private String address;
-    private String test_address;
-    private String testing_organization;
+    @NotNull(message = "test_address不能为空")
+    @JsonProperty("test_address")
+    private String testAddress;
+    @NotNull(message = "testing_organization不能为空")
+    @JsonProperty("testing_organization")
+    private String testingOrganization;
 
     public Long getUid() {
         return uid;
@@ -47,20 +77,20 @@ public class AddNucleicAcidTestRecordRequest {
         this.tubeid = tubeid;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
-    public String getPhone_number() {
-        return phone_number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getName() {
@@ -103,19 +133,19 @@ public class AddNucleicAcidTestRecordRequest {
         this.address = address;
     }
 
-    public String getTest_address() {
-        return test_address;
+    public String getTestAddress() {
+        return testAddress;
     }
 
-    public void setTest_address(String test_address) {
-        this.test_address = test_address;
+    public void setTestAddress(String testAddress) {
+        this.testAddress = testAddress;
     }
 
-    public String getTesting_organization() {
-        return testing_organization;
+    public String getTestingOrganization() {
+        return testingOrganization;
     }
 
-    public void setTesting_organization(String testing_organization) {
-        this.testing_organization = testing_organization;
+    public void setTestingOrganization(String testingOrganization) {
+        this.testingOrganization = testingOrganization;
     }
 }

@@ -8,20 +8,20 @@ import java.util.List;
 
 public class GetPlacesByUserListRequest {
 
-    @NotNull(message = "uidList不能为空")
-    @Size(min = 1, message = "uidList不能为空")
-    @JsonProperty("uidList")
+    @NotNull(message = "uid_list不能为空")
+    @Size(min = 1, message = "uid_list不能为空")
+    @JsonProperty("uid_list")
     private List<Long> uidList;
 
     @NotNull(message = "开始时间不能为空")
     @JsonProperty("start_time")
-    private String start_time;
+    private String startTime;
 
     @NotNull(message = "结束时间不能为空")
     @JsonProperty("end_time")
-    private String end_time;
+    private String endTime;
 
-    // Getters and Setters
+    
     public List<Long> getUidList() {
         return uidList;
     }
@@ -30,19 +30,19 @@ public class GetPlacesByUserListRequest {
         this.uidList = uidList;
     }
 
-    public String getStart_time() {
-        return start_time;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setStart_time(String start_time) {
-        this.start_time = start_time;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
-    public String getEnd_time() {
-        return end_time;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public void setEnd_time(String end_time) {
-        this.end_time = end_time;
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }

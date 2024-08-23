@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.HealthCodeDao">
+    <resultMap type="org.software.code.model.entity.HealthCode" id="HealthCodeMap">
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="color" column="color" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入 HealthCode -->
+    <insert id="addHealthCode">
+        INSERT INTO health_code_health_code.health_code (uid, color)
+        VALUES (#{uid}, #{color});
+    </insert>
+
+    <!-- 根据 UID 更新 Color -->
+    <update id="updateColorByUID">
+        UPDATE health_code_health_code.health_code
+        SET color = #{color}
+        WHERE uid = #{uid};
+    </update>
+
+    <!-- 根据 UID 查询 HealthCode -->
+    <select id="getHealthCodeByUID" resultMap="HealthCodeMap">
+        SELECT *
+        FROM health_code_health_code.health_code
+        WHERE uid = #{uid} LIMIT 1;
+    </select>
+
+</mapper>

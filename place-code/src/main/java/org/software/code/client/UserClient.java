@@ -11,5 +11,5 @@ public interface UserClient {
     Result<?> getUserByUID(@RequestParam(name = "uid") Long uid);
 
     @GetMapping("/user/getUserByID")
-    Result<?> getUserByID(@RequestParam(name = "identity_card") String identity_card);
+    Result<?> getUserByID(@RequestParam(name = "identity_card") String identityCard);
 }

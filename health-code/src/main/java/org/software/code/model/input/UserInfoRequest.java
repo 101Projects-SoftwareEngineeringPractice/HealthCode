@@ -53,7 +53,7 @@ public class UserInfoRequest {
         this.address = address;
     }
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

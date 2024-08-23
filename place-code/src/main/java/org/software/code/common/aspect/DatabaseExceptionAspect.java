@@ -15,7 +15,7 @@ public class DatabaseExceptionAspect {
 
     private static final Logger logger = LogManager.getLogger(DatabaseExceptionAspect.class);
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.PlaceInfoMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.PlaceInfoDao.*(..))", throwing = "ex")
     public void handlePlaceInfoDatabaseException(JoinPoint joinPoint, Throwable ex) {
         // 打印堆栈跟踪
         ex.printStackTrace();
@@ -36,7 +36,7 @@ public class DatabaseExceptionAspect {
         }
     }
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.PlaceMappingMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.PlaceMappingDao.*(..))", throwing = "ex")
     public void handlePlaceMappingDatabaseException(JoinPoint joinPoint, Throwable ex) {
         // 打印堆栈跟踪
         ex.printStackTrace();

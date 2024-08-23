@@ -1,11 +1,13 @@
 package org.software.code.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NucleicAcidTestPersonnelDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long tid;
-    private String identity_card;
+    @JsonProperty("identity_card")
+    private String identityCard;
     private String name;
     private Boolean status;
 
@@ -17,12 +19,12 @@ public class NucleicAcidTestPersonnelDto {
         this.tid = tid;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
     public String getName() {

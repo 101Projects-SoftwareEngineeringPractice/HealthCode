@@ -50,7 +50,7 @@ public class NucleicAcidsController {
         String qrToken = request.getToken();
         long tid = JWTUtil.extractID(tidToken);
         long uid = JWTUtil.extractID(qrToken);
-        AddNucleicAcidTestRecordByTokenInput input=new AddNucleicAcidTestRecordByTokenInput(tid,uid,request.getKind(), request.getTubeid(),request.getTest_address());
+        AddNucleicAcidTestRecordByTokenInput input=new AddNucleicAcidTestRecordByTokenInput(tid,uid,request.getKind(), request.getTubeid(),request.getTestAddress());
         nucleicAcidsService.addNucleicAcidTestRecordByToken(input);
         return Result.success();
     }
@@ -59,7 +59,7 @@ public class NucleicAcidsController {
     public Result<?> addNucleicAcidTestRecordByID(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
                                                   @Valid @RequestBody AddNucleicAcidTestRecordByIDRequest request) {
         long tid = JWTUtil.extractID(token);
-        AddNucleicAcidTestRecordByIDInput input=new AddNucleicAcidTestRecordByIDInput(tid,request.getIdentity_card(),request.getKind(), request.getTubeid(),request.getTest_address());
+        AddNucleicAcidTestRecordByIDInput input=new AddNucleicAcidTestRecordByIDInput(tid,request.getIdentityCard(),request.getKind(), request.getTubeid(),request.getTestAddress());
         nucleicAcidsService.addNucleicAcidTestRecordByID(input);
         return Result.success();
     }
@@ -74,12 +74,12 @@ public class NucleicAcidsController {
 
     @GetMapping("/getNucleicAcidTestInfo")
     public Result<?> getNucleicAcidTestInfo(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                            @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String start_time,
-                                            @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String end_time) {
+                                            @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String startTime,
+                                            @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String endTime) {
         JWTUtil.extractID(token);
         try {
-            Date startDate = dateFormat.parse(start_time);
-            Date endDate = dateFormat.parse(end_time);
+            Date startDate = dateFormat.parse(startTime);
+            Date endDate = dateFormat.parse(endTime);
             return Result.success(nucleicAcidsService.getNucleicAcidTestInfoByTime(startDate, endDate));
         } catch (ParseException e) {
             logger.error("Date parsing error: {}", e.getMessage());
@@ -89,12 +89,12 @@ public class NucleicAcidsController {
 
     @GetMapping("/getPositiveInfo")
     public Result<?> getPositiveInfo(@RequestHeader("Authorization") @NotNull(message = "token不能为空") String token,
-                                     @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String start_time,
-                                     @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String end_time) {
+                                     @RequestParam(name = "start_time") @NotNull(message = "开始日期不能为空") String startTime,
+                                     @RequestParam(name = "end_time") @NotNull(message = "结束日期不能为空") String endTime) {
         JWTUtil.extractID(token);
         try {
-            Date startDate = dateFormat.parse(start_time);
-            Date endDate = dateFormat.parse(end_time);
+            Date startDate = dateFormat.parse(startTime);
+            Date endDate = dateFormat.parse(endTime);
             return Result.success(nucleicAcidsService.getPositiveInfoByTime(startDate, endDate));
         } catch (ParseException e) {
             logger.error("Date parsing error: {}", e.getMessage());

@@ -9,7 +9,7 @@ public class MidRequest {
     @JsonProperty("mid")
     private Long mid;
 
-    // Getter and Setter
+    
     public Long getMid() {
         return mid;
     }

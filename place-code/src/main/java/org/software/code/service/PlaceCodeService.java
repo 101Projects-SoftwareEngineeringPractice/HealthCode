@@ -1,5 +1,6 @@
 package org.software.code.service;
 
+import org.apache.ibatis.annotations.Param;
 import org.software.code.model.dto.GetPlaceDto;
 import org.software.code.model.dto.PlaceCodeInfoDto;
 import org.software.code.model.input.*;
@@ -14,7 +15,7 @@ public interface PlaceCodeService {
 
     List<GetPlaceDto> getPlaces();
 
-    List<Long> getRecordByPid(long pid, Date startTime, Date endTime);
+    List<Long> getRecordByPid(@Param("pid")long pid, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
 
     void oppositePlaceCode(OppositePlaceCodeRequest request);
 

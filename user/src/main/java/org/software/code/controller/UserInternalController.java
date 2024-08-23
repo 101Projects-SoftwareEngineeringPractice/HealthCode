@@ -28,8 +28,8 @@ public class UserInternalController {
     }
 
     @GetMapping("/getUserByID")
-    public Result<?> getUserByID(@RequestParam(name = "identity_card") @NotNull(message = "identity_card不能为空") String identity_card) {
-        UserInfoDto userInfoDto = userService.getUserByID(identity_card);
+    public Result<?> getUserByID(@RequestParam(name = "identity_card") @NotNull(message = "identity_card不能为空") String identityCard) {
+        UserInfoDto userInfoDto = userService.getUserByID(identityCard);
         return Result.success(userInfoDto);
     }
 

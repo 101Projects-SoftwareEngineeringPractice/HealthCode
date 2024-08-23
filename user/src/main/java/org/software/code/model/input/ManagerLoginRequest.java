@@ -13,7 +13,7 @@ public class ManagerLoginRequest {
     @JsonProperty("password")
     private String password;
 
-    // Getters and Setters
+    
     public String getIdentityCard() {
         return identityCard;
     }

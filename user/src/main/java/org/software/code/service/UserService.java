@@ -10,7 +10,7 @@ import java.util.List;
 public interface UserService {
     UserInfoDto getUserByUID(long uid);
 
-    UserInfoDto getUserByID(String identity_card);
+    UserInfoDto getUserByID(String identityCard);
 
     String userLogin(String code);
 
@@ -40,7 +40,7 @@ public interface UserService {
 
     void addUserInfo(UserInfoRequest request);
 
-    String userLogin_test(String code);
+    String userLoginTest(String code);
 
     void deleteUserInfo(long uid);
 

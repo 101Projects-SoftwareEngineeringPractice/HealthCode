@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.PlaceMappingDao">
+
+
+    <resultMap type="org.software.code.model.entity.PlaceMapping" id="PlaceMappingMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="pid" column="pid" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="time" column="time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入位置映射记录 -->
+    <insert id="insertPlaceMapping">
+        INSERT INTO place_mapping (pid, uid, time)
+        VALUES (#{pid}, #{uid}, #{time});
+    </insert>
+
+    <!-- 根据 UID 列表和时间范围查询位置 ID -->
+    <select id="findPidsByUidListAndTimeRange" resultType="java.lang.Long">
+        SELECT DISTINCT pid
+        FROM place_mapping
+        WHERE uid IN
+        <foreach item="item" index="index" collection="uidList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND time BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+    <!-- 根据位置 ID 和时间范围查询 UID -->
+    <select id="findUidsByPidAndTimeRange" resultType="java.lang.Long">
+        SELECT uid
+        FROM health_code_place_code.place_mapping
+        WHERE pid = #{pid}
+          AND time BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+</mapper>

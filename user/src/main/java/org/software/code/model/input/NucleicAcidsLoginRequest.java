@@ -14,7 +14,7 @@ public class NucleicAcidsLoginRequest {
     @JsonProperty("password")
     private String password;
 
-    // Getters and Setters
+    
     public String getIdentityCard() {
         return identityCard;
     }

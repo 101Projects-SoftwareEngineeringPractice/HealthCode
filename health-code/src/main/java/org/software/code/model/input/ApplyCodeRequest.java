@@ -35,7 +35,7 @@ public class ApplyCodeRequest {
     @JsonProperty("address")
     private String address;
 
-    // Getters and Setters
+    
 
 
     public String getName() {

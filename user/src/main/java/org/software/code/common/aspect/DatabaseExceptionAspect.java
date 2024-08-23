@@ -15,7 +15,7 @@ public class DatabaseExceptionAspect {
 
     private static final Logger logger = LogManager.getLogger(DatabaseExceptionAspect.class);
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.UserInfoMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.UserInfoDao.*(..))", throwing = "ex")
     public void handleUserInfoDatabaseException(JoinPoint joinPoint, Throwable ex) {
         ex.printStackTrace();
         String methodName = joinPoint.getSignature().getName();
@@ -32,7 +32,7 @@ public class DatabaseExceptionAspect {
         }
     }
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.UidMappingMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.UidMappingDao.*(..))", throwing = "ex")
     public void handleUidMappingDatabaseException(JoinPoint joinPoint, Throwable ex) {
         ex.printStackTrace();
         String methodName = joinPoint.getSignature().getName();
@@ -45,7 +45,7 @@ public class DatabaseExceptionAspect {
         }
     }
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.NucleicAcidTestPersonnelMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.NucleicAcidTestPersonnelDao.*(..))", throwing = "ex")
     public void handleAcidTestPersonnelDatabaseException(JoinPoint joinPoint, Throwable ex) {
         ex.printStackTrace();
         String methodName = joinPoint.getSignature().getName();
@@ -60,7 +60,7 @@ public class DatabaseExceptionAspect {
         }
     }
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.HealthCodeMangerMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.HealthCodeMangerDao.*(..))", throwing = "ex")
     public void handleHealthCodeMangerDatabaseException(JoinPoint joinPoint, Throwable ex) {
         ex.printStackTrace();
         String methodName = joinPoint.getSignature().getName();

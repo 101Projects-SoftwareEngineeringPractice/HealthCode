@@ -1,16 +1,19 @@
 package org.software.code.model.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class HealthQRCodeDto {
-    private String qrcode_token;
+    @JsonProperty("qrcode_token")
+    private String qrcodeToken;
     private int status ;
 
-    public String getQrcode_token() {
-        return qrcode_token;
+    public String getQrcodeToken() {
+        return qrcodeToken;
     }
 
-    public void setQrcode_token(String qrcode_token) {
-        this.qrcode_token = qrcode_token;
+    public void setQrcodeToken(String qrcodeToken) {
+        this.qrcodeToken = qrcodeToken;
     }
 
     public int getStatus() {

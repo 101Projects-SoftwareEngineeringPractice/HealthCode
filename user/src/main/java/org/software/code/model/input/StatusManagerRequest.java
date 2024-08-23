@@ -13,7 +13,7 @@ public class StatusManagerRequest {
     @JsonProperty("status")
     private Boolean status;
 
-    // Getters and Setters
+    
     public Long getMid() {
         return mid;
     }

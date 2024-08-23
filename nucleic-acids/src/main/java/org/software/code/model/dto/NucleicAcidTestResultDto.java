@@ -1,22 +1,25 @@
 package org.software.code.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 
 public class NucleicAcidTestResultDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date created_at;
+    @JsonProperty("created_at")
+    private Date createdAt;
     private Integer result;
-    private String testing_organization;
+    @JsonProperty("testing_organization")
+    private String testingOrganization;
 
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Integer getResult() {
@@ -27,12 +30,12 @@ public class NucleicAcidTestResultDto {
         this.result = result;
     }
 
-    public String getTesting_organization() {
-        return testing_organization;
+    public String getTestingOrganization() {
+        return testingOrganization;
     }
 
-    public void setTesting_organization(String testing_organization) {
-        this.testing_organization = testing_organization;
+    public void setTestingOrganization(String testingOrganization) {
+        this.testingOrganization = testingOrganization;
     }
 
 

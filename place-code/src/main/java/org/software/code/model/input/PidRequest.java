@@ -10,7 +10,7 @@ public class PidRequest {
     @JsonProperty("pid")
     private Long pid;
 
-    // Getter and Setter
+    
     public Long getPid() {
         return pid;
     }

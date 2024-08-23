@@ -3,6 +3,7 @@ package org.software.code.service.impl;
 import org.software.code.common.consts.FSMConst;
 import org.software.code.common.except.BusinessException;
 import org.software.code.common.except.ExceptionEnum;
+import org.software.code.dao.HealthCodeDao;
 import org.software.code.model.dto.GetCodeDto;
 import org.software.code.model.dto.HealthCodeInfoDto;
 import org.software.code.model.dto.HealthQRCodeDto;
@@ -19,12 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.software.code.client.UserClient;
 import org.software.code.common.utils.JWTUtil;
 import org.software.code.common.result.Result;
-import org.software.code.dao.HealthCodeDao;
-import org.software.code.mapper.HealthCodeMapper;
+import org.software.code.model.entity.HealthCode;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Resource;
 
 @Service
 public class HealthCodeServiceImpl implements HealthCodeService {
@@ -36,13 +38,13 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     @Autowired
     private UserClient userClient;
 
-    @Autowired
-    private HealthCodeMapper healthCodeMapper;
+    @Resource
+    private HealthCodeDao healthCodeDao;
 
     @Override
     public void applyHealthCode(long uid) {
-        HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
-        if (healthCodeDao != null) {
+        HealthCode healthCode = this.healthCodeDao.getHealthCodeByUID(uid);
+        if (healthCode != null) {
             logger.error("Health code already exists for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_EXIST);
         }
@@ -50,20 +52,20 @@ public class HealthCodeServiceImpl implements HealthCodeService {
 
     @Override
     public HealthQRCodeDto getHealthCode(long uid) {
-        HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
-        if (healthCodeDao == null) {
+        HealthCode healthCode = this.healthCodeDao.getHealthCodeByUID(uid);
+        if (healthCode == null) {
             logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         HealthQRCodeDto healthQRCodeDto = new HealthQRCodeDto();
-        healthQRCodeDto.setStatus(healthCodeDao.getColor());
-        healthQRCodeDto.setQrcode_token(JWTUtil.generateJWToken(uid, 60000));
+        healthQRCodeDto.setStatus(healthCode.getColor());
+        healthQRCodeDto.setQrcodeToken(JWTUtil.generateJWToken(uid, 60000));
         return healthQRCodeDto;
     }
 
     @Override
     public void transcodingHealthCodeEvents(TranscodingHealthCodeEventsInput input) {
-        HealthCodeDao healthCode = healthCodeMapper.getHealthCodeByUID(input.getUid());
+        HealthCode healthCode = healthCodeDao.getHealthCodeByUID(input.getUid());
         if (healthCode == null) {
             logger.error("Health code not found for UID: {}", input.getUid());
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
@@ -79,7 +81,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         FSMConst.HealthCodeColor newColor = stateMachine.getState().getId();
         int color = newColor.ordinal();
         healthCode.setColor(color);
-        healthCodeMapper.updateColorByUID(color, input.getUid());
+        healthCodeDao.updateColorByUID(color, input.getUid());
         stateMachine.stopReactively().block();
         stateMachineService.releaseStateMachine(stateMachineId);
     }
@@ -87,16 +89,16 @@ public class HealthCodeServiceImpl implements HealthCodeService {
     @Override
     public void applyCode(UserInfoRequest userInfoRequest) {
         userClient.addUserInfo(userInfoRequest);
-        HealthCodeDao healthCodeDao = new HealthCodeDao();
-        healthCodeDao.setUid(userInfoRequest.getUid());
-        healthCodeDao.setColor(0);
-        healthCodeMapper.addHealthCode(healthCodeDao);
+        HealthCode healthCode = new HealthCode();
+        healthCode.setUid(userInfoRequest.getUid());
+        healthCode.setColor(0);
+        this.healthCodeDao.addHealthCode(healthCode);
     }
 
     @Override
     public GetCodeDto getCode(long uid) {
-        HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
-        if (healthCodeDao == null) {
+        HealthCode healthCode = this.healthCodeDao.getHealthCodeByUID(uid);
+        if (healthCode == null) {
             logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
@@ -105,7 +107,7 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         GetCodeDto getCodeDto = new GetCodeDto();
         getCodeDto.setToken(JWTUtil.generateJWToken(uid, 60000));
-        getCodeDto.setStatus(healthCodeDao.getColor());
+        getCodeDto.setStatus(healthCode.getColor());
         getCodeDto.setName(userInfoDto.getName());
         return getCodeDto;
     }
@@ -116,16 +118,16 @@ public class HealthCodeServiceImpl implements HealthCodeService {
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
         long uid = userInfoDto.getUid();
-        HealthCodeDao healthCodeDao = healthCodeMapper.getHealthCodeByUID(uid);
-        if (healthCodeDao == null) {
+        HealthCode healthCode = this.healthCodeDao.getHealthCodeByUID(uid);
+        if (healthCode == null) {
             logger.error("Health code not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.HEALTH_CODE_NOT_FIND);
         }
         HealthCodeInfoDto healthCodeInfoDto = new HealthCodeInfoDto();
         healthCodeInfoDto.setUid(uid);
         healthCodeInfoDto.setName(userInfoDto.getName());
-        healthCodeInfoDto.setStatus(healthCodeDao.getColor());
-        healthCodeInfoDto.setIdentity_card(identityCard);
+        healthCodeInfoDto.setStatus(healthCode.getColor());
+        healthCodeInfoDto.setIdentityCard(identityCard);
         return healthCodeInfoDto;
     }
 }

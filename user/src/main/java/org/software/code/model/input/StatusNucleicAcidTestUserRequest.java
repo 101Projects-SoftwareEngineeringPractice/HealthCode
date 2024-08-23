@@ -13,7 +13,7 @@ public class StatusNucleicAcidTestUserRequest {
     @JsonProperty("status")
     private Boolean status;
 
-    // Getters and Setters
+    
     public Long getTid() {
         return tid;
     }
