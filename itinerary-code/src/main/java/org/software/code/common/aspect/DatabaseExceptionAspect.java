@@ -15,7 +15,7 @@ public class DatabaseExceptionAspect {
 
     private static final Logger logger = LogManager.getLogger(DatabaseExceptionAspect.class);
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.ItineraryCodeMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.ItineraryCodeDao.*(..))", throwing = "ex")
     public void handleItineraryCodeDatabaseException(JoinPoint joinPoint, Throwable ex) {
         // 打印堆栈跟踪
         ex.printStackTrace();

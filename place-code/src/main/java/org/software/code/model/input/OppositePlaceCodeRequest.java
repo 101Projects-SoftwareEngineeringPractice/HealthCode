@@ -14,7 +14,6 @@ public class OppositePlaceCodeRequest {
     @JsonProperty("status")
     private Boolean status;
 
-    // Getters and Setters
     public Long getPid() {
         return pid;
     }

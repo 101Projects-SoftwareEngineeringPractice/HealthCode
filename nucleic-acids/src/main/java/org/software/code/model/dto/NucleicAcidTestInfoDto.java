@@ -1,8 +1,11 @@
 package org.software.code.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class NucleicAcidTestInfoDto {
     private long record;
     private long uncheck;
+    @JsonProperty("one_positive")
     private long onePositive;
     private long positive;
     public long getRecord() {

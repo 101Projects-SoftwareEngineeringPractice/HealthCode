@@ -9,7 +9,7 @@ public class AddNucleicAcidTestRecordByIDRequest {
 
     @NotBlank(message = "identity_card不能为空")
     @JsonProperty("identity_card")
-    private String identity_card;
+    private String identityCard;
 
     @NotNull(message = "kind不能为空")
     @JsonProperty("kind")
@@ -21,15 +21,15 @@ public class AddNucleicAcidTestRecordByIDRequest {
 
     @NotBlank(message = "test_address不能为空")
     @JsonProperty("test_address")
-    private String test_address;
+    private String testAddress;
 
-    // Getters and Setters
-    public String getIdentity_card() {
-        return identity_card;
+    
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
     public Integer getKind() {
@@ -48,11 +48,11 @@ public class AddNucleicAcidTestRecordByIDRequest {
         this.tubeid = tubeid;
     }
 
-    public String getTest_address() {
-        return test_address;
+    public String getTestAddress() {
+        return testAddress;
     }
 
-    public void setTest_address(String test_address) {
-        this.test_address = test_address;
+    public void setTestAddress(String testAddress) {
+        this.testAddress = testAddress;
     }
 }

@@ -28,7 +28,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: my-group
       auto-offset-reset: earliest
-
   wechat:
     appid: wxdad176e26bf8dce0
     secret: cd8995dbd0fb88a1731381ad0ceb3ca9
+mybatis:
+  mapperLocations: classpath:mapper/*.xml

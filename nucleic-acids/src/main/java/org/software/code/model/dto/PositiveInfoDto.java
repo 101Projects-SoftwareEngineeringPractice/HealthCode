@@ -1,6 +1,7 @@
 package org.software.code.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 
@@ -10,21 +11,27 @@ public class PositiveInfoDto {
     private Long tid;
     private Long tubeid;
     private String name;
-    private String phone_number;
-    private String identity_card;
+    @JsonProperty("phone_number")
+    private String phoneNumber;
+    @JsonProperty("identity_card")
+    private String identityCard;
     private Integer district;
     private Integer street;
     private Long community;
     private String address;
-    private String test_address;
+    @JsonProperty("test_address")
+    private String testAddress;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date created_at;
+    @JsonProperty("created_at")
+    private Date createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date updated_at;
+    @JsonProperty("updated_at")
+    private Date updatedAt;
     private Integer result;
-    private String testing_organization;
+    @JsonProperty("testing_rganization")
+    private String testingOrganization;
 
-    // Getters and Setters
+    
 
     public Long getUid() {
         return uid;
@@ -66,20 +73,20 @@ public class PositiveInfoDto {
         this.name = name;
     }
 
-    public String getPhone_number() {
-        return phone_number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
     public Integer getDistrict() {
@@ -114,28 +121,28 @@ public class PositiveInfoDto {
         this.address = address;
     }
 
-    public String getTest_address() {
-        return test_address;
+    public String getTestAddress() {
+        return testAddress;
     }
 
-    public void setTest_address(String test_address) {
-        this.test_address = test_address;
+    public void setTestAddress(String testAddress) {
+        this.testAddress = testAddress;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Date getUpdated_at() {
-        return updated_at;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(Date updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Integer getResult() {
@@ -146,11 +153,11 @@ public class PositiveInfoDto {
         this.result = result;
     }
 
-    public String getTesting_organization() {
-        return testing_organization;
+    public String getTestingOrganization() {
+        return testingOrganization;
     }
 
-    public void setTesting_organization(String testing_organization) {
-        this.testing_organization = testing_organization;
+    public void setTestingOrganization(String testingOrganization) {
+        this.testingOrganization = testingOrganization;
     }
 }

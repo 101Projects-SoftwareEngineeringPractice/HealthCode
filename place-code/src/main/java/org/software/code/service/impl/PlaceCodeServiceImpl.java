@@ -8,10 +8,10 @@ import org.software.code.client.UserClient;
 import org.software.code.common.except.BusinessException;
 import org.software.code.common.except.ExceptionEnum;
 import org.software.code.common.result.Result;
+import org.software.code.model.entity.PlaceInfo;
+import org.software.code.model.entity.PlaceMapping;
 import org.software.code.dao.PlaceInfoDao;
 import org.software.code.dao.PlaceMappingDao;
-import org.software.code.mapper.PlaceInfoMapper;
-import org.software.code.mapper.PlaceMappingMapper;
 import org.software.code.model.dto.GetPlaceDto;
 import org.software.code.model.dto.PlaceCodeInfoDto;
 import org.software.code.model.dto.UserInfoDto;
@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,11 +34,11 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
     private static final Logger logger = LogManager.getLogger(PlaceCodeServiceImpl.class);
 
 
-    @Autowired
-    private PlaceInfoMapper placeInfoMapper;
+    @Resource
+    private PlaceInfoDao placeInfoDao;
 
-    @Autowired
-    private PlaceMappingMapper placeMappingMapper;
+    @Resource
+    private PlaceMappingDao placeMappingDao;
 
     @Autowired
     UserClient userClient;
@@ -46,30 +47,30 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         Result<?> result = userClient.getUserByUID(request.getUid());
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        PlaceInfoDao placeInfoDao = new PlaceInfoDao();
-        BeanUtils.copyProperties(request, placeInfoDao);
-        placeInfoDao.setIdentity_card(userInfo.getIdentity_card());
-        placeInfoDao.setDistrict(request.getDistrict());
-        placeInfoDao.setStreet(request.getStreet());
-        placeInfoDao.setCommunity(placeInfoDao.getCommunity());
-        placeInfoDao.setAddress(placeInfoDao.getAddress());
-        placeInfoDao.setStatus(true); // 默认开启
+        PlaceInfo placeInfo = new PlaceInfo();
+        BeanUtils.copyProperties(request, placeInfo);
+        placeInfo.setIdentityCard(userInfo.getIdentityCard());
+        placeInfo.setDistrict(request.getDistrict());
+        placeInfo.setStreet(request.getStreet());
+        placeInfo.setCommunity(placeInfo.getCommunity());
+        placeInfo.setAddress(placeInfo.getAddress());
+        placeInfo.setStatus(true); // 默认开启
         long snowflakePid = IdUtil.getSnowflake().nextId();
-        placeInfoDao.setPid(snowflakePid);
-        placeInfoMapper.insertPlace(placeInfoDao);
-        return placeInfoDao.getPid();
+        placeInfo.setPid(snowflakePid);
+        placeInfoDao.insertPlace(placeInfo);
+        return placeInfo.getPid();
     }
 
     public List<GetPlaceDto> getPlaces() {
-        List<PlaceInfoDao> placeInfoDaoList = placeInfoMapper.findAllPlaces();
-        return placeInfoDaoList.stream()
-                .map(placeInfoDao -> {
+        List<PlaceInfo> placeInfoList = placeInfoDao.findAllPlaces();
+        return placeInfoList.stream()
+                .map(placeInfo -> {
                     GetPlaceDto getPlaceDto = new GetPlaceDto();
-                    BeanUtils.copyProperties(placeInfoDao, getPlaceDto);
-                    Result<?> result = userClient.getUserByUID(placeInfoDao.getUid());
+                    BeanUtils.copyProperties(placeInfo, getPlaceDto);
+                    Result<?> result = userClient.getUserByUID(placeInfo.getUid());
                     ObjectMapper objectMapper = new ObjectMapper();
                     UserInfoDto userInfo = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-                    getPlaceDto.setPhone_number(userInfo.getPhone_number());
+                    getPlaceDto.setPhoneNumber(userInfo.getPhoneNumber());
                     return getPlaceDto;
                 })
                 .collect(Collectors.toList());
@@ -77,20 +78,20 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     @Override
     public List<Long> getRecordByPid(long pid, Date startTime, Date endTime) {
-        return placeMappingMapper.findUidsByPidAndTimeRange(pid, startTime, endTime);
+        return placeMappingDao.findUidsByPidAndTimeRange(pid, startTime, endTime);
     }
 
 
     public void oppositePlaceCode(OppositePlaceCodeRequest request) {
-        placeInfoMapper.updatePlaceStatusByPid(request.getStatus(), request.getPid());
+        placeInfoDao.updatePlaceStatusByPid(request.getStatus(), request.getPid());
     }
 
 
     public void scanPlaceCode(ScanPlaceCodeInput input) {
-        PlaceMappingDao placeMappingDao = new PlaceMappingDao();
-        BeanUtils.copyProperties(input,placeMappingDao);
-        placeMappingDao.setTime(new Date());
-        placeMappingMapper.insertPlaceMapping(placeMappingDao);
+        PlaceMapping placeMapping = new PlaceMapping();
+        BeanUtils.copyProperties(input, placeMapping);
+        placeMapping.setTime(new Date());
+        placeMappingDao.insertPlaceMapping(placeMapping);
     }
 
     public List<Long> getPlacesByUserList(GetPlacesByUserListRequest request) {
@@ -98,40 +99,44 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
         Date startTime;
         Date endTime;
         try {
-            startTime = timeFormat.parse(request.getStart_time());
-            endTime = timeFormat.parse(request.getEnd_time());
+            startTime = timeFormat.parse(request.getStartTime());
+            endTime = timeFormat.parse(request.getEndTime());
         } catch (ParseException e) {
-            logger.error("Date parsing error: start_time={}, end_time={}, message={}", request.getStart_time(), request.getEnd_time(), e.getMessage());
+            logger.error("Date parsing error: start_time={}, end_time={}, message={}", request.getStartTime(), request.getEndTime(), e.getMessage());
             throw new BusinessException(ExceptionEnum.DATETIME_FORMAT_ERROR);
         }
-        return placeMappingMapper.findPidsByUidListAndTimeRange(request.getUidList(), startTime, endTime);
+        return placeMappingDao.findPidsByUidListAndTimeRange(request.getUidList(), startTime, endTime);
     }
 
 
     @Override
     public void createPlaceCode(CreatePlaceCodeRequest request) {
-        Result<?> result = userClient.getUserByID(request.getIdentity_card());
+        Result<?> result = userClient.getUserByID(request.getIdentityCard());
         ObjectMapper objectMapper = new ObjectMapper();
         UserInfoDto userInfoDto = objectMapper.convertValue(result.getData(), UserInfoDto.class);
-        PlaceInfoDao placeInfoDao = new PlaceInfoDao();
+        PlaceInfo placeInfo = new PlaceInfo();
         long snowflakePid = IdUtil.getSnowflake().nextId();
-        BeanUtils.copyProperties(request,placeInfoDao);
-        placeInfoDao.setPid(snowflakePid);
-        placeInfoDao.setUid(userInfoDto.getUid());
-        placeInfoDao.setStatus(true); // 默认开启
-        placeInfoMapper.insertPlace(placeInfoDao);
+        BeanUtils.copyProperties(request, placeInfo);
+        placeInfo.setPid(snowflakePid);
+        placeInfo.setUid(userInfoDto.getUid());
+        placeInfo.setDistrict(request.getDistrictId());
+        placeInfo.setStreet(request.getStreetId());
+        placeInfo.setAddress(request.getAddress());
+        placeInfo.setCommunity(request.getCommunityId());
+        placeInfo.setStatus(true); // 默认开启
+        placeInfoDao.insertPlace(placeInfo);
     }
 
     @Override
     public List<PlaceCodeInfoDto> getPlaceInfoList() {
-        List<PlaceInfoDao> placeInfoDaoList = placeInfoMapper.findAllPlaces();
-        return placeInfoDaoList.stream()
-                .map(placeInfoDao -> {
+        List<PlaceInfo> placeInfoList = placeInfoDao.findAllPlaces();
+        return placeInfoList.stream()
+                .map(placeInfo -> {
                     PlaceCodeInfoDto placeCodeInfoDto = new PlaceCodeInfoDto();
-                    BeanUtils.copyProperties(placeInfoDao, placeCodeInfoDto);
-                    placeCodeInfoDto.setCommunity_id(placeInfoDao.getCommunity());
-                    placeCodeInfoDto.setDistrict_id(placeInfoDao.getDistrict());
-                    placeCodeInfoDto.setStreet_id(placeInfoDao.getStreet());
+                    BeanUtils.copyProperties(placeInfo, placeCodeInfoDto);
+                    placeCodeInfoDto.setCommunityId(placeInfo.getCommunity());
+                    placeCodeInfoDto.setDistrictId(placeInfo.getDistrict());
+                    placeCodeInfoDto.setStreetId(placeInfo.getStreet());
                     return placeCodeInfoDto;
                 })
                 .collect(Collectors.toList());
@@ -139,18 +144,18 @@ public class PlaceCodeServiceImpl implements PlaceCodeService {
 
     @Override
     public void placeCodeOpposite(Long pid) {
-        PlaceInfoDao placeInfoDao = placeInfoMapper.getPlaceInfoByPID(pid);
-        if(placeInfoDao==null){
+        PlaceInfo placeInfo = placeInfoDao.getPlaceInfoByPID(pid);
+        if(placeInfo ==null){
             logger.error("Place code not found for PID: {}", pid);
             throw new BusinessException(ExceptionEnum.PLACE_CODE_NOT_FIND);
         }
-        Boolean status = placeInfoDao.getStatus();
-        placeInfoMapper.updatePlaceStatusByPid(!status, pid);
+        Boolean status = placeInfo.getStatus();
+        placeInfoDao.updatePlaceStatusByPid(!status, pid);
     }
 
     @Override
     public List<Long> getAllPids() {
-        return placeInfoMapper.getAllPids();
+        return placeInfoDao.getAllPids();
     }
 
 

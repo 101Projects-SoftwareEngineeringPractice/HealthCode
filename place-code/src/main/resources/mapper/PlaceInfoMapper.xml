@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.PlaceInfoDao">
+    <resultMap type="org.software.code.model.entity.PlaceInfo" id="PlaceInfoMap">
+        <result property="pid" column="pid" />
+        <result property="uid" column="uid" />
+        <result property="identityCard" column="identity_card" />
+        <result property="name" column="name" />
+        <result property="district" column="district" />
+        <result property="street" column="street" />
+        <result property="community" column="community" />
+        <result property="address" column="address" />
+        <result property="status" column="status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+    
+    <!-- 插入地点信息 -->
+    <insert id="insertPlace" useGeneratedKeys="true" keyProperty="pid">
+        INSERT INTO health_code_place_code.place_info
+        (pid, uid, identity_card, name, district, street, community, address, status)
+        VALUES
+            (#{pid}, #{uid}, #{identityCard}, #{name}, #{district}, #{street}, #{community}, #{address}, #{status});
+    </insert>
+
+    <!-- 更新地点状态 -->
+    <update id="updatePlaceStatusByPid">
+        UPDATE health_code_place_code.place_info
+        SET status = #{status}
+        WHERE pid = #{pid};
+    </update>
+
+    <!-- 查询所有地点信息 -->
+    <select id="findAllPlaces" resultMap="PlaceInfoMap">
+        SELECT *
+        FROM health_code_place_code.place_info;
+    </select>
+
+    <!-- 根据 PID 查询地点信息 -->
+    <select id="getPlaceInfoByPID" resultMap="PlaceInfoMap">
+        SELECT *
+        FROM health_code_place_code.place_info
+        WHERE pid = #{pid}
+            LIMIT 1;
+    </select>
+
+    <!-- 查询所有 PID -->
+    <select id="getAllPids" resultType="java.lang.Long">
+        SELECT pid
+        FROM health_code_place_code.place_info;
+    </select>
+
+</mapper>

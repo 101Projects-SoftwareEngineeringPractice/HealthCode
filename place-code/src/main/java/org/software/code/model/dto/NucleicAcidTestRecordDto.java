@@ -1,17 +1,21 @@
 package org.software.code.model.dto;
 
 
-public class NucleicAcidTestRecordDto {
-    private String created_at; //timestamp
-    private int result;
-    private String testing_organization;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public String getCreated_at() {
-        return created_at;
+public class NucleicAcidTestRecordDto {
+    @JsonProperty("created_at")
+    private String createdAt;
+    private int result;
+    @JsonProperty("testing_organization")
+    private String testingOrganization;
+
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(String created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getResult() {
@@ -22,11 +26,11 @@ public class NucleicAcidTestRecordDto {
         this.result = result;
     }
 
-    public String getTesting_organization() {
-        return testing_organization;
+    public String getTestingOrganization() {
+        return testingOrganization;
     }
 
-    public void setTesting_organization(String testing_organization) {
-        this.testing_organization = testing_organization;
+    public void setTestingOrganization(String testingOrganization) {
+        this.testingOrganization = testingOrganization;
     }
 }

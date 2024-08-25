@@ -15,7 +15,7 @@ public class DatabaseExceptionAspect {
 
     private static final Logger logger = LogManager.getLogger(DatabaseExceptionAspect.class);
 
-    @AfterThrowing(pointcut = "execution(* org.software.code.mapper.NucleicAcidTestMapper.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* org.software.code.dao.NucleicAcidTestDao.*(..))", throwing = "ex")
     public void handleNucleicAcidTestMapperDatabaseException(JoinPoint joinPoint, Throwable ex) {
         // 打印堆栈跟踪
         ex.printStackTrace();

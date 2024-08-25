@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.UidMappingDao">
+    <resultMap type="org.software.code.model.entity.UidMapping" id="UidMappingMap">
+        <result property="uid" column="uid" />
+        <result property="openid" column="openid" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    
+    <!-- 插入用户映射 -->
+    <insert id="addUserMapping">
+        INSERT INTO health_code_user.uid_mapping (uid, openid)
+        VALUES (#{uid}, #{openid});
+    </insert>
+
+    <!-- 根据 OpenID 查询用户映射 -->
+    <select id="getUidMappingByOpenID" resultMap="UidMappingMap">
+        SELECT *
+        FROM health_code_user.uid_mapping
+        WHERE openid = #{openid}
+            LIMIT 1;
+    </select>
+
+</mapper>

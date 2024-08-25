@@ -1,13 +1,16 @@
 package org.software.code.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 import java.util.List;
 
 public class GetItineraryDto {
     private List<PlaceStarDto> places;
-    private String identity_card;
-
-    private Date created_at;
+    @JsonProperty("identity_card")
+    private String identityCard;
+    @JsonProperty("created_at")
+    private Date createdAt;
 
     public List<PlaceStarDto> getPlaces() {
         return places;
@@ -17,19 +20,19 @@ public class GetItineraryDto {
         this.places = places;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 }

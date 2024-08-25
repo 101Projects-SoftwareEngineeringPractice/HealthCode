@@ -3,25 +3,21 @@ package org.software.code.service.Impl;
 import cn.hutool.core.util.IdUtil;
 import com.google.common.hash.Funnels;
 import org.software.code.common.utils.JWTUtil;
-import org.software.code.common.utils.RedisUtil;
 import org.software.code.common.utils.WeChatUtil;
 import org.software.code.common.except.BusinessException;
 import org.software.code.common.except.ExceptionEnum;
-import org.software.code.dao.HealthCodeManagerDao;
-import org.software.code.dao.NucleicAcidTestPersonnelDao;
-import org.software.code.dao.UidMappingDao;
-import org.software.code.dao.UserInfoDao;
+import org.software.code.model.entity.HealthCodeManager;
+import org.software.code.model.entity.NucleicAcidTestPersonnel;
+import org.software.code.model.entity.UidMapping;
+import org.software.code.model.entity.UserInfo;
 import org.software.code.model.dto.*;
-import org.software.code.kafka.KafkaConsumer;
-import org.software.code.kafka.KafkaProducer;
-import org.software.code.mapper.HealthCodeMangerMapper;
-import org.software.code.mapper.NucleicAcidTestPersonnelMapper;
-import org.software.code.mapper.UserInfoMapper;
-import org.software.code.mapper.UidMappingMapper;
+import org.software.code.dao.HealthCodeMangerDao;
+import org.software.code.dao.NucleicAcidTestPersonnelDao;
+import org.software.code.dao.UserInfoDao;
+import org.software.code.dao.UidMappingDao;
 import org.software.code.model.input.*;
 import org.software.code.service.UserService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
@@ -40,26 +36,21 @@ import com.google.common.hash.BloomFilter;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
-    @Autowired
-    private UserInfoMapper userInfoMapper;
-    @Autowired
-    private UidMappingMapper userMappingMapper;
-    @Autowired
-    private HealthCodeMangerMapper healthCodeMangerMapper;
-    @Autowired
-    private NucleicAcidTestPersonnelMapper nucleicAcidTestPersonnelMapper;
-    @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
-    private KafkaProducer kafkaProducer;
-    @Autowired
-    private KafkaConsumer kafkaConsumer;
+    @Resource
+    private UserInfoDao userInfoDao;
+    @Resource
+    private UidMappingDao uidMappingDao;
+    @Resource
+    private HealthCodeMangerDao healthCodeMangerDao;
+    @Resource
+    private NucleicAcidTestPersonnelDao nucleicAcidTestPersonnelDao;
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private BloomFilter<CharSequence> bloomFilter;
@@ -114,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoDto getUserByUID(long uid) {
-        UserInfoDao userInfo = userInfoMapper.getUserInfoByUID(uid);
+        UserInfo userInfo = userInfoDao.getUserInfoByUID(uid);
         if (userInfo == null) {
             logger.error("User not found for UID: {}", uid);
             throw new BusinessException(ExceptionEnum.UID_NOT_FIND);
@@ -125,10 +116,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoDto getUserByID(String identity_card) {
-        UserInfoDao userInfo = userInfoMapper.getUserInfoByID(identity_card);
+    public UserInfoDto getUserByID(String identityCard) {
+        UserInfo userInfo = userInfoDao.getUserInfoByID(identityCard);
         if (userInfo == null) {
-            logger.error("User not found for identity card: {}", identity_card);
+            logger.error("User not found for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.ID_NOT_FIND);
         }
         UserInfoDto userInfoDto = new UserInfoDto();
@@ -138,9 +129,9 @@ public class UserServiceImpl implements UserService {
 
     private long getInLogin(String openID) {
         long uid = -1;
-        UidMappingDao uidMappingDao = userMappingMapper.getUidMappingByOpenID(openID);
-        if (uidMappingDao != null) {
-            uid = uidMappingDao.getUid();
+        UidMapping uidMapping = uidMappingDao.getUidMappingByOpenID(openID);
+        if (uidMapping != null) {
+            uid = uidMapping.getUid();
         }
         return uid;
     }
@@ -149,10 +140,10 @@ public class UserServiceImpl implements UserService {
         long uid;
         try {
             uid = IdUtil.getSnowflake().nextId();
-            UidMappingDao uidMappingDao = new UidMappingDao();
-            uidMappingDao.setUid(uid);
-            uidMappingDao.setOpenid(openID);
-            userMappingMapper.addUserMapping(uidMappingDao);
+            UidMapping uidMapping = new UidMapping();
+            uidMapping.setUid(uid);
+            uidMapping.setOpenid(openID);
+            uidMappingDao.addUserMapping(uidMapping);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,30 +176,30 @@ public class UserServiceImpl implements UserService {
     public String nucleicAcidTestUserLogin(NucleicAcidsLoginRequest request) {
         String identityCard=request.getIdentityCard();
         String password=request.getPassword();
-        NucleicAcidTestPersonnelDao userDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
-        if (userDao == null) {
+        NucleicAcidTestPersonnel nucleicAcidTestPersonnel = nucleicAcidTestPersonnelDao.getNucleicAcidTestPersonnelByID(identityCard);
+        if (nucleicAcidTestPersonnel == null) {
             logger.error("User not found for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        if (!userDao.getStatus()) {
+        if (!nucleicAcidTestPersonnel.getStatus()) {
             logger.error("User is inactive for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
+        if (!passwordEncoder.matches(password, nucleicAcidTestPersonnel.getPasswordHash())) {
             logger.error("Password mismatch for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        String token = JWTUtil.generateJWToken(userDao.getTid(), 3600000);
+        String token = JWTUtil.generateJWToken(nucleicAcidTestPersonnel.getTid(), 3600000);
         return token;
     }
 
     @Override
     public List<NucleicAcidTestPersonnelDto> getNucleicAcidTestUser() {
-        List<NucleicAcidTestPersonnelDao> userDaoList = nucleicAcidTestPersonnelMapper.getNucleicAcidUserInfoList();
-        return userDaoList.stream()
-                .map(userDao -> {
+        List<NucleicAcidTestPersonnel> nucleicAcidUserInfoList = nucleicAcidTestPersonnelDao.getNucleicAcidUserInfoList();
+        return nucleicAcidUserInfoList.stream()
+                .map(nucleicAcidTestPersonnel -> {
                     NucleicAcidTestPersonnelDto userDto = new NucleicAcidTestPersonnelDto();
-                    BeanUtils.copyProperties(userDao, userDto);
+                    BeanUtils.copyProperties(nucleicAcidTestPersonnel, userDto);
                     return userDto;
                 })
                 .collect(Collectors.toList());
@@ -216,11 +207,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<HealthCodeManagerDto> getManagerUser() {
-        List<HealthCodeManagerDao> userDaoList = healthCodeMangerMapper.getHealthCodeManagerList();
-        return userDaoList.stream()
-                .map(userDao -> {
+        List<HealthCodeManager> healthCodeManagerList = healthCodeMangerDao.getHealthCodeManagerList();
+        return healthCodeManagerList.stream()
+                .map(healthCodeManager -> {
                     HealthCodeManagerDto userDto = new HealthCodeManagerDto();
-                    BeanUtils.copyProperties(userDao, userDto);
+                    BeanUtils.copyProperties(healthCodeManager, userDto);
                     return userDto;
                 })
                 .collect(Collectors.toList());
@@ -231,20 +222,20 @@ public class UserServiceImpl implements UserService {
         String identityCard=request.getIdentityCard();
         String password=request.getPassword();
         String name=request.getName();
-        NucleicAcidTestPersonnelDao existingUserDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByID(identityCard);
-        if (existingUserDao != null) {
+        NucleicAcidTestPersonnel existingUser = nucleicAcidTestPersonnelDao.getNucleicAcidTestPersonnelByID(identityCard);
+        if (existingUser != null) {
             logger.error("Duplicate identity card found: {}", identityCard);
             throw new BusinessException(ExceptionEnum.ID_EXIST);
         }
-        NucleicAcidTestPersonnelDao newUserDao = new NucleicAcidTestPersonnelDao();
-        newUserDao.setIdentity_card(identityCard);
-        String password_hash = passwordEncoder.encode(password);
-        newUserDao.setPassword_hash(password_hash);
-        newUserDao.setName(name);
-        newUserDao.setStatus(true);
+        NucleicAcidTestPersonnel newUser = new NucleicAcidTestPersonnel();
+        newUser.setIdentityCard(identityCard);
+        String passwordHash = passwordEncoder.encode(password);
+        newUser.setPasswordHash(passwordHash);
+        newUser.setName(name);
+        newUser.setStatus(true);
         long tid = IdUtil.getSnowflake().nextId();
-        newUserDao.setTid(tid);
-        nucleicAcidTestPersonnelMapper.addNucleicAcidTestPersonnel(newUserDao);
+        newUser.setTid(tid);
+        nucleicAcidTestPersonnelDao.addNucleicAcidTestPersonnel(newUser);
     }
 
     @Override
@@ -252,131 +243,131 @@ public class UserServiceImpl implements UserService {
         String identityCard=request.getIdentityCard();
         String password=request.getPassword();
         String name=request.getName();
-        HealthCodeManagerDao existingUserDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
-        if (existingUserDao != null) {
+        HealthCodeManager existingUser = healthCodeMangerDao.getHealthCodeManagerByID(identityCard);
+        if (existingUser != null) {
             logger.error("Duplicate identity card found: {}", identityCard);
             throw new BusinessException(ExceptionEnum.ID_EXIST);
         }
-        HealthCodeManagerDao newUserDao = new HealthCodeManagerDao();
-        newUserDao.setIdentity_card(identityCard);
-        String password_hash = passwordEncoder.encode(password);
-        newUserDao.setPassword_hash(password_hash);
-        newUserDao.setName(name);
-        newUserDao.setStatus(true);
+        HealthCodeManager newUser = new HealthCodeManager();
+        newUser.setIdentityCard(identityCard);
+        String passwordHash = passwordEncoder.encode(password);
+        newUser.setPasswordHash(passwordHash);
+        newUser.setName(name);
+        newUser.setStatus(true);
         long mid = IdUtil.getSnowflake().nextId();
-        newUserDao.setMid(mid);
-        healthCodeMangerMapper.addHealthCodeManager(newUserDao);
+        newUser.setMid(mid);
+        healthCodeMangerDao.addHealthCodeManager(newUser);
     }
 
     @Override
     public String managerLogin(ManagerLoginRequest request) {
         String identityCard=request.getIdentityCard();
         String password=request.getPassword();
-        HealthCodeManagerDao userDao = healthCodeMangerMapper.getHealthCodeManagerByID(identityCard);
-        if (userDao == null) {
+        HealthCodeManager healthCodeManager = healthCodeMangerDao.getHealthCodeManagerByID(identityCard);
+        if (healthCodeManager == null) {
             logger.error("Manager not found for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        if (!userDao.getStatus()) {
+        if (!healthCodeManager.getStatus()) {
             logger.error("Manager is inactive for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        if (!passwordEncoder.matches(password, userDao.getPassword_hash())) {
+        if (!passwordEncoder.matches(password, healthCodeManager.getPasswordHash())) {
             logger.error("Password mismatch for identity card: {}", identityCard);
             throw new BusinessException(ExceptionEnum.USER_PASSWORD_ERROR);
         }
-        String token = JWTUtil.generateJWToken(userDao.getMid(), 3600000);
+        String token = JWTUtil.generateJWToken(healthCodeManager.getMid(), 3600000);
         return token;
     }
 
     @Override
     public void modifyUserInfo(UserInfoRequest request) {
-        UserInfoDao userInfoDao = userInfoMapper.getUserInfoByID(request.getIdentityCard());
-        if (userInfoDao == null) {
-            userInfoDao = new UserInfoDao();
-            userInfoDao.setUid(request.getUid());
-            userInfoDao.setIdentity_card(request.getIdentityCard());
-            userInfoDao.setName(request.getName());
-            userInfoDao.setPhone_number(request.getPhoneNumber());
-            userInfoDao.setDistrict(request.getDistrict());
-            userInfoDao.setStreet(request.getStreet());
-            userInfoDao.setCommunity(request.getCommunity());
-            userInfoDao.setAddress(request.getAddress());
-            userInfoMapper.addUserInfo(userInfoDao);
+        UserInfo userInfo = userInfoDao.getUserInfoByID(request.getIdentityCard());
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            userInfo.setUid(request.getUid());
+            userInfo.setIdentityCard(request.getIdentityCard());
+            userInfo.setName(request.getName());
+            userInfo.setPhoneNumber(request.getPhoneNumber());
+            userInfo.setDistrict(request.getDistrict());
+            userInfo.setStreet(request.getStreet());
+            userInfo.setCommunity(request.getCommunity());
+            userInfo.setAddress(request.getAddress());
+            userInfoDao.addUserInfo(userInfo);
 
         } else {
-            if (!Objects.equals(userInfoDao.getUid(), request.getUid())) {
-                logger.error("UID mismatch for identity card: {}, expected UID: {}, found UID: {}",request.getIdentityCard(), request.getUid(), userInfoDao.getUid());
+            if (!Objects.equals(userInfo.getUid(), request.getUid())) {
+                logger.error("UID mismatch for identity card: {}, expected UID: {}, found UID: {}",request.getIdentityCard(), request.getUid(), userInfo.getUid());
                 throw new BusinessException(ExceptionEnum.ID_EXIST);
             }
-            userInfoDao.setName(request.getName());
-            userInfoDao.setPhone_number(request.getPhoneNumber());
-            userInfoDao.setDistrict(request.getDistrict());
-            userInfoDao.setStreet(request.getStreet());
-            userInfoDao.setCommunity(request.getCommunity());
-            userInfoDao.setAddress(request.getAddress());
-            userInfoMapper.updateUserInfo(userInfoDao);
+            userInfo.setName(request.getName());
+            userInfo.setPhoneNumber(request.getPhoneNumber());
+            userInfo.setDistrict(request.getDistrict());
+            userInfo.setStreet(request.getStreet());
+            userInfo.setCommunity(request.getCommunity());
+            userInfo.setAddress(request.getAddress());
+            userInfoDao.updateUserInfo(userInfo);
         }
     }
 
     @Override
     public void statusNucleicAcidTestUser(StatusNucleicAcidTestUserRequest request) {
-        nucleicAcidTestPersonnelMapper.updateStatusByTID(request.getStatus(), request.getTid());
+        nucleicAcidTestPersonnelDao.updateStatusByTID(request.getStatus(), request.getTid());
     }
 
     @Override
     public void statusManager(StatusManagerRequest request) {
-        healthCodeMangerMapper.updateStatusByMID(request.getStatus(), request.getMid());
+        healthCodeMangerDao.updateStatusByMID(request.getStatus(), request.getMid());
     }
 
     @Override
     public void addUserInfo(UserInfoRequest request) {
-        UserInfoDao userInfoDao_id = userInfoMapper.getUserInfoByID(request.getIdentityCard());
-        if (userInfoDao_id != null) {
+        UserInfo userInfo_id = userInfoDao.getUserInfoByID(request.getIdentityCard());
+        if (userInfo_id != null) {
             logger.error("Duplicate identity card found: {}", request.getIdentityCard());
             throw new BusinessException(ExceptionEnum.ID_EXIST);
         }
-        UserInfoDao userInfoDao_phone = userInfoMapper.getUserInfoByPhone(request.getPhoneNumber());
-        if (userInfoDao_phone != null) {
+        UserInfo userInfo_phone = userInfoDao.getUserInfoByPhone(request.getPhoneNumber());
+        if (userInfo_phone != null) {
             logger.error("Duplicate phone number found: {}", request.getPhoneNumber());
             throw new BusinessException(ExceptionEnum.PHONE_EXIST);
         }
-        UserInfoDao userInfoDao = userInfoMapper.getUserInfoByUID(request.getUid());
-        if (userInfoDao == null) {
-            userInfoDao = new UserInfoDao();
-            userInfoDao.setUid(request.getUid());
-            userInfoDao.setIdentity_card(request.getIdentityCard());
-            userInfoDao.setName(request.getName());
-            userInfoDao.setPhone_number(request.getPhoneNumber());
-            userInfoDao.setDistrict(request.getDistrict());
-            userInfoDao.setStreet(request.getStreet());
-            userInfoDao.setCommunity(request.getCommunity());
-            userInfoDao.setAddress(request.getAddress());
-            userInfoMapper.addUserInfo(userInfoDao);
+        UserInfo userInfo = userInfoDao.getUserInfoByUID(request.getUid());
+        if (userInfo == null) {
+            userInfo = new UserInfo();
+            userInfo.setUid(request.getUid());
+            userInfo.setIdentityCard(request.getIdentityCard());
+            userInfo.setName(request.getName());
+            userInfo.setPhoneNumber(request.getPhoneNumber());
+            userInfo.setDistrict(request.getDistrict());
+            userInfo.setStreet(request.getStreet());
+            userInfo.setCommunity(request.getCommunity());
+            userInfo.setAddress(request.getAddress());
+            userInfoDao.addUserInfo(userInfo);
         } else {
-            userInfoDao.setUid(request.getUid());
-            userInfoDao.setIdentity_card(request.getIdentityCard());
-            userInfoDao.setName(request.getName());
-            userInfoDao.setPhone_number(request.getPhoneNumber());
-            userInfoDao.setDistrict(request.getDistrict());
-            userInfoDao.setStreet(request.getStreet());
-            userInfoDao.setCommunity(request.getCommunity());
-            userInfoDao.setAddress(request.getAddress());
-            userInfoMapper.updateUserInfo(userInfoDao);
+            userInfo.setUid(request.getUid());
+            userInfo.setIdentityCard(request.getIdentityCard());
+            userInfo.setName(request.getName());
+            userInfo.setPhoneNumber(request.getPhoneNumber());
+            userInfo.setDistrict(request.getDistrict());
+            userInfo.setStreet(request.getStreet());
+            userInfo.setCommunity(request.getCommunity());
+            userInfo.setAddress(request.getAddress());
+            userInfoDao.updateUserInfo(userInfo);
         }
     }
 
     @Override
     public void userModify(UserModifyInput input) {
-        UserInfoDao userInfoDao = userInfoMapper.getUserInfoByUID(input.getUid());
-        if (userInfoDao != null) {
-            userInfoDao.setName(input.getName());
-            userInfoDao.setPhone_number(input.getPhoneNumber());
-            userInfoDao.setDistrict(input.getDistrictId());
-            userInfoDao.setStreet(input.getDistrictId());
-            userInfoDao.setCommunity(input.getCommunityId());
-            userInfoDao.setAddress(input.getAddress());
-            userInfoMapper.updateUserInfo(userInfoDao);
+        UserInfo userInfo = userInfoDao.getUserInfoByUID(input.getUid());
+        if (userInfo != null) {
+            userInfo.setName(input.getName());
+            userInfo.setPhoneNumber(input.getPhoneNumber());
+            userInfo.setDistrict(input.getDistrictId());
+            userInfo.setStreet(input.getDistrictId());
+            userInfo.setCommunity(input.getCommunityId());
+            userInfo.setAddress(input.getAddress());
+            userInfoDao.updateUserInfo(userInfo);
         } else {
             logger.error("User not found for UID: {}", input.getUid());
             throw new BusinessException(ExceptionEnum.UID_NOT_FIND);
@@ -385,27 +376,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void nucleicAcidOpposite(long tid) {
-        NucleicAcidTestPersonnelDao uerDao = nucleicAcidTestPersonnelMapper.getNucleicAcidTestPersonnelByTID(tid);
-        if (uerDao == null) {
+        NucleicAcidTestPersonnel nucleicAcidTestPersonnel = nucleicAcidTestPersonnelDao.getNucleicAcidTestPersonnelByTID(tid);
+        if (nucleicAcidTestPersonnel == null) {
             logger.error("Nucleic acid test user not found for TID: {}", tid);
             throw new BusinessException(ExceptionEnum.NUCLEIC_ACID_TEST_USER_NOT_FIND);
         }
-        Boolean status = uerDao.getStatus();
-        nucleicAcidTestPersonnelMapper.updateStatusByTID(!status, tid);
+        Boolean status = nucleicAcidTestPersonnel.getStatus();
+        nucleicAcidTestPersonnelDao.updateStatusByTID(!status, tid);
     }
 
     @Override
     public void manageOpposite(long mid) {
-        HealthCodeManagerDao uerDao = healthCodeMangerMapper.getHealthCodeManagerByMID(mid);
-        if (uerDao == null) {
+        HealthCodeManager healthCodeManager = healthCodeMangerDao.getHealthCodeManagerByMID(mid);
+        if (healthCodeManager == null) {
             throw new BusinessException(ExceptionEnum.MANAGER_USER_NOT_FIND);
         }
-        Boolean status = uerDao.getStatus();
-        healthCodeMangerMapper.updateStatusByMID(!status, mid);
+        Boolean status = healthCodeManager.getStatus();
+        healthCodeMangerDao.updateStatusByMID(!status, mid);
     }
 
     @Override
-    public String userLogin_test(String code) {
+    public String userLoginTest(String code) {
         String openID = "openid-" + code;
         if (bloomFilter == null) { // 确保bloomFilter已经初始化
             getInitBloomFilter();
@@ -429,8 +420,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserInfo(long uid) {
-        if (userInfoMapper.existsById(uid)) {
-            userInfoMapper.deleteById(uid);
+        if (userInfoDao.existsById(uid)) {
+            userInfoDao.deleteById(uid);
         } else {
             logger.warn("Attempted to delete non-existent user info for UID: {}", uid);
         }

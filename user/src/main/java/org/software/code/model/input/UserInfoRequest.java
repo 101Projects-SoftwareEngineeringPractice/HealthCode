@@ -38,7 +38,7 @@ public class UserInfoRequest {
     @JsonProperty("address")
     private String address;
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

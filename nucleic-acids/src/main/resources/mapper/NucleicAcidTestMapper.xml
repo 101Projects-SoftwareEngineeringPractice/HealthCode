@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.NucleicAcidTestDao">
+
+    <resultMap type="org.software.code.model.entity.NucleicAcidTest" id="NucleicAcidTestMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="tid" column="tid" jdbcType="INTEGER"/>
+        <result property="kind" column="kind" jdbcType="INTEGER"/>
+        <result property="tubeid" column="tubeid" jdbcType="INTEGER"/>
+        <result property="identityCard" column="identity_card" jdbcType="VARCHAR"/>
+        <result property="phoneNumber" column="phone_number" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="district" column="district" jdbcType="INTEGER"/>
+        <result property="street" column="street" jdbcType="INTEGER"/>
+        <result property="community" column="community" jdbcType="INTEGER"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="testAddress" column="test_address" jdbcType="VARCHAR"/>
+        <result property="result" column="result" jdbcType="INTEGER"/>
+        <result property="testingOrganization" column="testing_organization" jdbcType="VARCHAR"/>
+        <result property="reTest" column="re_test" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入核酸检测记录 -->
+    <insert id="insertTestRecord">
+        INSERT INTO health_code_nucleic_acids.nucleic_acid_test
+        (uid, tid, kind, tubeid, identity_card, phone_number, name, district, street, community, address, test_address, result, testing_organization, re_test)
+        VALUES
+            (#{uid}, #{tid}, #{kind}, #{tubeid}, #{identityCard}, #{phoneNumber}, #{name}, #{district}, #{street}, #{community}, #{address}, #{testAddress}, #{result}, #{testingOrganization}, #{reTest});
+    </insert>
+
+    <!-- 更新检测记录的结果和检测机构 -->
+    <update id="updateTestRecord">
+        UPDATE health_code_nucleic_acids.nucleic_acid_test
+        SET result = #{result}, testing_organization = #{testingOrganization}
+        WHERE tubeid = #{tubeid} AND kind = #{kind};
+    </update>
+
+    <!-- 更新复检状态 -->
+    <update id="updateRetestStatus">
+        UPDATE health_code_nucleic_acids.nucleic_acid_test
+        SET re_test = #{reTest}
+        WHERE tubeid = #{tubeid};
+    </update>
+
+    <!-- 根据 UID 和时间更新复检状态为 true -->
+    <update id="updateTestRecordReTestToTrueByUidAndTime">
+        UPDATE health_code_nucleic_acids.nucleic_acid_test
+        SET re_test = true
+        WHERE uid = #{uid} AND created_at >= #{time} AND re_test = false;
+    </update>
+
+    <!-- 查询指定 UID 的最新检测记录 -->
+    <select id="findLastTestRecordByUid" resultMap="NucleicAcidTestMap">
+        SELECT created_at, result, testing_organization
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE uid = #{uid}
+        ORDER BY created_at DESC
+            LIMIT 1;
+    </select>
+
+    <!-- 查询指定 UID 在某时间之后的所有检测记录 -->
+    <select id="findTestRecordsByUidWithinDays" resultMap="NucleicAcidTestMap">
+        SELECT *
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE uid = #{uid} AND created_at >= #{time};
+    </select>
+
+    <!-- 统计指定时间范围内的记录总数 -->
+    <select id="countRecordsWithinTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE created_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <!-- 统计指定时间范围内未检测记录的数量 -->
+    <select id="countUncheckRecordsWithinTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE (result = 2 OR result IS NULL) AND created_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <!-- 统计指定时间范围内 kind=0 且 result=1 的记录数量 -->
+    <select id="countOnePositiveRecordsWithinTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE kind = 0 AND result = 1 AND created_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <!-- 统计指定时间范围内 result=1 的记录数量，kind != 0 -->
+    <select id="countPositiveRecordsWithinTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE kind != 0 AND result = 1 AND created_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <!-- 查询指定时间范围内 result=1 的所有记录 -->
+    <select id="findPositiveRecordsWithinTimeRange" resultMap="NucleicAcidTestMap">
+        SELECT *
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE result = 1 AND created_at BETWEEN #{startTime} AND #{endTime};
+    </select>
+
+    <!-- 查询指定时间之后未复检的记录 -->
+    <select id="findUnreTestedRecordsWithinDays" resultMap="NucleicAcidTestMap">
+        SELECT *
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE re_test = false AND created_at >= #{time};
+    </select>
+
+    <!-- 查询指定日期内仅有一个 tubeid 为 positive 的 UID -->
+    <select id="findPositiveSingleTubeUids" resultType="java.lang.Long">
+        SELECT uid
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE kind = 0 AND result = 1 AND DATE(created_at) = DATE(#{time});
+    </select>
+
+    <!-- 根据 tubeid 查询所有 UID -->
+    <select id="findUidsByTubeid" resultType="java.lang.Long">
+        SELECT uid
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE tubeid = #{tubeid};
+    </select>
+
+    <!-- 根据 UID 和 tubeid 查询检测记录 -->
+    <select id="findTestRecordsByUidAndTubeid" resultMap="NucleicAcidTestMap">
+        SELECT *
+        FROM health_code_nucleic_acids.nucleic_acid_test
+        WHERE uid = #{uid} AND tubeid = #{tubeid}
+            LIMIT 1;
+    </select>
+
+</mapper>

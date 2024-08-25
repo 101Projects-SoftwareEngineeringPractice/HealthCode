@@ -15,7 +15,7 @@ public class ScanPlaceCodeRequest {
     @JsonProperty("token")
     private String token;
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

@@ -3,17 +3,17 @@ package org.software.code.model.input;
 import javax.validation.constraints.NotNull;
 
 public class AddPlaceRequest {
-    @NotNull
+    @NotNull(message = "uid不能为空")
     private Long uid;
-    @NotNull
+    @NotNull(message = "name不能为空")
     private String name;
-    @NotNull
+    @NotNull(message = "district不能为空")
     private Integer district;
-    @NotNull
+    @NotNull(message = "street不能为空")
     private Integer street;
-    @NotNull
+    @NotNull(message = "community不能为空")
     private Long community;
-    @NotNull
+    @NotNull(message = "address不能为空")
     private String address;
 
     public Long getUid() {

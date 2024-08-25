@@ -10,7 +10,7 @@ public class PidTokenRequest {
     @JsonProperty("token")
     private String token;
 
-    // Getters and Setters
+    
     public String getToken() {
         return token;
     }

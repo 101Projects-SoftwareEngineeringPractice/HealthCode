@@ -19,7 +19,7 @@ public class TranscodingEventsRequest {
         this.event = event;
     }
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

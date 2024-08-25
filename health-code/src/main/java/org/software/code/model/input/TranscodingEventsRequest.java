@@ -14,7 +14,7 @@ public class TranscodingEventsRequest {
     @JsonProperty("event")
     private Integer event;
 
-    // Getters and Setters
+    
     public Long getUid() {
         return uid;
     }

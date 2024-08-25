@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.ItineraryCodeDao">
+    <resultMap type="org.software.code.model.entity.ItineraryCode" id="ItineraryCodeMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="place" column="place" jdbcType="INTEGER"/>
+        <result property="time" column="time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!-- 插入 ItineraryCodeDao -->
+    <insert id="addItineraryCodeDao">
+        INSERT INTO health_code_user.itinerary_code
+            (id, uid, place, identity_card, time)
+        VALUES (#{id}, #{uid}, #{place}, #{identityCard}, #{time});
+    </insert>
+
+    <!-- 删除指定时间之前的 ItineraryCodeDao  -->
+    <delete id="deleteItineraryCodeBeforeTime">
+        DELETE FROM health_code_itinerary_code.itinerary_code
+        WHERE time  &lt;= #{time};
+    </delete>
+
+    <!-- 根据 UID 查询 ItineraryCodeDao 列表 -->
+    <select id="getItineraryCodeListByUID" resultMap="ItineraryCodeMap">
+        SELECT * FROM health_code_itinerary_code.itinerary_code
+        WHERE uid = #{uid};
+    </select>
+
+</mapper>

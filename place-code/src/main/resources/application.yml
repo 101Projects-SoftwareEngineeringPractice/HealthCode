@@ -27,3 +27,5 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       group-id: my-group
       auto-offset-reset: earliest
+mybatis:
+  mapperLocations: classpath:mapper/*.xml

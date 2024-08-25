@@ -20,9 +20,9 @@ public class AddNucleicAcidTestRecordByTokenRequest {
 
     @NotNull(message = "test_address不能为空")
     @JsonProperty("test_address")
-    private String test_address;
+    private String testAddress;
 
-    // Getters and Setters
+    
     public String getToken() {
         return token;
     }
@@ -47,11 +47,11 @@ public class AddNucleicAcidTestRecordByTokenRequest {
         this.tubeid = tubeid;
     }
 
-    public String getTest_address() {
-        return test_address;
+    public String getTestAddress() {
+        return testAddress;
     }
 
-    public void setTest_address(String test_address) {
-        this.test_address = test_address;
+    public void setTestAddress(String testAddress) {
+        this.testAddress = testAddress;
     }
 }

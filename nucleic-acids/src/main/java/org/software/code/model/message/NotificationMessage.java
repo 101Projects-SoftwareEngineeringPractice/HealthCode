@@ -3,7 +3,7 @@ package org.software.code.model.message;
 public class NotificationMessage {
     private String name;
     private String phone;
-    private String identity_card;
+    private String identityCard;
     private String type;
 
     public String getName() {
@@ -22,12 +22,12 @@ public class NotificationMessage {
         this.phone = phone;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
     public String getType() {

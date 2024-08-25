@@ -42,15 +42,15 @@ public class PlaceCodeInternalController {
 
     @GetMapping("/getRecordByPid")
     public Result<?> getRecordByPid(@RequestParam("pid") @NotNull(message = "pid不能为空") Long pid,
-                                    @RequestParam("start_time") @NotNull(message = "开始时间不能为空") String start_time,
-                                    @RequestParam("end_time") @NotNull(message = "结束时间不能为空") String end_time) {
+                                    @RequestParam("start_time") @NotNull(message = "开始时间不能为空") String startTime,
+                                    @RequestParam("end_time") @NotNull(message = "结束时间不能为空") String endTime) {
         Date startDate;
         Date endDate;
         try {
-            startDate = timeFormat.parse(start_time);
-            endDate = timeFormat.parse(end_time);
+            startDate = timeFormat.parse(startTime);
+            endDate = timeFormat.parse(endTime);
         } catch (ParseException e) {
-            logger.error("Date parsing error: start_time={}, end_time={}, message={}", start_time, end_time, e.getMessage());
+            logger.error("Date parsing error: start_time={}, end_time={}, message={}", startTime, endTime, e.getMessage());
             return Result.failed(ExceptionEnum.DATETIME_FORMAT_ERROR.getMsg());
         }
         return Result.success(placeCodeService.getRecordByPid(pid, startDate, endDate));

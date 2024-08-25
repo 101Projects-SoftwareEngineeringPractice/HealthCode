@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.software.code.dao.UserInfoDao">
+    <resultMap type="org.software.code.model.entity.UserInfo" id="UserInfoMap">
+        <result property="uid" column="uid" />
+        <result property="identityCard" column="identity_card" />
+        <result property="phoneNumber" column="phone_number" />
+        <result property="name" column="name" />
+        <result property="district" column="district" />
+        <result property="street" column="street" />
+        <result property="community" column="community" />
+        <result property="address" column="address" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+    </resultMap>
+    
+    <!-- 插入用户信息 -->
+    <insert id="addUserInfo">
+        INSERT INTO health_code_user.user_info
+        (uid, name, phone_number, identity_card, district, street, community, address)
+        VALUES (#{uid}, #{name}, #{phoneNumber}, #{identityCard}, #{district}, #{street}, #{community}, #{address});
+    </insert>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUserInfo">
+        UPDATE health_code_user.user_info
+        SET
+            name = #{name},
+            phone_number = #{phoneNumber},
+            identity_card = #{identityCard},
+            district = #{district},
+            street = #{street},
+            community = #{community},
+            address = #{address}
+        WHERE uid = #{uid}
+    </update>
+
+    <!-- 删除用户信息 -->
+    <delete id="deleteById">
+        DELETE FROM health_code_user.user_info
+        WHERE uid = #{uid}
+    </delete>
+
+    <!-- 根据 UID 查询用户信息 -->
+    <select id="getUserInfoByUID" resultMap="UserInfoMap">
+        SELECT *
+        FROM health_code_user.user_info
+        WHERE uid = #{uid}
+            LIMIT 1
+    </select>
+
+    <!-- 根据身份卡号查询用户信息 -->
+    <select id="getUserInfoByID" resultMap="UserInfoMap">
+        SELECT *
+        FROM health_code_user.user_info
+        WHERE identity_card = #{identityCard}
+            LIMIT 1
+    </select>
+
+    <!-- 检查用户信息是否存在 -->
+    <select id="existsById" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM health_code_user.user_info
+        WHERE uid = #{uid}
+    </select>
+
+    <!-- 根据电话号码查询用户信息 -->
+    <select id="getUserInfoByPhone" resultMap="UserInfoMap">
+        SELECT *
+        FROM health_code_user.user_info
+        WHERE phone_number = #{phoneNumber}
+            LIMIT 1
+    </select>
+
+</mapper>

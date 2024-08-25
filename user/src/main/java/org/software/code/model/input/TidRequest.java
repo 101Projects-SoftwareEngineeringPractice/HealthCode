@@ -9,7 +9,7 @@ public class TidRequest {
     @JsonProperty("tid")
     private Long tid;
 
-    // Getters and Setters
+    
     public Long getTid() {
         return tid;
     }

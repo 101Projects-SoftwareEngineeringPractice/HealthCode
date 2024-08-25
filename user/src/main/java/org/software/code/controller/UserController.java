@@ -32,7 +32,7 @@ public class UserController {
 
     @PostMapping("/login-test")
     public Result<?> login_test(@Valid @RequestBody CodeRequest input) {
-        String token = userService.userLogin_test(input.getCode());
+        String token = userService.userLoginTest(input.getCode());
         return Result.success(token);
     }
 

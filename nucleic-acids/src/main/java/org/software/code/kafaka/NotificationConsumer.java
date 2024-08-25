@@ -45,22 +45,22 @@ public class NotificationConsumer {
 
     private void sendSmsNotification(NotificationMessage message) {
         // TODO 发送短信通知的逻辑
-        logger.info("Sending SMS notification to user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentity_card(), message.getPhone());
+        logger.info("Sending SMS notification to user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentityCard(), message.getPhone());
     }
 
     private void reportToCommunity(NotificationMessage message) {
         // TODO 上报社区的逻辑
-        logger.info("Reporting to community for user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentity_card(), message.getPhone());
+        logger.info("Reporting to community for user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentityCard(), message.getPhone());
     }
 
     private void reportToEpidemicPrevention(NotificationMessage message) {
         // TODO 上报疫情防控办的逻辑
-        logger.info("Reporting to epidemic prevention office for user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentity_card(), message.getPhone());
+        logger.info("Reporting to epidemic prevention office for user: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentityCard(), message.getPhone());
     }
 
     private void reportPositive(NotificationMessage message) {
         // TODO 单管阳性
-        logger.info("single tubei positive: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentity_card(), message.getPhone());
+        logger.info("single tubei positive: Name={}, Identity Card={}, Phone={}", message.getName(), message.getIdentityCard(), message.getPhone());
 
     }
 }

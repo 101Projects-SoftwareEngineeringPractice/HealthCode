@@ -1,11 +1,23 @@
 package org.software.code.model.input;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.validation.constraints.NotNull;
+
 public class enterNucleicAcidTestRecordRequestItem {
+    @NotNull(message = "tubeid不能为空")
+    @JsonProperty("tubeid")
     private Long tubeid;
+    @NotNull(message = "kind不能为空")
+    @JsonProperty("kind")
     private Integer kind;
+    @NotNull(message = "result不能为空")
+    @JsonProperty("result")
     private Integer result;
-    private String testing_organization;
+    @NotNull(message = "testing_organization不能为空")
+    @JsonProperty("testing_organization")
+    private String testingOrganization;
 
     public Long getTubeid() {
         return tubeid;
@@ -31,12 +43,12 @@ public class enterNucleicAcidTestRecordRequestItem {
         this.result = result;
     }
 
-    public String getTesting_organization() {
-        return testing_organization;
+    public String getTestingOrganization() {
+        return testingOrganization;
     }
 
-    public void setTesting_organization(String testing_organization) {
-        this.testing_organization = testing_organization;
+    public void setTestingOrganization(String testingOrganization) {
+        this.testingOrganization = testingOrganization;
     }
 
 }

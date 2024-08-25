@@ -1,13 +1,15 @@
 package org.software.code.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class HealthCodeInfoDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private long uid;
     private String name;
     private int status;
-    private String identity_card;
+    @JsonProperty("identity_card")
+    private String identityCard;
 
     public long getUid() {
         return uid;
@@ -33,11 +35,11 @@ public class HealthCodeInfoDto {
         this.status = status;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 }

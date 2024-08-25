@@ -1,9 +1,12 @@
 package org.software.code.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 public class GetPlaceDto {
     private Long uid;
-    private String identity_card;
-    private String phone_number;
+    @JsonProperty("identity_card")
+    private String identityCard;
+    @JsonProperty("phone_number")
+    private String phoneNumber;
     private long pid;
     private String name;
     private Integer district;
@@ -19,20 +22,20 @@ public class GetPlaceDto {
         this.uid = uid;
     }
 
-    public String getIdentity_card() {
-        return identity_card;
+    public String getIdentityCard() {
+        return identityCard;
     }
 
-    public void setIdentity_card(String identity_card) {
-        this.identity_card = identity_card;
+    public void setIdentityCard(String identityCard) {
+        this.identityCard = identityCard;
     }
 
-    public String getPhone_number() {
-        return phone_number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public long getPid() {
